@@ -8,7 +8,7 @@
     tools:layout_editor_absoluteY="81dp">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/addFeedButton"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="352dp"
         android:layout_height="wrap_content"
@@ -21,10 +21,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        app:layout_constraintTop_toBottomOf="@+id/tagsListView" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/feedSourcePathTextView"
         android:layout_width="241dp"
         android:layout_height="40dp"
         android:layout_marginBottom="39dp"
@@ -32,7 +32,7 @@
         android:ems="10"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/textView5"
-        app:layout_constraintEnd_toStartOf="@+id/expandableListView"
+        app:layout_constraintEnd_toStartOf="@+id/feedTypeList"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,8 +45,8 @@
         android:layout_marginBottom="7dp"
         android:layout_marginTop="9dp"
         android:text="@string/new_custom_newsfeed_path"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
-        app:layout_constraintStart_toStartOf="@+id/editText"
+        app:layout_constraintBottom_toTopOf="@+id/feedSourcePathTextView"
+        app:layout_constraintStart_toStartOf="@+id/feedSourcePathTextView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -56,12 +56,12 @@
         android:layout_marginBottom="36dp"
         android:layout_marginStart="16dp"
         android:text="@string/tag"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintBottom_toTopOf="@+id/tagsListView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/feedSourcePathTextView" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/addTagButton"
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
         app:layout_constraintTop_toTopOf="@+id/textView5" />
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/tagsListView"
         android:layout_width="352dp"
         android:layout_height="0dp"
         android:layout_marginBottom="78dp"
@@ -85,14 +85,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <ExpandableListView
-        android:id="@+id/expandableListView"
+        android:id="@+id/feedTypeList"
         android:layout_width="107dp"
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/editText"
+        app:layout_constraintBottom_toBottomOf="@+id/feedSourcePathTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/editText"
-        app:layout_constraintTop_toTopOf="@+id/editText" />
+        app:layout_constraintStart_toEndOf="@+id/feedSourcePathTextView"
+        app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
 
 </android.support.constraint.ConstraintLayout>
