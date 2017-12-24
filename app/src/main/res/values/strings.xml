@@ -5,4 +5,11 @@
     <string name="sign_in">Sign in</string>
     <string name="sign_up">Sign up</string>
     <string name="recover_password">Recover password</string>
+    <string name="new_custom_newsfeed_path">New feed</string>
+    <string name="subscriptions_list">Subscriptions list</string>
+    <string name="common_newsfeed_list">Common news feed list</string>
+    <string name="presets">Presets</string>
+    <string name="tag">Tag</string>
+    <string name="feed_channel_type">Channel type</string>
+    <string name="add">Add</string>
 </resources>
