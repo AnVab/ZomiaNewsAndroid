@@ -23,7 +23,7 @@ public interface ZomiaApi {
     Call<User> registerUser(@Query("email") String email, @Query("password") String password);
 
     @POST("/api/auth/")
-    Call<Token> authentificateUser(@Query("email") String email, @Query("password") String password);
+    Call<Token> authenticateUser(@Query("email") String email, @Query("password") String password);
 
     @GET ("/api/feeds/")
     Call< List<Feed> > getFeedsList();
