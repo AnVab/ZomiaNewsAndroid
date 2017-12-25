@@ -12,4 +12,5 @@
     <string name="tag">Tag</string>
     <string name="feed_channel_type">Channel type</string>
     <string name="add">Add</string>
+    <string name="action_settings">Settings</string>
 </resources>
