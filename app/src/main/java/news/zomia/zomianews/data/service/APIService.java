@@ -20,11 +20,11 @@ import retrofit2.http.Query;
  */
 
 public interface APIService {
-    @POST("registration")
+    @POST("registration/")
     Call<User> registerUser(@Query("email") String email, @Query("password") String password);
 
     @POST("auth/")
-    Call<Token> authenticateUser(@Query("email") String email, @Query("password") String password);
+    Call<Token> authenticateUser(@Body User user);
 
     @GET("feeds/")
     Call<List<Feed>> getFeedsList();
