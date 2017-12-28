@@ -1,5 +1,6 @@
 package news.zomia.zomianews;
 import  news.zomia.zomianews.data.service.APIService;
+import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Zomia";
 
     LoginFragment mLoginFragment;
+    FeedsListFragment mFeedsListFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
             transaction.replace(R.id.fragment_container, mLoginFragment);
             transaction.addToBackStack(null);
             transaction.commit();
+
+            mFeedsListFragment = new FeedsListFragment();
         }
 
         /*Button submitBtn = (Button) findViewById(R.id.testButton);
