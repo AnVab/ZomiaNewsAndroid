@@ -14,12 +14,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements LoginFragment.OnSuccessAuthorizationListener{
 
     private TextView mResponse;
     private APIService mAPIService;
-    public User mUser;
-    public Token mToken;
+    public User user;
+    public Token userToken;
     private static final String TAG = "Zomia";
 
     LoginFragment mLoginFragment;
@@ -41,63 +42,22 @@ public class MainActivity extends AppCompatActivity {
             transaction.addToBackStack(null);
             transaction.commit();
 
-            mFeedsListFragment = new FeedsListFragment();
+
         }
-
-        /*Button submitBtn = (Button) findViewById(R.id.testButton);
-        mAPIService = ApiUtils.getAPIService();
-        mUser = new User();
-
-        mResponse = (TextView) findViewById(R.id.responseTextView);
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String layout_login = "1@1.rr";
-                String password = "admin123";
-                if(!TextUtils.isEmpty(layout_login) && !TextUtils.isEmpty(password)) {
-                    authorizePostRequest(layout_login, password);
-                }
-            }
-        });*/
     }
 
-    public void authorizePostRequest(String login, String password) {
-        mUser.setEmail(login);
-        mUser.setPassword(password);
+    public void onSuccessAuthorization(Token token) {
+        userToken = token;
 
-        mAPIService.authenticateUser(mUser).enqueue(new Callback<Token>() {
-            @Override
-            public void onResponse(Call<Token> call, Response<Token> response) {
-                //To get the status code
-                if(response.isSuccessful())
-                {
-                    switch(response.code())
-                    {
-                        case 200:
-                            //No errors
-                            mToken = response.body();
-                            showResponse(mToken.toString());
-                            Log.i(TAG, "post submitted to API." + mToken.toString());
-                            break;
-                        default:
-                        break;
-                    }
-                }
-                else
-                {
-                    //Connection problem
-                }
-            }
+        if (findViewById(R.id.fragment_container) != null) {
 
-            @Override
-            public void onFailure(Call<Token> call, Throwable t) {
-                Log.e(TAG, "Unable to submit post to API.");
-            }
-        });
-    }
+            mFeedsListFragment = new FeedsListFragment();
 
-    public void showResponse(String response) {
-        mResponse.setText(response);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.fragment_container, mFeedsListFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
     }
 }

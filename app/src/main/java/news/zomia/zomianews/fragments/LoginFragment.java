@@ -1,5 +1,7 @@
 package news.zomia.zomianews.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,13 +27,13 @@ import retrofit2.Response;
 
 public class LoginFragment extends Fragment {
 
-    private static final String TAG = "ZomiaLoginFrame";
-    private APIService mAPIService;
-    public Token mToken;
-    public User mUser;
+    private static final String TAG = "ZomiaLoginFragment";
+    OnSuccessAuthorizationListener onSuccessAuthorizationCallback;
+
+    private APIService apiService;
     private View rootView;
     private ProgressBar loadingProgressBar;
-    private Button signInBtn;
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -49,12 +51,11 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        apiService = ApiUtils.getAPIService();
 
-        mAPIService = ApiUtils.getAPIService();
-        mUser = new User();
         loadingProgressBar = (ProgressBar) view.findViewById(R.id.loadingProgressBar);
 
-        signInBtn = (Button) view.findViewById(R.id.enterButton);
+        Button signInBtn = (Button) view.findViewById(R.id.enterButton);
         signInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,12 +89,13 @@ public class LoginFragment extends Fragment {
     }
 
     public void authorizePostRequest(String login, String password) {
-        mUser.setEmail(login);
-        mUser.setPassword(password);
+        User user = new User();
+        user.setEmail(login);
+        user.setPassword(password);
 
         loadingProgressBar.setVisibility(View.VISIBLE);
 
-        mAPIService.authenticateUser(mUser).enqueue(new Callback<Token>() {
+        apiService.authenticateUser(user).enqueue(new Callback<Token>() {
             @Override
             public void onResponse(Call<Token> call, Response<Token> response) {
                 //To get the status code
@@ -103,8 +105,10 @@ public class LoginFragment extends Fragment {
                     {
                         case 200:
                             //No errors
-                            mToken = response.body();
-                            showResponse(mToken.toString());
+                            Toast.makeText(getActivity(), getResources().getString(R.string.success), Toast.LENGTH_LONG).show();
+                            loadingProgressBar.setVisibility(View.INVISIBLE);
+                            // Send the event to the host activity
+                            onSuccessAuthorizationCallback.onSuccessAuthorization(response.body());
                             break;
                         default:
                             loadingProgressBar.setVisibility(View.INVISIBLE);
@@ -127,9 +131,28 @@ public class LoginFragment extends Fragment {
         });
     }
 
-    public void showResponse(String response) {
-
-        Toast.makeText(getActivity(), getResources().getString(R.string.success), Toast.LENGTH_LONG).show();
-        loadingProgressBar.setVisibility(View.INVISIBLE);
+    // Container Activity must implement this interface
+    public interface OnSuccessAuthorizationListener {
+        public void onSuccessAuthorization(Token token);
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        //Activity activity = context instanceof Activity ? (Activity) context : null;
+        Activity activity = getActivity();
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        if(activity != null) {
+            try {
+                onSuccessAuthorizationCallback = (OnSuccessAuthorizationListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString()
+                        + " must implement OnSuccessAuthorizationListener");
+            }
+        }
+    }
+
 }
