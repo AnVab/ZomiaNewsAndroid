@@ -21,28 +21,30 @@ public class MainActivity extends AppCompatActivity
     private APIService mAPIService;
     public User user;
     public Token userToken;
-    private static final String TAG = "Zomia";
+    private static final String TAG = "ZomiaMainActivity";
 
     LoginFragment mLoginFragment;
     FeedsListFragment mFeedsListFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_main);
+
+        mLoginFragment = new LoginFragment();
+        mFeedsListFragment = new FeedsListFragment();
 
         if (findViewById(R.id.fragment_container) != null) {
 
             if (savedInstanceState != null) {
                 return;
             }
-            mLoginFragment = new LoginFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.fragment_container, mLoginFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-
+            fragmentTransaction.replace(R.id.fragment_container, mLoginFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         }
     }
 
@@ -51,13 +53,11 @@ public class MainActivity extends AppCompatActivity
 
         if (findViewById(R.id.fragment_container) != null) {
 
-            mFeedsListFragment = new FeedsListFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            transaction.replace(R.id.fragment_container, mFeedsListFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            fragmentTransaction.replace(R.id.fragment_container, mFeedsListFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         }
     }
 }
