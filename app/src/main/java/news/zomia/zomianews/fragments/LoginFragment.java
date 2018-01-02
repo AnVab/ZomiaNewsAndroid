@@ -140,7 +140,6 @@ public class LoginFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        //Activity activity = context instanceof Activity ? (Activity) context : null;
         Activity activity = getActivity();
 
         // This makes sure that the container activity has implemented

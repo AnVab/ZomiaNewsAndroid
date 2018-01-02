@@ -39,9 +39,12 @@ public class FeedsListFragment extends Fragment {
     private View rootView;
 
     List<String> tagList;
-    Map<String, List<String>> feedsCollection;
-    List<String> childList;
+    Map<String, List<Feed>> feedsCollection;
+    List<Feed> childList;
     ExpandableListView expListView;
+    ExpandableListAdapter expListAdapter;
+
+    OnFeedSelectedListener onFeedSelectedListenerCallback;
 
     public FeedsListFragment() {
         // Required empty public constructor
@@ -68,24 +71,26 @@ public class FeedsListFragment extends Fragment {
         apiService = ApiUtils.getAPIService();
 
         createTagList();
-        createCollection();
+        feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
         expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-        final ExpandableListAdapter expListAdapter = new ExpandableListAdapter(
+        expListAdapter = new ExpandableListAdapter(
                 getActivity(), tagList, feedsCollection);
 
         expListView.setAdapter(expListAdapter);
+
+        LoadFeeds();
 
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
-                final String selected = (String) expListAdapter.getChild(
-                        groupPosition, childPosition);
+                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
 
-                /*Toast.makeText(getBaseContext(), selected, Toast.LENGTH_LONG)
-                        .show();*/
-                LoadFeeds();
+                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
+                        .show();
+
+                onFeedSelectedListenerCallback.onFeedSelected(selectedFeed);
 
                 return true;
             }
@@ -101,19 +106,23 @@ public class FeedsListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        //Activity activity = context instanceof Activity ? (Activity) context : null;
         Activity activity = getActivity();
 
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
-        /*if(activity != null) {
+        if(activity != null) {
             try {
-                onSuccessAuthorizationCallback = (LoginFragment.OnSuccessAuthorizationListener) activity;
+                onFeedSelectedListenerCallback = (OnFeedSelectedListener) activity;
             } catch (ClassCastException e) {
                 throw new ClassCastException(activity.toString()
-                        + " must implement OnSuccessAuthorizationListener");
+                        + " must implement OnFeedSelectedListener");
             }
-        }*/
+        }
+    }
+
+    // Container Activity must implement this interface
+    public interface OnFeedSelectedListener {
+        public void onFeedSelected(Feed feed);
     }
 
     public void LoadFeeds()
@@ -153,7 +162,12 @@ public class FeedsListFragment extends Fragment {
 
     public void ShowFeeds(List<Feed> feedsList)
     {
-        //feedsExpandableList
+        //Update data sets for tags and feeds
+        //createTagList();
+        createCollection(feedsList);
+
+        //Notify adapter that data is updated
+        expListAdapter.notifyDataSetChanged();
     }
 
     private void createTagList() {
@@ -165,41 +179,26 @@ public class FeedsListFragment extends Fragment {
         tagList.add("Bookmarks");
     }
 
-    private void createCollection() {
-        // preparing laptops collection(child)
-        String[] hpModels = { "HP Pavilion G6-2014TX", "ProBook HP 4540",
-                "HP Envy 4-1025TX" };
-        String[] hclModels = { "HCL S2101", "HCL L2102", "HCL V2002" };
-        String[] lenovoModels = { "IdeaPad Z Series", "Essential G Series",
-                "ThinkPad X Series", "Ideapad Z Series" };
-        String[] sonyModels = { "VAIO E Series", "VAIO Z Series",
-                "VAIO S Series", "VAIO YB Series" };
-        String[] dellModels = { "Inspiron", "Vostro", "XPS" };
-        String[] samsungModels = { "NP Series", "Series 5", "SF Series" };
+    private void createCollection(List<Feed> feedsList) {
 
-        feedsCollection = new LinkedHashMap<String, List<String>>();
-
-        for (String tagValue : tagList) {
-            if (tagValue.equals("HP")) {
-                loadChild(hpModels);
-            } else if (tagValue.equals("Dell"))
-                loadChild(dellModels);
-            else if (tagValue.equals("Sony"))
-                loadChild(sonyModels);
-            else if (tagValue.equals("HCL"))
-                loadChild(hclModels);
-            else if (tagValue.equals("Samsung"))
-                loadChild(samsungModels);
-            else
-                loadChild(lenovoModels);
-
-            feedsCollection.put(tagValue, childList);
+        //feedsCollection = new LinkedHashMap<String, List<Feed>>();
+        feedsCollection.clear();
+        childList = new ArrayList<Feed>();
+        String tagValue = tagList.get(0);
+        for(Feed feed: feedsList)
+        {
+            childList.add(feed);
         }
+
+        feedsCollection.put(tagValue, childList);
     }
 
-    private void loadChild(String[] feedsList) {
-        childList = new ArrayList<String>();
-        for (String feed : feedsList)
-            childList.add(feed);
+    @Override
+    public void onResume() {
+        super.onResume();
+        //feedsCollection.clear();
+        //Get items ...
+        //Update list
+        expListAdapter.notifyDataSetChanged();
     }
 }

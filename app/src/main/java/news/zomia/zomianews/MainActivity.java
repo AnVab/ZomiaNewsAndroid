@@ -1,4 +1,5 @@
 package news.zomia.zomianews;
+import news.zomia.zomianews.data.model.Feed;
 import  news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.fragments.FeedsListFragment;
@@ -18,7 +19,8 @@ import android.widget.TextView;
 import android.util.Log;
 
 public class MainActivity extends AppCompatActivity
-        implements LoginFragment.OnSuccessAuthorizationListener{
+        implements LoginFragment.OnSuccessAuthorizationListener,
+        FeedsListFragment.OnFeedSelectedListener {
 
     private TextView mResponse;
     private APIService apiService;
@@ -34,25 +36,21 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_main);
 
+        mLoginFragment = new LoginFragment();
+        mFeedsListFragment = new FeedsListFragment();
+
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String token = sharedPref.getString("token", "");
         ApiUtils.setAccessToken(token);
 
-        mLoginFragment = new LoginFragment();
-        mFeedsListFragment = new FeedsListFragment();
-
-        if (findViewById(R.id.fragment_container) != null) {
-
-            if (savedInstanceState != null) {
-                return;
-            }
-
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-            fragmentTransaction.replace(R.id.fragment_container, mLoginFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+        if (savedInstanceState != null) {
+            return;
         }
+
+        if(token.isEmpty())
+            LoadLoginFragment();
+        else
+            LoadFeedsListFragment();
     }
 
     public void onSuccessAuthorization(Token token) {
@@ -64,7 +62,27 @@ public class MainActivity extends AppCompatActivity
         editor.commit();
 
         ApiUtils.setAccessToken(userToken.getToken());
+    }
 
+    public void onFeedSelected(Feed feed)
+    {
+
+    }
+
+    public void LoadLoginFragment()
+    {
+        if (findViewById(R.id.fragment_container) != null) {
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            fragmentTransaction.replace(R.id.fragment_container, mLoginFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
+    }
+
+    public void LoadFeedsListFragment()
+    {
         if (findViewById(R.id.fragment_container) != null) {
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
