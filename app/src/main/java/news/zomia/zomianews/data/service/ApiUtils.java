@@ -14,4 +14,14 @@ public class ApiUtils {
 
         return RetrofitClient.getClient(BASE_URL).create(APIService.class);
     }
+
+    public static String getAccessToken()
+    {
+        return RetrofitClient.getAccessToken();
+    }
+
+    public static void setAccessToken(String tokenValue)
+    {
+        RetrofitClient.setAccessToken(tokenValue);
+    }
 }

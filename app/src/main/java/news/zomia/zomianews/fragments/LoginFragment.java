@@ -105,7 +105,7 @@ public class LoginFragment extends Fragment {
                     {
                         case 200:
                             //No errors
-                            Toast.makeText(getActivity(), getResources().getString(R.string.success), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
                             loadingProgressBar.setVisibility(View.INVISIBLE);
                             // Send the event to the host activity
                             onSuccessAuthorizationCallback.onSuccessAuthorization(response.body());
@@ -118,14 +118,14 @@ public class LoginFragment extends Fragment {
                 else
                 {
                     //Connection problem
-                    Toast.makeText(getActivity(), getResources().getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
                     loadingProgressBar.setVisibility(View.INVISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<Token> call, Throwable t) {
-                Toast.makeText(getActivity(), getResources().getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
                 loadingProgressBar.setVisibility(View.INVISIBLE);
             }
         });
