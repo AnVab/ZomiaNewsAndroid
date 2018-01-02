@@ -85,6 +85,7 @@ public class FeedsListFragment extends Fragment {
 
                 /*Toast.makeText(getBaseContext(), selected, Toast.LENGTH_LONG)
                         .show();*/
+                LoadFeeds();
 
                 return true;
             }

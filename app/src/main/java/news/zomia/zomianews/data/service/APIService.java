@@ -26,21 +26,21 @@ public interface APIService {
     @POST("auth/")
     Call<Token> authenticateUser(@Body User user);
 
-    @GET("feeds/")
+    @GET("api/feeds/")
     Call<List<Feed>> getFeedsList();
 
-    @POST ("feeds/")
+    @POST ("api/feeds/")
     Call<Feed> addNewFeed(@Query("url") String feedUrl);
 
-    @GET ("feeds/{id}/")
+    @GET ("api/feeds/{id}/")
     Call<Feed> getFeedInfo(@Path("id") int id);
 
-    @PUT("feeds/{id}/")
+    @PUT("api/feeds/{id}/")
     Call<Feed> updateFeedInfo(@Path("id") int id, @Body Feed feed);
 
-    @GET ("feeds/{id}/stories/")
+    @GET ("api/feeds/{id}/stories/")
     Call< Stories > getStories(@Path("id") int id);
 
-    @GET ("users/{id}/")
+    @GET ("api/users/{id}/")
     Call<UserInfo> getUserInfo(@Path("id") int id);
 }

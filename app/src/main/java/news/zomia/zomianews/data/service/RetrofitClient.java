@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import okhttp3.OkHttpClient;
@@ -25,20 +26,30 @@ public class RetrofitClient {
     public static Retrofit getClient(String baseUrl) {
         if (retrofit == null) {
 
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            Interceptor headerInterceptor = new Interceptor() {
+                @Override
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
+                    if(getAccessToken().isEmpty()){
+                        //Authorization header is already present or token is empty
+                        return chain.proceed(chain.request());
+                    }
+
+                    Request authorisedRequest = chain.request().newBuilder()
+                            .addHeader("Accept", "application/json")
+                            .addHeader("Authorization", getAccessToken()).build();
+                    //Authorization header is added to the url
+                    return chain.proceed(authorisedRequest);
+                }
+            };
+
             OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
-                    .addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Interceptor.Chain chain) throws IOException {
-                            //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
-                            if(getAccessToken().isEmpty()){
-                                //Authorization header is already present or token is empty
-                                return chain.proceed(chain.request());
-                            }
-                            Request authorisedRequest = chain.request().newBuilder()
-                                    .addHeader("Authorization", getAccessToken()).build();
-                            //Authorization header is added to the url
-                            return chain.proceed(authorisedRequest);
-                        }}).build();
+                    //.addInterceptor(loggingInterceptor)
+                    .addInterceptor(headerInterceptor)
+                    .build();
 
             retrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
@@ -51,7 +62,7 @@ public class RetrofitClient {
 
     public static String getAccessToken()
     {
-       return token;
+       return "token " + token;
     }
 
     public static void setAccessToken(String tokenValue)
