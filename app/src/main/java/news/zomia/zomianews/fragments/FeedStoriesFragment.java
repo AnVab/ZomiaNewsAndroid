@@ -1,5 +1,7 @@
 package news.zomia.zomianews.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,6 +40,9 @@ public class FeedStoriesFragment extends Fragment {
     ListView storiesListView;
     List<Result> storiesList;
     StoriesAdapter storiesAdapter;
+
+    OnStorySelectedListener onStorySelectedListenerCallback;
+
     public FeedStoriesFragment() {
         // Required empty public constructor
     }
@@ -79,7 +84,8 @@ public class FeedStoriesFragment extends Fragment {
         storiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-
+                Result selectedStory = (Result) storiesAdapter.getItem(position);
+                onStorySelectedListenerCallback.onStorySelected(selectedStory);
             }
         });
 
@@ -131,5 +137,28 @@ public class FeedStoriesFragment extends Fragment {
         storiesList.clear();
         storiesList.addAll(stories.getResults());
         storiesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = getActivity();
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        if(activity != null) {
+            try {
+                onStorySelectedListenerCallback = (OnStorySelectedListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString()
+                        + " must implement OnStorySelectedListener");
+            }
+        }
+    }
+
+    // Container Activity must implement this interface
+    public interface OnStorySelectedListener {
+        public void onStorySelected(Result story);
     }
 }

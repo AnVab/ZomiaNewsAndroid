@@ -1,10 +1,12 @@
 package news.zomia.zomianews;
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.Result;
 import  news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
+import news.zomia.zomianews.fragments.StoryViewerFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -19,9 +21,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.util.Log;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.OnSuccessAuthorizationListener,
-        FeedsListFragment.OnFeedSelectedListener {
+        FeedsListFragment.OnFeedSelectedListener,
+        FeedStoriesFragment.OnStorySelectedListener {
 
     private TextView mResponse;
     private APIService apiService;
@@ -32,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     LoginFragment loginFragment;
     FeedsListFragment feedsListFragment;
     FeedStoriesFragment feedStoriesFragment;
-
+    StoryViewerFragment storyViewerFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +47,7 @@ public class MainActivity extends AppCompatActivity
         loginFragment = new LoginFragment();
         feedsListFragment = new FeedsListFragment();
         feedStoriesFragment = new FeedStoriesFragment();
+        storyViewerFragment = new StoryViewerFragment();
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String token = sharedPref.getString("token", "");
@@ -94,7 +101,25 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+    public void onStorySelected(Result story)
+    {
+        if (findViewById(R.id.fragment_container) != null) {
 
+            // Create fragment and give it an argument for the selected article
+            Bundle args = new Bundle();
+            args.putString("date", story.getDate());
+            args.putString("title", story.getTitle());
+            args.putString("content", story.getContent());
+
+            storyViewerFragment.setArguments(args);
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
+    }
     public void LoadLoginFragment()
     {
         if (findViewById(R.id.fragment_container) != null) {

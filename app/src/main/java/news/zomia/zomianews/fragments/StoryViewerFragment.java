@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import news.zomia.zomianews.R;
@@ -16,17 +17,26 @@ import news.zomia.zomianews.R;
  */
 public class StoryViewerFragment extends Fragment {
 
+    private View rootView;
+    private String date;
+    private String title;
+    private String content;
 
     public StoryViewerFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.layout_news_viewer, container, false);
+        rootView =  inflater.inflate(R.layout.layout_news_viewer, container, false);
+        date = getArguments().getString("date");
+        title = getArguments().getString("title");
+        content = getArguments().getString("content");
+
+        return rootView;
     }
 
     @Override
@@ -37,6 +47,36 @@ public class StoryViewerFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        WebView storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
+        storyPageViewer.getSettings().setJavaScriptEnabled(true);
+        //storyPageViewer.getSettings().setLoadWithOverviewMode(true);
+        //storyPageViewer.getSettings().setUseWideViewPort(true);
+        //storyPageViewer.getSettings().setMinimumFontSize(40);
+
+        storyPageViewer.loadDataWithBaseURL("", getStyledFont(content), "text/html", "UTF-8", "");
+    }
+    public static String getStyledFont(String content) {
+        boolean addBodyTagStart = !content.toLowerCase().contains("<body>");
+        boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
+
+        return "<style type=\"text/css\">" +
+                "@font-face {" +
+                "font-family: CustomFont;" +
+                "src: url(\"file:///android_asset/fonts/OpenSans-SemiBold.ttf\")}" +
+                "body {" +
+                "font-family: CustomFont;" +
+                "font-size: medium;" +
+                "text-align: justify;" +
+                "}" +
+                "img{display: inline;height: auto;max-width: 100%;}"+
+                "</style>" +
+                (addBodyTagStart ? "<body>" : "") + content + (addBodyTagEnd ? "</body>" : "");
     }
 
 }
