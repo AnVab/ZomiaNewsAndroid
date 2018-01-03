@@ -77,17 +77,21 @@ public class StoriesAdapter extends BaseAdapter{
         int imgHeight = 250;
 
         //Load img from a story. If image not loaded, show default icon.
-        if(!storyUrl.isEmpty())
+       // if(!storyUrl.isEmpty())
             Picasso.with(context)
                     .load(storyUrl)
-                    .resize(imgWidth, imgHeight)
+                    //.resize(imgWidth, imgHeight)
+                    .fit()
                     .centerCrop()
+                    //.onlyScaleDown()
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
                     .into(storyImageView);
-        else {
+       /* else {
             storyImageView.getLayoutParams().width = imgWidth;
             storyImageView.getLayoutParams().height = imgHeight;
             storyImageView.setImageResource(R.mipmap.ic_launcher);
-        }
+        }*/
 
         storyTitleTextView.setText(story.getTitle());
 
