@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity
         editor.commit();
 
         ApiUtils.setAccessToken(userToken.getToken());
+
+        LoadFeedsListFragment();
     }
 
     public void onFeedSelected(Feed feed)
