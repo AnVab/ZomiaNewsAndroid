@@ -62,7 +62,10 @@ public class RetrofitClient {
 
     public static String getAccessToken()
     {
-       return "token " + token;
+       if(token.isEmpty())
+           return "";
+       else
+           return "token " + token;
     }
 
     public static void setAccessToken(String tokenValue)

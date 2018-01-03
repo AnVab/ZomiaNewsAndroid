@@ -8,7 +8,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
@@ -63,10 +70,51 @@ public class StoriesAdapter extends BaseAdapter{
 
         ImageView storyImageView = (ImageView)view.findViewById(R.id.storyImageView);
         TextView storyTitleTextView = (TextView)view.findViewById(R.id.storyTitleTextView);
+        TextView storyDateTextView = (TextView)view.findViewById(R.id.storyDateTextView);
 
-        //storyImageView.setImageResource(story.getImageResource());
+        String storyUrl = GetStoryUrl(story.getContent());
+        int imgWidth = 250;
+        int imgHeight = 250;
+
+        //Load img from a story. If image not loaded, show default icon.
+        if(!storyUrl.isEmpty())
+            Picasso.with(context)
+                    .load(storyUrl)
+                    .resize(imgWidth, imgHeight)
+                    .centerCrop()
+                    .into(storyImageView);
+        else {
+            storyImageView.getLayoutParams().width = imgWidth;
+            storyImageView.getLayoutParams().height = imgHeight;
+            storyImageView.setImageResource(R.mipmap.ic_launcher);
+        }
+
         storyTitleTextView.setText(story.getTitle());
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date d = null;
+        try {
+            d = dateFormat.parse(story.getDate());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if(d != null)
+            storyDateTextView.setText(d.toString());
+
         return view;
+    }
+
+    private String GetStoryUrl(String content)
+    {
+        String imgRegex = "<[iI][mM][gG][^>]+[sS][rR][cC]\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
+        Pattern p = Pattern.compile(imgRegex);
+        Matcher m = p.matcher(content);
+
+        if (m.find()) {
+            String imgSrc = m.group(1);
+            return imgSrc;
+        }
+        else
+            return "";
     }
 }
