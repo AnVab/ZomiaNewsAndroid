@@ -75,7 +75,6 @@ public class FeedStoriesFragment extends Fragment {
 
         apiService = ApiUtils.getAPIService();
 
-        textView2 = (TextView) view.findViewById(R.id.textView2);
         storiesListView = (ListView) view.findViewById(R.id.storiesListView);
         storiesList = new ArrayList<Result>();
         storiesAdapter = new StoriesAdapter(getActivity(), storiesList);
