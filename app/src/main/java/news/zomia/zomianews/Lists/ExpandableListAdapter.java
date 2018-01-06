@@ -68,8 +68,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return this.feedsCollections.get(this.tags.get(groupPosition))
-                .size();
+            return this.feedsCollections.get(this.tags.get(groupPosition)).size();
     }
 
     @Override
@@ -83,6 +82,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
         TextView item = (TextView) view.findViewById(R.id.titleTextView);
         item.setText(feed.getTitle());
+
+        TextView channelType = (TextView) view.findViewById(R.id.descriptionTextView);
+        channelType.setText("rss");
 
         return view;
     }
