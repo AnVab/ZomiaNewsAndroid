@@ -15,6 +15,7 @@ import news.zomia.zomianews.data.model.Token;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -43,11 +44,15 @@ public class MainActivity extends AppCompatActivity
     FeedsListFragment feedsListFragment;
     FeedStoriesFragment feedStoriesFragment;
     StoryViewerFragment storyViewerFragment;
+
+    Toolbar myToolbar;
+    CollapsingToolbarLayout collapsingToolbarLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
+        myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
         setSupportActionBar(myToolbar);
 
         // Get a support ActionBar corresponding to this toolbar
@@ -100,7 +105,6 @@ public class MainActivity extends AppCompatActivity
             // Otherwise, we're in the one-pane layout and must swap frags
 */
             if (findViewById(R.id.fragment_container) != null) {
-                Log.d(TAG, "FRAGMENT fragment_container FOUND222222!!!!!!!!");
                 // Create fragment and give it an argument for the selected article
                 Bundle args = new Bundle();
                 args.putInt("feedId", feed.getFeedId());
@@ -148,24 +152,9 @@ public class MainActivity extends AppCompatActivity
     public void LoadFeedsListFragment()
     {
         if (findViewById(R.id.fragment_container) != null) {
-            Log.d(TAG, "FRAGMENT fragment_container FOUND!!!!!!!!");
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        }
-    }
-
-    public void LoadFeedStoriesFragment()
-    {
-        //if (findViewById(R.id.fragment_container) != null)
-        {
-
-            Log.d(TAG, "FRAGMENT fragment_container FOUND222222!!!!!!!!");
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-            fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
