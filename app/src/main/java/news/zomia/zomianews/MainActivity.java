@@ -6,17 +6,15 @@ import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
+import news.zomia.zomianews.fragments.NewFeedFragment;
 import news.zomia.zomianews.fragments.StoryViewerFragment;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.Token;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,15 +23,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.util.Log;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.OnSuccessAuthorizationListener,
         FeedsListFragment.OnFeedSelectedListener,
-        FeedStoriesFragment.OnStorySelectedListener {
+        FeedStoriesFragment.OnStorySelectedListener,
+        NewFeedFragment.OnFeedAddedListener {
 
     private TextView mResponse;
     private APIService apiService;
@@ -46,8 +41,6 @@ public class MainActivity extends AppCompatActivity
 
     FeedStoriesFragment feedStoriesFragment;
     StoryViewerFragment storyViewerFragment;
-
-    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +83,11 @@ public class MainActivity extends AppCompatActivity
 
         ApiUtils.setAccessToken(userToken.getToken());
 
+        LoadFeedsListFragment();
+    }
+
+    public void onFeedAdded()
+    {
         LoadFeedsListFragment();
     }
 
