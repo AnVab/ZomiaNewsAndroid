@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
 
     public void onFeedSelected(Feed feed)
     {
-        FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
+      /*  FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
                 getSupportFragmentManager().findFragmentById(R.id.feed_stories_fragment);
 
         if (fStoriesFrag != null) {
@@ -98,9 +98,9 @@ public class MainActivity extends AppCompatActivity
             fStoriesFrag.updateStoriesView(feed.getFeedId());
         } else {
             // Otherwise, we're in the one-pane layout and must swap frags
-
+*/
             if (findViewById(R.id.fragment_container) != null) {
-
+                Log.d(TAG, "FRAGMENT fragment_container FOUND222222!!!!!!!!");
                 // Create fragment and give it an argument for the selected article
                 Bundle args = new Bundle();
                 args.putInt("feedId", feed.getFeedId());
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
-        }
+       // }
     }
     public void onStorySelected(Result story)
     {
@@ -159,8 +159,10 @@ public class MainActivity extends AppCompatActivity
 
     public void LoadFeedStoriesFragment()
     {
-        if (findViewById(R.id.fragment_container) != null) {
+        //if (findViewById(R.id.fragment_container) != null)
+        {
 
+            Log.d(TAG, "FRAGMENT fragment_container FOUND222222!!!!!!!!");
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);

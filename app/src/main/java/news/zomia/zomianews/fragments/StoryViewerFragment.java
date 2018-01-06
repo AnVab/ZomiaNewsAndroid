@@ -57,10 +57,10 @@ public class StoryViewerFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TextView storyHeaderTextView = (TextView) view.findViewById(R.id.storyHeaderTextView );
-        storyHeaderTextView.setText(title);
+        //TextView storyHeaderTextView = (TextView) view.findViewById(R.id.storyHeaderTextView );
+        //storyHeaderTextView.setText(title);
 
-        TextView storyDateTextView = (TextView) view.findViewById(R.id.storyDateTextView );
+        //TextView storyDateTextView = (TextView) view.findViewById(R.id.storyDateTextView );
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date d = null;
         try {
@@ -68,8 +68,8 @@ public class StoryViewerFragment extends Fragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(d != null)
-            storyDateTextView.setText(d.toString());
+        //if(d != null)
+        //    storyDateTextView.setText(d.toString());
 
         WebView storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
         storyPageViewer.getSettings().setJavaScriptEnabled(true);
