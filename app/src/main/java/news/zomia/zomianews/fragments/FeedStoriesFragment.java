@@ -5,18 +5,20 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import news.zomia.zomianews.Lists.StoriesAdapter;
+import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.model.Stories;
@@ -29,17 +31,16 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FeedStoriesFragment extends Fragment {
+public class FeedStoriesFragment extends Fragment implements StoriesAdapter.StoryViewHolder.ClickListener{
 
     private static final String TAG = "ZomiaFStoriesFragment";
     private APIService apiService;
     private View rootView;
     private int feedId;
 
-    TextView textView2;
-    ListView storiesListView;
-    List<Result> storiesList;
-    StoriesAdapter storiesAdapter;
+    private RecyclerView storiesListView;
+    private List<Result> storiesList;
+    private StoriesAdapter storiesAdapter;
 
     OnStorySelectedListener onStorySelectedListenerCallback;
 
@@ -75,20 +76,42 @@ public class FeedStoriesFragment extends Fragment {
 
         apiService = ApiUtils.getAPIService();
 
-        storiesListView = (ListView) view.findViewById(R.id.storiesListView);
-        storiesList = new ArrayList<Result>();
-        storiesAdapter = new StoriesAdapter(getActivity(), storiesList);
-        storiesListView.setAdapter(storiesAdapter);
+        storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
 
-        storiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Result selectedStory = (Result) storiesAdapter.getItem(position);
-                onStorySelectedListenerCallback.onStorySelected(selectedStory);
-            }
-        });
+        storiesList = new ArrayList<Result>();
+        storiesAdapter = new StoriesAdapter(getActivity(), storiesList, this);
+        storiesListView.setAdapter(storiesAdapter);
+        storiesListView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        storiesListView.setLayoutManager(llm);
 
         LoadFeedStories(feedId);
+    }
+
+    @Override
+    public void onItemClicked(int position) {
+        Result selectedStory = (Result) storiesAdapter.getItem(position);
+        onStorySelectedListenerCallback.onStorySelected(selectedStory);
+    }
+
+    @Override
+    public boolean onItemLongClicked(int position) {
+
+        toggleSelection(position);
+
+        return true;
+    }
+
+    /**
+     * Toggle the selection state of an item.
+     *
+     * If the item was the last one in the selection and is unselected, the selection is stopped.
+     * Note that the selection must already be started (actionMode must not be null).
+     *
+     * @param position Position of the item to toggle the selection state
+     */
+    private void toggleSelection(int position) {
+        storiesAdapter.toggleSelection(position);
     }
 
     public void updateStoriesView(int feedId)
