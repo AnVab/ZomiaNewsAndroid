@@ -15,6 +15,7 @@ import news.zomia.zomianews.data.model.Token;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -41,27 +42,27 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "ZomiaMainActivity";
 
     LoginFragment loginFragment;
-    FeedsListFragment feedsListFragment;
+
+
     FeedStoriesFragment feedStoriesFragment;
     StoryViewerFragment storyViewerFragment;
 
-    Toolbar myToolbar;
-    CollapsingToolbarLayout collapsingToolbarLayout;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_main);
-        myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
         setSupportActionBar(myToolbar);
 
         // Get a support ActionBar corresponding to this toolbar
-        ActionBar ab = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         loginFragment = new LoginFragment();
-        feedsListFragment = new FeedsListFragment();
+
         feedStoriesFragment = new FeedStoriesFragment();
         storyViewerFragment = new StoryViewerFragment();
 
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (findViewById(R.id.fragment_container) != null) {
 
+            ShowToolbar();
+
             // Create fragment and give it an argument for the selected article
             Bundle args = new Bundle();
             args.putString("date", story.getDate());
@@ -152,6 +155,8 @@ public class MainActivity extends AppCompatActivity
     public void LoadFeedsListFragment()
     {
         if (findViewById(R.id.fragment_container) != null) {
+
+            FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
@@ -185,5 +190,17 @@ public class MainActivity extends AppCompatActivity
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ShowToolbar();
+    }
+
+    private void ShowToolbar()
+    {
+        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
+        appBar.setExpanded(true, true);
     }
 }

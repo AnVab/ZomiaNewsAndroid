@@ -68,6 +68,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     @Override
     public int getChildrenCount(int groupPosition) {
+        if(this.feedsCollections == null || this.tags == null || this.feedsCollections.get(this.tags.get(groupPosition)) == null)
+            return 0;
+        else
             return this.feedsCollections.get(this.tags.get(groupPosition)).size();
     }
 

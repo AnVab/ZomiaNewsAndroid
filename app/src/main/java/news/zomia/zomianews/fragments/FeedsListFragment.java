@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +71,7 @@ public class FeedsListFragment extends Fragment {
 
         apiService = ApiUtils.getAPIService();
 
+        tagList = new ArrayList<String>();
         createTagList();
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
@@ -171,12 +173,19 @@ public class FeedsListFragment extends Fragment {
     }
 
     private void createTagList() {
-        tagList = new ArrayList<String>();
+        if(tagList == null)
+            tagList = new ArrayList<String>();
+        else
+            tagList.clear();
+
         tagList.add("Top");
         tagList.add("Fun");
         tagList.add("News");
         tagList.add("Games");
         tagList.add("Bookmarks");
+
+        if(expListAdapter != null)
+            expListAdapter.notifyDataSetChanged();
     }
 
     private void createCollection(List<Feed> feedsList) {
@@ -184,11 +193,8 @@ public class FeedsListFragment extends Fragment {
         //feedsCollection = new LinkedHashMap<String, List<Feed>>();
         feedsCollection.clear();
         childList = new ArrayList<Feed>();
+        childList.addAll(feedsList);
         String tagValue = tagList.get(0);
-        for(Feed feed: feedsList)
-        {
-            childList.add(feed);
-        }
 
         feedsCollection.put(tagValue, childList);
     }
@@ -198,6 +204,8 @@ public class FeedsListFragment extends Fragment {
         super.onResume();
         //feedsCollection.clear();
         //Get items ...
+        createTagList();
+        LoadFeeds();
         //Update list
         expListAdapter.notifyDataSetChanged();
     }
