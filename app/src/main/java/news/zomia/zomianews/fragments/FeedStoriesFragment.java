@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,13 +32,16 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FeedStoriesFragment extends Fragment implements StoriesAdapter.StoryViewHolder.ClickListener{
+public class FeedStoriesFragment extends Fragment implements
+        StoriesAdapter.StoryViewHolder.ClickListener,
+        SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "ZomiaFStoriesFragment";
     private APIService apiService;
     private View rootView;
     private int feedId;
 
+    SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView storiesListView;
     private List<Result> storiesList;
     private StoriesAdapter storiesAdapter;
@@ -55,6 +59,25 @@ public class FeedStoriesFragment extends Fragment implements StoriesAdapter.Stor
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_feed_stories, container, false);
         feedId = getArguments().getInt("feedId");
+
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        mSwipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                mSwipeRefreshLayout.setRefreshing(true);
+
+                LoadFeedStories(feedId);
+            }
+        });
 
         return rootView;
     }
@@ -119,8 +142,15 @@ public class FeedStoriesFragment extends Fragment implements StoriesAdapter.Stor
 
     }
 
+    @Override
+    public void onRefresh() {
+        LoadFeedStories(feedId);
+    }
+
     private void LoadFeedStories(int feedId)
     {
+        mSwipeRefreshLayout.setRefreshing(true);
+
         apiService.getStories(feedId).enqueue(new Callback<Stories>() {
             @Override
             public void onResponse(Call<Stories> call, Response<Stories> response) {
@@ -134,9 +164,11 @@ public class FeedStoriesFragment extends Fragment implements StoriesAdapter.Stor
                             //Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
                             // Send the event to the host activity
                             ShowStories(response.body());
+
+                            mSwipeRefreshLayout.setRefreshing(false);
                             break;
                         default:
-
+                            mSwipeRefreshLayout.setRefreshing(false);
                             break;
                     }
                 }
@@ -150,6 +182,7 @@ public class FeedStoriesFragment extends Fragment implements StoriesAdapter.Stor
             @Override
             public void onFailure(Call<Stories> call, Throwable t) {
                 Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
