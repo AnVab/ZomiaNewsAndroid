@@ -41,7 +41,7 @@ public class FeedStoriesFragment extends Fragment implements
     private View rootView;
     private int feedId;
 
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storiesListView;
     private List<Result> storiesList;
     private StoriesAdapter storiesAdapter;
@@ -61,19 +61,19 @@ public class FeedStoriesFragment extends Fragment implements
         feedId = getArguments().getInt("feedId");
 
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        mSwipeRefreshLayout.post(new Runnable() {
+        swipeRefreshLayout.post(new Runnable() {
 
             @Override
             public void run() {
 
-                mSwipeRefreshLayout.setRefreshing(true);
+                swipeRefreshLayout.setRefreshing(true);
 
                 LoadFeedStories(feedId);
             }
@@ -149,7 +149,7 @@ public class FeedStoriesFragment extends Fragment implements
 
     private void LoadFeedStories(int feedId)
     {
-        mSwipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.setRefreshing(true);
 
         apiService.getStories(feedId).enqueue(new Callback<Stories>() {
             @Override
@@ -165,10 +165,10 @@ public class FeedStoriesFragment extends Fragment implements
                             // Send the event to the host activity
                             ShowStories(response.body());
 
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            swipeRefreshLayout.setRefreshing(false);
                             break;
                         default:
-                            mSwipeRefreshLayout.setRefreshing(false);
+                            swipeRefreshLayout.setRefreshing(false);
                             break;
                     }
                 }
@@ -182,7 +182,7 @@ public class FeedStoriesFragment extends Fragment implements
             @Override
             public void onFailure(Call<Stories> call, Throwable t) {
                 Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
-                mSwipeRefreshLayout.setRefreshing(false);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
