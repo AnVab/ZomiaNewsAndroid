@@ -90,7 +90,7 @@ public class StoryViewerFragment extends Fragment
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(getActivity(), "Page loading error: " + description, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.page_loading_error) + ": " + description, Toast.LENGTH_SHORT).show();
             }
         });
 
