@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,7 @@ public class FeedsListFragment extends Fragment {
     ExpandableListView expListView;
     ExpandableListAdapter expListAdapter;
 
-    OnFeedSelectedListener onFeedSelectedListenerCallback;
+    OnFeedsListListener onFeedsListListenerCallback;
 
     public FeedsListFragment() {
         // Required empty public constructor
@@ -92,9 +93,18 @@ public class FeedsListFragment extends Fragment {
                 Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
                         .show();
 
-                onFeedSelectedListenerCallback.onFeedSelected(selectedFeed);
+                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
 
                 return true;
+            }
+        });
+
+        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
+        addFeedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onFeedsListListenerCallback.onNewFeedAddAction();
             }
         });
     }
@@ -114,17 +124,18 @@ public class FeedsListFragment extends Fragment {
         // the callback interface. If not, it throws an exception
         if(activity != null) {
             try {
-                onFeedSelectedListenerCallback = (OnFeedSelectedListener) activity;
+                onFeedsListListenerCallback = (OnFeedsListListener) activity;
             } catch (ClassCastException e) {
                 throw new ClassCastException(activity.toString()
-                        + " must implement OnFeedSelectedListener");
+                        + " must implement OnFeedsListListener");
             }
         }
     }
 
     // Container Activity must implement this interface
-    public interface OnFeedSelectedListener {
+    public interface OnFeedsListListener {
         public void onFeedSelected(Feed feed);
+        public void onNewFeedAddAction();
     }
 
     public void LoadFeeds()
@@ -183,7 +194,31 @@ public class FeedsListFragment extends Fragment {
         tagList.add("News");
         tagList.add("Games");
         tagList.add("Bookmarks");
-
+        tagList.add("Top");
+        tagList.add("Fun");
+        tagList.add("News");
+        tagList.add("Games");
+        tagList.add("Bookmarks");
+        tagList.add("Top");
+        tagList.add("Fun");
+        tagList.add("News");
+        tagList.add("Games");
+        tagList.add("Bookmarks");
+        tagList.add("Top");
+        tagList.add("Fun");
+        tagList.add("News");
+        tagList.add("Games");
+        tagList.add("Bookmarks");
+        tagList.add("Top");
+        tagList.add("Fun");
+        tagList.add("News");
+        tagList.add("Games");
+        tagList.add("Bookmarks");
+        tagList.add("Top");
+        tagList.add("Fun");
+        tagList.add("News");
+        tagList.add("Games");
+        tagList.add("Bookmarks");
         if(expListAdapter != null)
             expListAdapter.notifyDataSetChanged();
     }

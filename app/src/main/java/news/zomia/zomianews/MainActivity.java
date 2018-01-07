@@ -16,19 +16,27 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.OnSuccessAuthorizationListener,
-        FeedsListFragment.OnFeedSelectedListener,
+        FeedsListFragment.OnFeedsListListener,
         FeedStoriesFragment.OnStorySelectedListener,
-        NewFeedFragment.OnFeedAddedListener {
+        NewFeedFragment.OnFeedAddedListener,
+        GestureDetector.OnGestureListener
+        //,GestureDetector.OnDoubleTapListener
+{
 
     private TextView mResponse;
     private APIService apiService;
@@ -37,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "ZomiaMainActivity";
 
     LoginFragment loginFragment;
-
+    private GestureDetectorCompat gestureDetector;
 
     FeedStoriesFragment feedStoriesFragment;
     StoryViewerFragment storyViewerFragment;
@@ -53,6 +61,8 @@ public class MainActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         // Enable the Up button
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        gestureDetector = new GestureDetectorCompat(this,this);
 
         loginFragment = new LoginFragment();
 
@@ -117,6 +127,20 @@ public class MainActivity extends AppCompatActivity
             }
        // }
     }
+
+    public void onNewFeedAddAction()
+    {
+        if (findViewById(R.id.fragment_container) != null) {
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            NewFeedFragment newFeedFragment = new NewFeedFragment();
+            fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
+    }
+
     public void onStorySelected(Result story)
     {
         if (findViewById(R.id.fragment_container) != null) {
@@ -201,4 +225,95 @@ public class MainActivity extends AppCompatActivity
         AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
         appBar.setExpanded(true, true);
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.gestureDetector.onTouchEvent(event);
+        // Be sure to call the superclass implementation
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent event) {
+        Log.d(TAG,"onDown: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent event1, MotionEvent event2,
+                           float velocityX, float velocityY) {
+        Log.d(TAG, "onFling: " + event1.toString() + event2.toString());
+
+        if (event1.getX() < event2.getX()) {
+            Log.d(TAG, "Left to Right swipe performed");
+        }
+
+        if (event1.getX() > event2.getX()) {
+            Log.d(TAG, "Right to Left swipe performed");
+
+            if (findViewById(R.id.fragment_container) != null) {
+
+                FeedsListFragment feedsListFragment = new FeedsListFragment();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+
+                fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        }
+
+        if (event1.getY() < event2.getY()) {
+            Log.d(TAG, "Up to Down swipe performed");
+        }
+
+        if (event1.getY() > event2.getY()) {
+            Log.d(TAG, "Down to Up swipe performed");
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent event) {
+        Log.d(TAG, "onLongPress: " + event.toString());
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX,
+                            float distanceY) {
+        Log.d(TAG, "onScroll: " + event1.toString() + event2.toString());
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent event) {
+        Log.d(TAG, "onShowPress: " + event.toString());
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent event) {
+        Log.d(TAG, "onSingleTapUp: " + event.toString());
+        return true;
+    }
+
+
+    /*@Override
+    public boolean onDoubleTap(MotionEvent event) {
+        Log.d(TAG, "onDoubleTap: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent event) {
+        Log.d(TAG, "onDoubleTapEvent: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent event) {
+        Log.d(TAG, "onSingleTapConfirmed: " + event.toString());
+        return true;
+    }*/
 }
