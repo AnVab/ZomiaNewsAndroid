@@ -15,9 +15,13 @@
     <string name="add_feed">Add feed</string>
     <string name="action_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_server_connection">No server connection</string>
     <string name="connection_problem">Connection problem</string>
     <string name="success">Success</string>
+
+    <string name="pref_server_address_title">Server address</string>
+    <string name="pref_server_address_dialog">Server address</string>
+
+    <string name="pref_server_port_title">Server port</string>
+    <string name="pref_server_port_dialog">Server port</string>
 </resources>

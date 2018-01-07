@@ -26,36 +26,7 @@ public class RetrofitClient {
     public static Retrofit getClient(String baseUrl) {
         if (retrofit == null) {
 
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-            Interceptor headerInterceptor = new Interceptor() {
-                @Override
-                public Response intercept(Interceptor.Chain chain) throws IOException {
-                    //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
-                    if(getAccessToken().isEmpty()){
-                        //Authorization header is already present or token is empty
-                        return chain.proceed(chain.request());
-                    }
-
-                    Request authorisedRequest = chain.request().newBuilder()
-                            .addHeader("Accept", "application/json")
-                            .addHeader("Authorization", getAccessToken()).build();
-                    //Authorization header is added to the url
-                    return chain.proceed(authorisedRequest);
-                }
-            };
-
-            OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
-                    //.addInterceptor(loggingInterceptor)
-                    .addInterceptor(headerInterceptor)
-                    .build();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .client(defaultHttpClient)
-                    .build();
+            createClient(baseUrl);
         }
         return retrofit;
     }
@@ -71,5 +42,42 @@ public class RetrofitClient {
     public static void setAccessToken(String tokenValue)
     {
         token = tokenValue;
+    }
+
+    private static void createClient(String baseUrl) {
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        Interceptor headerInterceptor = new Interceptor() {
+                @Override
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+            //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
+            if(getAccessToken().isEmpty()){
+                //Authorization header is already present or token is empty
+                return chain.proceed(chain.request());
+            }
+
+            Request authorisedRequest = chain.request().newBuilder()
+                .addHeader("Accept", "application/json")
+                .addHeader("Authorization", getAccessToken()).build();
+                //Authorization header is added to the url
+                    return chain.proceed(authorisedRequest);
+                }
+            };
+
+            OkHttpClient defaultHttpClient = new OkHttpClient.Builder()
+                    //.addInterceptor(loggingInterceptor)
+                    .addInterceptor(headerInterceptor)
+                    .build();
+
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(defaultHttpClient)
+                    .build();
+    }
+
+    public static void updateUrl(String baseUrl) {
+        createClient(baseUrl);
     }
 }

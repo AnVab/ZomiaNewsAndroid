@@ -24,4 +24,9 @@ public class ApiUtils {
     {
         RetrofitClient.setAccessToken(tokenValue);
     }
+
+    public static void updateBaseUrl(String url)
+    {
+        RetrofitClient.updateUrl(url);
+    }
 }

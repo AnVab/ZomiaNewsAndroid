@@ -7,6 +7,7 @@ import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
 import news.zomia.zomianews.fragments.NewFeedFragment;
+import news.zomia.zomianews.fragments.SettingsFragment;
 import news.zomia.zomianews.fragments.StoryViewerFragment;
 
 import news.zomia.zomianews.data.model.User;
@@ -14,6 +15,7 @@ import news.zomia.zomianews.data.model.Token;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GestureDetectorCompat;
@@ -21,6 +23,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.Preference;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -34,7 +37,8 @@ public class MainActivity extends AppCompatActivity
         FeedsListFragment.OnFeedsListListener,
         FeedStoriesFragment.OnStorySelectedListener,
         NewFeedFragment.OnFeedAddedListener,
-        GestureDetector.OnGestureListener
+        GestureDetector.OnGestureListener,
+        SettingsFragment.OnSettingsChangedListener
         //,GestureDetector.OnDoubleTapListener
 {
 
@@ -69,9 +73,12 @@ public class MainActivity extends AppCompatActivity
         feedStoriesFragment = new FeedStoriesFragment();
         storyViewerFragment = new StoryViewerFragment();
 
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String token = sharedPref.getString("token", "");
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String token = sharedPref.getString(getString(R.string.preferences_token), "");
         ApiUtils.setAccessToken(token);
+
+        updateZomiaUrl();
 
         if (savedInstanceState != null) {
             return;
@@ -86,9 +93,9 @@ public class MainActivity extends AppCompatActivity
     public void onSuccessAuthorization(Token token) {
         userToken = token;
 
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("token", userToken.getToken());
+        editor.putString(getString(R.string.preferences_serverAddress), userToken.getToken());
         editor.commit();
 
         ApiUtils.setAccessToken(userToken.getToken());
@@ -162,6 +169,16 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
         }
     }
+
+    public void onSettingsUpdated(String key)
+    {
+        if (key.equals(getString(R.string.preferences_serverAddress)) ||
+                key.equals(getString(R.string.preferences_serverPort)))
+        {
+            updateZomiaUrl();
+        }
+    }
+
     public void LoadLoginFragment()
     {
         if (findViewById(R.id.fragment_container) != null) {
@@ -199,6 +216,11 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI...
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                SettingsFragment settingsFragment = new SettingsFragment();
+                fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 return true;
 
             case R.id.menu_search:
@@ -214,6 +236,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void updateZomiaUrl()
+    {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
+        String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
+
+        String url = "http://" + serverAddress + ":" + serverPort + "/";
+        ApiUtils.updateBaseUrl(url);
+
+        Log.d(TAG, "Updated url: " + url);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -316,4 +350,16 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onSingleTapConfirmed: " + event.toString());
         return true;
     }*/
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onPause() {
+
+        super.onPause();
+    }
 }

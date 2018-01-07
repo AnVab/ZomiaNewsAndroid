@@ -1,0 +1,24 @@
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Zomia server">
+
+        <news.zomia.zomianews.customcontrols.EditTextPreference
+            android:key="@string/preferences_serverAddress"
+            android:title="@string/pref_server_address_title"
+            android:summary=""
+            android:dialogMessage="@string/pref_server_address_dialog"
+            android:defaultValue="@string/preferences_serverAddress_default" />
+
+        <news.zomia.zomianews.customcontrols.EditTextPreference
+            android:key="@string/preferences_serverPort"
+            android:title="@string/pref_server_port_title"
+            android:summary=""
+            android:dialogMessage="@string/pref_server_port_dialog"
+            android:inputType="number"
+            android:defaultValue="@string/preferences_serverPort_default" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

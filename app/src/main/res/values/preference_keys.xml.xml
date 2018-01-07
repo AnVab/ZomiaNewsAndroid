@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preferences_token" translatable="false">token</string>
+    <string name="preferences_serverAddress" translatable="false">serverAddress</string>
+    <string name="preferences_serverPort" translatable="false">serverPort</string>
+
+    <string name="preferences_serverAddress_default" translatable="false">10.0.2.2</string>
+    <string name="preferences_serverPort_default" translatable="false">8000</string>
+</resources>
