@@ -69,8 +69,11 @@ public class NewFeedFragment extends Fragment {
 
                 if (feedSourcePathTextView != null) {
                     String feedUrl = feedSourcePathTextView.getText().toString();
-                    if (!feedUrl.isEmpty()) {
-                        apiService.addNewFeed(feedUrl).enqueue(new Callback<Feed>() {
+                    if (!feedUrl.isEmpty())
+                    {
+                        Feed feed = new Feed();
+                        feed.setUrl(feedUrl);
+                        apiService.addNewFeed(feed).enqueue(new Callback<Feed>() {
                             @Override
                             public void onResponse(Call<Feed> call, Response<Feed> response) {
                                 //To get the status code

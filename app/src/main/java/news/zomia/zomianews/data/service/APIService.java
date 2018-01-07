@@ -30,7 +30,7 @@ public interface APIService {
     Call<List<Feed>> getFeedsList();
 
     @POST ("api/feeds/")
-    Call<Feed> addNewFeed(@Query("url") String feedUrl);
+    Call<Feed> addNewFeed(@Body Feed feedUrl);
 
     @GET ("api/feeds/{id}/")
     Call<Feed> getFeedInfo(@Path("id") int id);
