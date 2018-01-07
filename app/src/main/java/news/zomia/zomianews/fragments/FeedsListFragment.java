@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +36,12 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FeedsListFragment extends Fragment {
+public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
     private APIService apiService;
     private View rootView;
 
+    SwipeRefreshLayout swipeRefreshLayout;
     List<String> tagList;
     Map<String, List<Feed>> feedsCollection;
     List<Feed> childList;
@@ -58,12 +60,35 @@ public class FeedsListFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.layout_feeds_list, container, false);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        swipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                swipeRefreshLayout.setRefreshing(true);
+
+                LoadFeeds();
+            }
+        });
+
         return rootView;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onRefresh() {
+        LoadFeeds();
     }
 
     @Override
@@ -140,6 +165,8 @@ public class FeedsListFragment extends Fragment {
 
     public void LoadFeeds()
     {
+        swipeRefreshLayout.setRefreshing(true);
+
         apiService.getFeedsList().enqueue(new Callback<List<Feed>>() {
             @Override
             public void onResponse(Call<List<Feed>> call,Response<List<Feed>> response) {
@@ -153,9 +180,11 @@ public class FeedsListFragment extends Fragment {
                             Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
                             // Send the event to the host activity
                             ShowFeeds(response.body());
+
+                            swipeRefreshLayout.setRefreshing(false);
                             break;
                         default:
-
+                            swipeRefreshLayout.setRefreshing(false);
                             break;
                     }
                 }
@@ -163,12 +192,14 @@ public class FeedsListFragment extends Fragment {
                 {
                     //Connection problem
                     Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
             @Override
             public void onFailure(Call<List<Feed>> call, Throwable t) {
                 Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
