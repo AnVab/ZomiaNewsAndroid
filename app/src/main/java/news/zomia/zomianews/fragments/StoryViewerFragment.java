@@ -1,17 +1,20 @@
 package news.zomia.zomianews.fragments;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.ParseException;
@@ -19,12 +22,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class StoryViewerFragment extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener{
+
+    private static final String TAG = "StoryViewerFragment";
+
+    OnStoryViewerListener onStoryViewerListenerCallback;
 
     private View rootView;
 
@@ -77,6 +85,19 @@ public class StoryViewerFragment extends Fragment
         //storyPageViewer.getSettings().setLoadWithOverviewMode(true);
         //storyPageViewer.getSettings().setUseWideViewPort(true);
         //storyPageViewer.getSettings().setMinimumFontSize(40);
+
+        storyPageViewer.setOnTouchListener(new OnSwipeTouchListener(getActivity())
+        {
+            @Override
+            public void onSwipeLeft() {
+                onStoryViewerListenerCallback.nextStoryRequest(1);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                onStoryViewerListenerCallback.goBackToStoriesList();
+            }
+        });
 
         storyPageViewer.setWebViewClient(new WebViewClient() {
             @Override
@@ -161,5 +182,29 @@ public class StoryViewerFragment extends Fragment
                 "<h6>" + date + "</h6>" +
                 content +
                 (addBodyTagEnd ? "</body>" : "");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = getActivity();
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        if(activity != null) {
+            try {
+                onStoryViewerListenerCallback = (OnStoryViewerListener) activity;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(activity.toString()
+                        + " must implement OnStoryViewerListener");
+            }
+        }
+    }
+
+    // Container Activity must implement this interface
+    public interface OnStoryViewerListener {
+        public void nextStoryRequest(Integer currentStoryId);
+        public void goBackToStoriesList();
     }
 }
