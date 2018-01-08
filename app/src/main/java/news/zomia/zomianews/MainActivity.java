@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.preferences_serverAddress), userToken.getToken());
+        editor.putString(getString(R.string.preferences_token), userToken.getToken());
         editor.commit();
 
         ApiUtils.setAccessToken(userToken.getToken());
