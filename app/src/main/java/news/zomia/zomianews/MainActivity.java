@@ -13,11 +13,15 @@ import news.zomia.zomianews.fragments.StoryViewerFragment;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.Token;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.FragmentTransaction;
+
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
@@ -121,6 +125,9 @@ public class MainActivity extends AppCompatActivity
             // Otherwise, we're in the one-pane layout and must swap frags
 */
             if (findViewById(R.id.fragment_container) != null) {
+
+                removeBottomPadding();
+
                 // Create fragment and give it an argument for the selected article
                 Bundle args = new Bundle();
                 args.putInt("feedId", feed.getFeedId());
@@ -139,6 +146,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (findViewById(R.id.fragment_container) != null) {
 
+            addBottomPadding();
+
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             NewFeedFragment newFeedFragment = new NewFeedFragment();
@@ -153,6 +162,8 @@ public class MainActivity extends AppCompatActivity
         if (findViewById(R.id.fragment_container) != null) {
 
             ShowToolbar();
+
+            removeBottomPadding();
 
             // Create fragment and give it an argument for the selected article
             Bundle args = new Bundle();
@@ -183,6 +194,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (findViewById(R.id.fragment_container) != null) {
 
+            removeBottomPadding();
+
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
             fragmentTransaction.replace(R.id.fragment_container, loginFragment);
@@ -195,13 +208,28 @@ public class MainActivity extends AppCompatActivity
     {
         if (findViewById(R.id.fragment_container) != null) {
 
+            addBottomPadding();
+
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
+    }
+
+    public void ShowSettingsFragment()
+    {
+        removeBottomPadding();
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        SettingsFragment settingsFragment = new SettingsFragment();
+        fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -215,12 +243,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // User chose the "Settings" item, show the app settings UI...
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                SettingsFragment settingsFragment = new SettingsFragment();
-                fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+                ShowSettingsFragment();
                 return true;
 
             case R.id.menu_search:
@@ -252,6 +275,11 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         super.onBackPressed();
         ShowToolbar();
+
+        //Add bottom padding if we returned back to the feeds list fragment
+        Fragment feedsListFlag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (feedsListFlag instanceof FeedsListFragment)
+            addBottomPadding();
     }
 
     private void ShowToolbar()
@@ -285,17 +313,7 @@ public class MainActivity extends AppCompatActivity
         if (event1.getX() > event2.getX()) {
             Log.d(TAG, "Right to Left swipe performed");
 
-            if (findViewById(R.id.fragment_container) != null) {
-
-                FeedsListFragment feedsListFragment = new FeedsListFragment();
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
-
-                fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
+            LoadFeedsListFragment();
         }
 
         if (event1.getY() < event2.getY()) {
@@ -361,5 +379,34 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
 
         super.onPause();
+    }
+
+    private void addBottomPadding()
+    {
+        int navHeight = getNavHeight();
+        if (navHeight > 0) {
+            (findViewById(R.id.fragment_container)).setPadding(0, 0, 0, navHeight);
+        }
+    }
+
+    private void removeBottomPadding()
+    {
+        (findViewById(R.id.fragment_container)).setPadding(0, 0, 0, 0);
+    }
+
+    private int getNavHeight() {
+        //Fix for a bottom padding when action bar is added to the screen. If you just add bottom padding to the fragment in the xml, then while scrolling up there will be bottom space.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+            return 0;
+        try {
+            Resources resources = getResources();
+            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                return resources.getDimensionPixelSize(resourceId);
+            }
+        } catch (Exception ex) {
+            return 0;
+        }
+        return 0;
     }
 }
