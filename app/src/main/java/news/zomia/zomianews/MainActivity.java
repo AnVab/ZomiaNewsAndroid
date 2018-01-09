@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity
                 feedStoriesFragment.setArguments(args);
 
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
+                //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
                 fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity
             storyViewerFragment.setArguments(args);
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
+            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
             fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity
             removeBottomPadding();
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
+            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
             fragmentTransaction.replace(R.id.fragment_container, loginFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right);
+            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
             fragmentTransaction.addToBackStack(null);
@@ -234,6 +234,7 @@ public class MainActivity extends AppCompatActivity
         removeBottomPadding();
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
         SettingsFragment settingsFragment = new SettingsFragment();
         fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
         fragmentTransaction.addToBackStack(null);
