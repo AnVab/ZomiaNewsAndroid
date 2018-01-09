@@ -1,5 +1,9 @@
 package news.zomia.zomianews.data.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -7,11 +11,14 @@ import com.google.gson.annotations.SerializedName;
  * Created by Andrey on 26.12.2017.
  */
 
+@Entity
 public class Feed {
 
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Integer id;
+    @ColumnInfo(name = "feed_id")
     @SerializedName("feed_id")
     @Expose
     private Integer feedId;
