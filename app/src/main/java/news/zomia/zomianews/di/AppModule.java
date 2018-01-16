@@ -19,6 +19,7 @@ import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.service.ZomiaService;
+import news.zomia.zomianews.data.util.HostSelectionInterceptor;
 import news.zomia.zomianews.data.util.LiveDataCallAdapterFactory;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -88,10 +89,18 @@ public class AppModule {
 
     @Provides
     @Singleton
-    OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HttpLoggingInterceptor loggingInterceptor) {
+    HostSelectionInterceptor provideHostSelectionInterceptor(Application application, SharedPreferences prefs)
+    {
+        return new HostSelectionInterceptor();
+    }
+
+    @Provides
+    @Singleton
+    OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
-                .addInterceptor(headerInterceptor);
+                .addInterceptor(headerInterceptor)
+                .addInterceptor(urlInterceptor);
 
         return defaultHttpClient.build();
     }
@@ -99,13 +108,8 @@ public class AppModule {
     @Singleton @Provides
     ZomiaService provideZomiaService(Application application, SharedPreferences prefs, OkHttpClient okHttpClient) {
 
-        String serverAddress = prefs.getString(application.getString(R.string.preferences_serverAddress), application.getString(R.string.preferences_serverAddress_default));
-        String serverPort = prefs.getString(application.getString(R.string.preferences_serverPort), application.getString(R.string.preferences_serverPort_default));
-
-        String url = "http://" + serverAddress + ":" + serverPort + "/";
-
         return new Retrofit.Builder()
-                .baseUrl(url)
+                .baseUrl("http://localhost/") // Dummy baseUrl is needed to create instance
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .client(okHttpClient)

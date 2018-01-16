@@ -5,6 +5,7 @@ import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.util.HostSelectionInterceptor;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
 
+    @Inject
+    HostSelectionInterceptor urlChangeInterceptor;
+
     private TextView mResponse;
     //private APIService apiService;
     public User user;
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
         //ApiUtils.setAccessToken(token);
 
-        //updateZomiaUrl();
+        updateZomiaUrl();
 
         if (savedInstanceState != null) {
             return;
@@ -287,10 +291,11 @@ public class MainActivity extends AppCompatActivity
         String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 
         String url = "http://" + serverAddress + ":" + serverPort + "/";
-        ApiUtils.updateBaseUrl(url);
+        urlChangeInterceptor.setInterceptor(url);
 
         Log.d(TAG, "Updated url: " + url);
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
