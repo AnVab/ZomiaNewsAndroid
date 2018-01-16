@@ -1,8 +1,7 @@
-package news.zomia.zomianews.data.util;
+package news.zomia.zomianews.data.service;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import okhttp3.HttpUrl;

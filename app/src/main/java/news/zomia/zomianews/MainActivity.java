@@ -1,11 +1,11 @@
 package news.zomia.zomianews;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
-import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.service.ApiUtils;
-import news.zomia.zomianews.data.util.HostSelectionInterceptor;
+import news.zomia.zomianews.data.service.HostSelectionInterceptor;
+import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
@@ -24,7 +24,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,7 +31,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -46,11 +44,10 @@ public class MainActivity extends AppCompatActivity
         StoryViewerFragment.OnStoryViewerListener,
         HasSupportFragmentInjector
 {
-    @Inject
-    DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
-
-    @Inject
-    HostSelectionInterceptor urlChangeInterceptor;
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
+    @Inject HostSelectionInterceptor urlChangeInterceptor;
+    @Inject UserSessionInfo userSessionInfo;
+    @Inject SharedPreferences sharedPref;
 
     private TextView mResponse;
     //private APIService apiService;
@@ -83,10 +80,10 @@ public class MainActivity extends AppCompatActivity
         feedStoriesFragment = new FeedStoriesFragment();
         storyViewerFragment = new StoryViewerFragment();
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
+        //Read saved session token
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
-        //ApiUtils.setAccessToken(token);
+        //Set current session token
+        userSessionInfo.setToken(token);
 
         updateZomiaUrl();
 
@@ -108,7 +105,6 @@ public class MainActivity extends AppCompatActivity
     public void onSuccessAuthorization(Token token) {
         userToken = token;
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.preferences_token), userToken.getToken());
         editor.commit();
@@ -285,8 +281,6 @@ public class MainActivity extends AppCompatActivity
 
     private void updateZomiaUrl()
     {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
         String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
         String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 

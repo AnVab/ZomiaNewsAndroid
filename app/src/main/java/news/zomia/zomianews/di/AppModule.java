@@ -4,7 +4,6 @@ import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,8 +17,9 @@ import dagger.Provides;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
+import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.data.service.ZomiaService;
-import news.zomia.zomianews.data.util.HostSelectionInterceptor;
+import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.util.LiveDataCallAdapterFactory;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -46,14 +46,14 @@ public class AppModule {
 
     @Provides
     @Singleton
-    Gson provideGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        return gsonBuilder.create();
+    UserSessionInfo provideUserSessionInfo()
+    {
+        return new UserSessionInfo();
     }
 
     @Provides
     @Singleton
-    Interceptor provideHeaderInterceptor(Application application, SharedPreferences prefs)
+    Interceptor provideHeaderInterceptor(Application application, SharedPreferences prefs, UserSessionInfo userSessionInfo)
     {
         String token = prefs.getString(application.getString(R.string.preferences_token), "");
 
@@ -61,14 +61,14 @@ public class AppModule {
             @Override
             public Response intercept(Interceptor.Chain chain) throws IOException {
                 //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
-                if(token.isEmpty()){
+                if(userSessionInfo.isEmpty()){
                     //Authorization header is already present or token is empty
                     return chain.proceed(chain.request());
                 }
 
                 Request authorisedRequest = chain.request().newBuilder()
                         .addHeader("Accept", "application/json")
-                        .addHeader("Authorization", "token " + token).build();
+                        .addHeader("Authorization", userSessionInfo.getTokenAuthValue()).build();
 
                 //Authorization header is added to the url
                 return chain.proceed(authorisedRequest);
