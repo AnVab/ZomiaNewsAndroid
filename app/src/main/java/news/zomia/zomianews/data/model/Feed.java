@@ -14,10 +14,11 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class Feed {
 
-    @PrimaryKey
+
     @SerializedName("id")
     @Expose
     private Integer id;
+    @PrimaryKey
     @ColumnInfo(name = "feed_id")
     @SerializedName("feed_id")
     @Expose

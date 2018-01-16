@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,7 +28,7 @@ import retrofit2.Response;
  */
 public class NewFeedFragment extends Fragment {
 
-    private APIService apiService;
+    private ZomiaService zomiaService;
     private View rootView;
     TextView feedSourcePathTextView;
 
@@ -56,7 +56,7 @@ public class NewFeedFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = ApiUtils.getAPIService();
+        zomiaService = ApiUtils.getAPIService();
 
         feedSourcePathTextView = (TextView)  view.findViewById(R.id.feedSourcePathTextView);
         ExpandableListView feedTypeList = (ExpandableListView) view.findViewById(R.id.feedTypeList);
@@ -73,7 +73,7 @@ public class NewFeedFragment extends Fragment {
                     {
                         Feed feed = new Feed();
                         feed.setUrl(feedUrl);
-                        apiService.addNewFeed(feed).enqueue(new Callback<Feed>() {
+                        zomiaService.addNewFeed(feed).enqueue(new Callback<Feed>() {
                             @Override
                             public void onResponse(Call<Feed> call, Response<Feed> response) {
                                 //To get the status code

@@ -19,8 +19,8 @@ import android.widget.Toast;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Token;
 import news.zomia.zomianews.data.model.User;
-import news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,7 +30,7 @@ public class LoginFragment extends Fragment {
     private static final String TAG = "ZomiaLoginFragment";
     OnSuccessAuthorizationListener onSuccessAuthorizationCallback;
 
-    private APIService apiService;
+    private ZomiaService zomiaService;
     private View rootView;
     private ProgressBar loadingProgressBar;
 
@@ -51,7 +51,7 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = ApiUtils.getAPIService();
+        zomiaService = ApiUtils.getAPIService();
 
         loadingProgressBar = (ProgressBar) view.findViewById(R.id.loadingProgressBar);
 
@@ -95,7 +95,7 @@ public class LoginFragment extends Fragment {
 
         loadingProgressBar.setVisibility(View.VISIBLE);
 
-        apiService.authenticateUser(user).enqueue(new Callback<Token>() {
+        zomiaService.authenticateUser(user).enqueue(new Callback<Token>() {
             @Override
             public void onResponse(Call<Token> call, Response<Token> response) {
                 //To get the status code

@@ -1,8 +1,9 @@
 package news.zomia.zomianews;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Result;
-import  news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
@@ -33,17 +34,22 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.OnSuccessAuthorizationListener,
         FeedsListFragment.OnFeedsListListener,
         FeedStoriesFragment.OnStorySelectedListener,
         NewFeedFragment.OnFeedAddedListener,
         SettingsFragment.OnSettingsChangedListener,
-        StoryViewerFragment.OnStoryViewerListener
+        StoryViewerFragment.OnStoryViewerListener,
+        HasSupportFragmentInjector
 {
+    @Inject
+    DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
 
     private TextView mResponse;
-    private APIService apiService;
+    //private APIService apiService;
     public User user;
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
@@ -76,9 +82,9 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
-        ApiUtils.setAccessToken(token);
+        //ApiUtils.setAccessToken(token);
 
-        updateZomiaUrl();
+        //updateZomiaUrl();
 
         if (savedInstanceState != null) {
             return;
@@ -88,6 +94,11 @@ public class MainActivity extends AppCompatActivity
             LoadLoginFragment();
         else
             LoadFeedsListFragment();
+    }
+
+    @Override
+    public DispatchingAndroidInjector<Fragment> supportFragmentInjector() {
+        return dispatchingAndroidInjector;
     }
 
     public void onSuccessAuthorization(Token token) {

@@ -1,5 +1,7 @@
 package news.zomia.zomianews.data.service;
 
+import android.arch.lifecycle.LiveData;
+
 import java.util.List;
 
 import news.zomia.zomianews.data.model.Feed;
@@ -19,7 +21,7 @@ import retrofit2.http.Query;
  * Created by Andrey on 26.12.2017.
  */
 
-public interface APIService {
+public interface ZomiaService {
     @POST("registration/")
     Call<User> registerUser(@Query("email") String email, @Query("password") String password);
 
@@ -27,7 +29,7 @@ public interface APIService {
     Call<Token> authenticateUser(@Body User user);
 
     @GET("api/feeds/")
-    Call<List<Feed>> getFeedsList();
+    LiveData<ApiResponse<List<Feed>>> getFeedsList();
 
     @POST ("api/feeds/")
     Call<Feed> addNewFeed(@Body Feed feedUrl);

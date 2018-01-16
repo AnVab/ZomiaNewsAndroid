@@ -23,8 +23,8 @@ import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.model.Stories;
-import news.zomia.zomianews.data.service.APIService;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,7 +37,7 @@ public class FeedStoriesFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "ZomiaFStoriesFragment";
-    private APIService apiService;
+    private ZomiaService zomiaService;
     private View rootView;
     private int feedId;
 
@@ -97,7 +97,7 @@ public class FeedStoriesFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = ApiUtils.getAPIService();
+        zomiaService = ApiUtils.getAPIService();
 
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
 
@@ -151,7 +151,7 @@ public class FeedStoriesFragment extends Fragment implements
     {
         swipeRefreshLayout.setRefreshing(true);
 
-        apiService.getStories(feedId).enqueue(new Callback<Stories>() {
+        zomiaService.getStories(feedId).enqueue(new Callback<Stories>() {
             @Override
             public void onResponse(Call<Stories> call, Response<Stories> response) {
                 //To get the status code

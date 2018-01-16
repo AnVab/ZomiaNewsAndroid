@@ -10,9 +10,9 @@ public class ApiUtils {
 
     public static final String BASE_URL = "http://10.0.2.2:8000/";
 
-    public static APIService getAPIService() {
+    public static ZomiaService getAPIService() {
 
-        return RetrofitClient.getClient(BASE_URL).create(APIService.class);
+        return RetrofitClient.getClient(BASE_URL).create(ZomiaService.class);
     }
 
     public static String getAccessToken()

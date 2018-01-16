@@ -17,11 +17,11 @@ import news.zomia.zomianews.data.model.Result;
  * Created by Andrey on 09.01.2018.
  */
 @Dao
-public interface DAOService {
+public interface FeedDao {
 
     //Feeds
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insertFeeds(Feed... feeds);
+    public void  insertFeeds(List<Feed> feeds);
 
     @Update
     public void updateFeeds(Feed... feeds);
@@ -29,14 +29,14 @@ public interface DAOService {
     @Delete
     public void deleteFeeds(Feed... feeds);
 
-    @Query("SELECT * FROM feeds")
+    @Query("SELECT * FROM feed")
     public List<Feed> loadAllFeeds();
 
-    @Query("SELECT * FROM feeds")
+    @Query("SELECT * FROM feed")
     public LiveData<List<Feed>> loadAllFeedsSync();
 
-    @Query("SELECT * FROM feeds WHERE feed_id = feedId")
-    public Feed loadFeed(int feedId);
+    @Query("SELECT * FROM feed")// WHERE feed_id = feed_id")
+    public Feed loadFeed();//int feedId);
 
     //Stories
     @Insert
@@ -48,12 +48,12 @@ public interface DAOService {
     @Delete
     public void deleteStories(Result... stories);
 
-    @Query("SELECT * FROM results where feed_id = feedId")
-    public List<Result> loadAllStoriesForFeed(int feedId);
+    @Query("SELECT * FROM result")// where feedId = feed_id")
+    public List<Result> loadAllStoriesForFeed();//int feedId);
 
-    @Query("SELECT * FROM results where feed_id = feedId")
+    @Query("SELECT * FROM result")// where feedId = feed_id")
     public LiveData<List<Result>> loadAllStoriesForFeedSync();
 
-    @Query("SELECT * FROM results WHERE id = id")
-    public Result loadStory(int id);
+    @Query("SELECT * FROM result WHERE id = id")
+    public Result loadStory();//int id);
 }

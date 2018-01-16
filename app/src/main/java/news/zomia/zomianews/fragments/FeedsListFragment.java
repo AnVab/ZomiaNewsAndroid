@@ -2,20 +2,20 @@ package news.zomia.zomianews.fragments;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,21 +25,32 @@ import java.util.Map;
 
 import news.zomia.zomianews.Lists.ExpandableListAdapter;
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.di.Injectable;
 import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.model.Token;
-import news.zomia.zomianews.data.service.APIService;
-import news.zomia.zomianews.data.service.ApiUtils;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.service.ZomiaService;
+import news.zomia.zomianews.data.viewmodel.FeedViewModel;
+import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
+
+import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class FeedsListFragment extends Fragment implements
+        SwipeRefreshLayout.OnRefreshListener,
+        LifecycleRegistryOwner,
+        Injectable {
 
-    private APIService apiService;
+    private ZomiaService zomiaService;
     private View rootView;
+
+    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+
+    @Inject
+    FeedViewModelFactory feedViewModelFactory;
+
+    private FeedViewModel feedViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
     List<String> tagList;
@@ -55,6 +66,11 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -67,48 +83,57 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        swipeRefreshLayout.post(new Runnable() {
-
-            @Override
-            public void run() {
-
-                swipeRefreshLayout.setRefreshing(true);
-
-                LoadFeeds();
-            }
-        });
-
         return rootView;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onRefresh() {
-        LoadFeeds();
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = ApiUtils.getAPIService();
+        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
 
-        tagList = new ArrayList<String>();
+        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
+        addFeedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onFeedsListListenerCallback.onNewFeedAddAction();
+            }
+        });
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
+
+        //Create tags array for a map
         createTagList();
+
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
-        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-        expListAdapter = new ExpandableListAdapter(
-                getActivity(), tagList, feedsCollection);
+        LiveData<Resource<List<Feed>>> repo = feedViewModel.getFeeds();
+        if(repo != null) {
+            repo.observe(getActivity(), resource -> {
 
-        expListView.setAdapter(expListAdapter);
+                if (resource != null)
+                    ShowFeeds(resource.data);
+                    //createCollection(resource.data);
 
-        LoadFeeds();
+            });
+        }
 
+        feedViewModel.getFeeds().observe(this, resource -> {
+            // update UI
+            if (resource != null) {
+                createCollection(resource.data);
+                expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection);
+                expListView.setAdapter(expListAdapter);
+            }
+        });
+
+        //Set item onclick listener
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
             public boolean onChildClick(ExpandableListView parent, View v,
@@ -123,8 +148,99 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
                 return true;
             }
         });
+    }
 
-        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return lifecycleRegistry;
+    }
+
+    /*@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        rootView = inflater.inflate(R.layout.layout_feeds_list, container, false);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        /*swipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                //swipeRefreshLayout.setRefreshing(true);
+
+                LoadFeeds();
+            }
+        });*/
+
+    /*    return rootView;
+    }*/
+
+
+
+    @Override
+    public void onRefresh() {
+        LoadFeeds();
+    }
+
+   /* @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+       // apiService = ApiUtils.getAPIService();
+
+        tagList = new ArrayList<String>();
+        createTagList();
+        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
+        /*feedsCollection = new LinkedHashMap<String, List<Feed>>();
+
+        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
+        expListAdapter = new ExpandableListAdapter(
+                getActivity(), tagList, feedsCollection);
+
+        expListView.setAdapter(expListAdapter);
+*/
+        //expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
+        /*expListView.setAdapter(expListAdapter);
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
+
+                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
+                        .show();
+
+                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
+
+                return true;
+            }
+        });*/
+
+        //LoadFeeds();
+
+        /*expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
+
+                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
+                        .show();
+
+                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
+
+                return true;
+            }
+        });*/
+
+   /*     FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,7 +248,7 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
                 onFeedsListListenerCallback.onNewFeedAddAction();
             }
         });
-    }
+    }*/
 
     @Override
     public void onPause() {
@@ -166,6 +282,20 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
     public void LoadFeeds()
     {
         swipeRefreshLayout.setRefreshing(true);
+        if(feedViewModel != null)
+            feedViewModel.getFeeds();
+
+       /* feedViewModel.getFeeds().observe(this, feeds -> {
+            // no null checks for adapter.get() since LiveData guarantees that we'll not receive
+            // the event if fragment is now show.
+            if (feeds == null) {
+                expListAdapter.get().replace(null);
+            } else {
+                adapter.get().replace(feeds.data);
+            }
+        });*/
+
+        /*swipeRefreshLayout.setRefreshing(true);
 
         apiService.getFeedsList().enqueue(new Callback<List<Feed>>() {
             @Override
@@ -201,7 +331,7 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
                 Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
                 swipeRefreshLayout.setRefreshing(false);
             }
-        });
+        });*/
     }
 
     public void ShowFeeds(List<Feed> feedsList)
@@ -211,7 +341,8 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
         createCollection(feedsList);
 
         //Notify adapter that data is updated
-        expListAdapter.notifyDataSetChanged();
+        if(expListAdapter != null)
+            expListAdapter.notifyDataSetChanged();
     }
 
     private void createTagList() {
@@ -256,13 +387,15 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void createCollection(List<Feed> feedsList) {
 
-        //feedsCollection = new LinkedHashMap<String, List<Feed>>();
-        feedsCollection.clear();
-        childList = new ArrayList<Feed>();
-        childList.addAll(feedsList);
-        String tagValue = tagList.get(0);
+        if(feedsList != null) {
+            //feedsCollection = new LinkedHashMap<String, List<Feed>>();
+            feedsCollection.clear();
+            childList = new ArrayList<Feed>();
+            childList.addAll(feedsList);
+            String tagValue = tagList.get(0);
 
-        feedsCollection.put(tagValue, childList);
+            feedsCollection.put(tagValue, childList);
+        }
     }
 
     @Override
@@ -271,8 +404,9 @@ public class FeedsListFragment extends Fragment implements SwipeRefreshLayout.On
         //feedsCollection.clear();
         //Get items ...
         createTagList();
-        LoadFeeds();
+        //LoadFeeds();
         //Update list
-        expListAdapter.notifyDataSetChanged();
+        if(expListAdapter != null)
+            expListAdapter.notifyDataSetChanged();
     }
 }
