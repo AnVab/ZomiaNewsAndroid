@@ -89,7 +89,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    HostSelectionInterceptor provideHostSelectionInterceptor(Application application, SharedPreferences prefs)
+    HostSelectionInterceptor provideHostSelectionInterceptor()
     {
         return new HostSelectionInterceptor();
     }

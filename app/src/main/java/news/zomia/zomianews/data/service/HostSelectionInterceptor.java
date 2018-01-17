@@ -20,18 +20,28 @@ import okhttp3.Response;
 
 @Singleton
 public final class HostSelectionInterceptor implements Interceptor {
-    private static HostSelectionInterceptor hsInterceptor;
+    //private static HostSelectionInterceptor hsInterceptor = null;
     private String host;
     private String scheme;
+    private int port;
 
     public HostSelectionInterceptor(){
         //Intentionally left blank
     }
 
+    /*public static HostSelectionInterceptor get() {
+        if (hsInterceptor == null) {
+
+            hsInterceptor = new HostSelectionInterceptor();
+        }
+        return hsInterceptor;
+    }*/
+
     public void setInterceptor(String url) {
         HttpUrl httpUrl = HttpUrl.parse(url);
         scheme = httpUrl.scheme();
         host = httpUrl.host();
+        port = httpUrl.port();
     }
 
     @Override
@@ -43,6 +53,7 @@ public final class HostSelectionInterceptor implements Interceptor {
             HttpUrl newUrl = original.url().newBuilder()
                     .scheme(scheme)
                     .host(host)
+                    .port(port)
                     .build();
             original = original.newBuilder()
                     .url(newUrl)
