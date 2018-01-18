@@ -23,6 +23,26 @@ public interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void  insertFeeds(List<Feed> feeds);
 
+    @Query("SELECT * FROM feed")
+    public LiveData<List<Feed>> loadAllFeedsSync();
+
+    //Stories
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insertStories(List<Result> stories);
+
+    @Query("SELECT * FROM result where feed_id = :feedId")
+    public LiveData<List<Result>> loadAllStoriesSync(Integer feedId);
+
+
+/*  @Query("SELECT * FROM feed")// WHERE feed_id = feed_id")
+    public Feed loadFeed();//int feedId);
+
+    @Update
+    public void updateStories(Result... stories);
+
+    @Delete
+    public void deleteStories(Result... stories);
+
     @Update
     public void updateFeeds(Feed... feeds);
 
@@ -32,28 +52,9 @@ public interface FeedDao {
     @Query("SELECT * FROM feed")
     public List<Feed> loadAllFeeds();
 
-    @Query("SELECT * FROM feed")
-    public LiveData<List<Feed>> loadAllFeedsSync();
-
-    @Query("SELECT * FROM feed")// WHERE feed_id = feed_id")
-    public Feed loadFeed();//int feedId);
-
-    //Stories
-    @Insert
-    public void insertStories(Result... stories);
-
-    @Update
-    public void updateStories(Result... stories);
-
-    @Delete
-    public void deleteStories(Result... stories);
-
-    @Query("SELECT * FROM result")// where feedId = feed_id")
-    public List<Result> loadAllStoriesForFeed();//int feedId);
-
     @Query("SELECT * FROM result")// where feedId = feed_id")
     public LiveData<List<Result>> loadAllStoriesForFeedSync();
 
     @Query("SELECT * FROM result WHERE id = id")
-    public Result loadStory();//int id);
+    public Result loadStory();//int id);*/
 }

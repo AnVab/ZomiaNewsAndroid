@@ -1,6 +1,8 @@
 package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -14,6 +16,9 @@ import javax.inject.Singleton;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Stories;
+import news.zomia.zomianews.data.util.AbsentLiveData;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
 
@@ -73,6 +78,61 @@ public class DataRepository {
             }
         }.asLiveData();
     }
+
+    public LiveData<Resource<List<Result>>> loadStories(int feedId) {
+        return new NetworkBoundResource<List<Result>, Stories>(appExecutors) {
+
+            @Override
+            protected void saveCallResult(@NonNull Stories item) {
+                //Set feed id while saving to the database
+                for (Result story : item.getResults()) {
+                    story.setFeedId(feedId);
+                }
+
+                /*RepoSearchResult repoSearchResult = new RepoSearchResult(
+                        query, storiesResult, item.getTotal(), item.getNextPage());*/
+
+                db.beginTransaction();
+                try {
+                    feedDao.insertStories(item.getResults());
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Result> data) {
+                return data == null || data.isEmpty();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Result>> loadFromDb() {
+                //LiveData<List<Result>> res = feedDao.loadAllStoriesSync();//feedId);
+                //return res;
+                return feedDao.loadAllStoriesSync(feedId);
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<Stories>> createCall() {
+                Log.d("ZOMIA", "Result.getStories");
+                return webService.getStories(feedId);
+            }
+
+            @Override
+            protected Stories processResponse(ApiResponse<Stories> response) {
+                Stories body = response.body;
+                /*if (body != null) {
+                    body.setNext(response.getNextPage());
+                }*/
+                return body;
+            }
+        }.asLiveData();
+    }
+
+
 
     /*public LiveData<List<Feed>> getFeeds() {
         refreshFeeds();

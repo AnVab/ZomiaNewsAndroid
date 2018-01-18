@@ -40,8 +40,11 @@ public interface ZomiaService {
     @PUT("api/feeds/{id}/")
     Call<Feed> updateFeedInfo(@Path("id") int id, @Body Feed feed);
 
+    /*@GET ("api/feeds/{id}/stories/")
+    Call< Stories > getStories(@Path("id") int id);*/
+
     @GET ("api/feeds/{id}/stories/")
-    Call< Stories > getStories(@Path("id") int id);
+    LiveData<ApiResponse<Stories>> getStories(@Path("id") int id);
 
     @GET ("api/users/{id}/")
     Call<UserInfo> getUserInfo(@Path("id") int id);

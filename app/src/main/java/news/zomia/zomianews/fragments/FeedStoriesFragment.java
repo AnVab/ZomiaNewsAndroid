@@ -1,6 +1,10 @@
 package news.zomia.zomianews.fragments;
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,12 +23,18 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.model.Stories;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.service.ZomiaService;
+import news.zomia.zomianews.data.viewmodel.StoryViewModel;
+import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
+import news.zomia.zomianews.di.Injectable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,12 +44,20 @@ import retrofit2.Response;
  */
 public class FeedStoriesFragment extends Fragment implements
         StoriesAdapter.StoryViewHolder.ClickListener,
-        SwipeRefreshLayout.OnRefreshListener{
+        SwipeRefreshLayout.OnRefreshListener,
+        LifecycleRegistryOwner,
+        Injectable {
 
     private static final String TAG = "ZomiaFStoriesFragment";
     private ZomiaService zomiaService;
     private View rootView;
     private int feedId;
+
+    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+
+    @Inject
+    StoryViewModelFactory storyViewModelFactory;
+    private StoryViewModel storyViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storiesListView;
@@ -68,7 +86,7 @@ public class FeedStoriesFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        swipeRefreshLayout.post(new Runnable() {
+        /*swipeRefreshLayout.post(new Runnable() {
 
             @Override
             public void run() {
@@ -77,9 +95,60 @@ public class FeedStoriesFragment extends Fragment implements
 
                 LoadFeedStories(feedId);
             }
-        });
+        });*/
 
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        zomiaService = ApiUtils.getAPIService();
+
+        storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
+
+
+
+        storiesListView.setItemAnimator(new DefaultItemAnimator());
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        storiesListView.setLayoutManager(llm);
+
+        //LoadFeedStories(feedId);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
+        storiesList = new ArrayList<Result>();
+
+        storiesListView.setAdapter(storiesAdapter);
+
+        LiveData<Resource<List<Result>>> repo = storyViewModel.getStories();
+        repo.observe(this, resource -> {
+            // update UI
+            if (resource != null) {
+                //ShowStories(resource.data);
+
+
+                if(resource.data != null) {
+                    storiesList.clear();
+                    storiesList.addAll(resource.data);
+                    //storiesAdapter.notifyDataSetChanged();
+                    storiesAdapter = new StoriesAdapter(getActivity(), storiesList, this);
+                }
+
+            }
+        });
+
+        storyViewModel.setFeedId(feedId);
+    }
+
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return lifecycleRegistry;
     }
 
     @Override
@@ -93,23 +162,7 @@ public class FeedStoriesFragment extends Fragment implements
     }
 
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
-        zomiaService = ApiUtils.getAPIService();
-
-        storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
-
-        storiesList = new ArrayList<Result>();
-        storiesAdapter = new StoriesAdapter(getActivity(), storiesList, this);
-        storiesListView.setAdapter(storiesAdapter);
-        storiesListView.setItemAnimator(new DefaultItemAnimator());
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        storiesListView.setLayoutManager(llm);
-
-        LoadFeedStories(feedId);
-    }
 
     @Override
     public void onItemClicked(int position) {
@@ -144,9 +197,9 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public void onRefresh() {
-        LoadFeedStories(feedId);
+        /*LoadFeedStories(feedId);*/
     }
-
+/*
     private void LoadFeedStories(int feedId)
     {
         swipeRefreshLayout.setRefreshing(true);
@@ -186,12 +239,13 @@ public class FeedStoriesFragment extends Fragment implements
             }
         });
     }
-
-    private void ShowStories(Stories stories)
+*/
+    private void ShowStories(List<Result> stories)
     {
-        storiesList.clear();
-        storiesList.addAll(stories.getResults());
-        storiesAdapter.notifyDataSetChanged();
+        if(stories != null) {
+            storiesList.addAll(stories);
+            storiesAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
