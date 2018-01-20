@@ -46,6 +46,10 @@ public class DataRepository {
         this.appExecutors = appExecutors;
     }
 
+    public ZomiaService getZomiaService()
+    {
+        return webService;
+    }
     public LiveData<Resource<List<Feed>>> loadFeeds() {
 
         Log.d("ZOMIA", "loadFeeds");
@@ -137,66 +141,4 @@ public class DataRepository {
             }
         }.asLiveData();
     }
-
-
-
-    /*public LiveData<List<Feed>> getFeeds() {
-        refreshFeeds();
-        // return a LiveData directly from the database.
-        return feedDao.loadAllFeedsSync();
-    }
-
-    private void refreshFeeds() {
-        executor.execute(() -> {
-            // running in a background thread
-            // check if feeds were fetched recently
-            boolean feedsExist = feedDao.hasFeeds(FRESH_TIMEOUT);
-            if (!feedsExist) {
-                // refresh the data
-                Response response = null;
-                try {
-                    response = webService.getFeedsList().execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // TODO check for error etc.
-                // Update the database.The LiveData will automatically refresh so
-                // we don't need to do anything else here besides updating the database
-                feedDao.insertFeeds(response.body());
-            }
-        });
-    }*/
-
-    /*public LiveData<List<Feed>> getFeeds()
-    {
-        final MutableLiveData<List<Feed>> data = new MutableLiveData<>();
-        webService.getFeedsList().enqueue(new Callback<List<Feed>>() {
-            @Override
-            public void onResponse(Call<List<Feed>> call, Response<List<Feed>> response) {
-                //To get the status code
-                if(response.isSuccessful())
-                {
-                    switch(response.code())
-                    {
-                        case 200:
-                            //No errors
-                            data.setValue(response.body());
-                            break;
-                        default:
-
-                            break;
-                    }
-                }
-                else
-                {
-                    //Connection problem
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Feed>> call, Throwable t) {
-            }
-        });
-        return data;
-    }*/
 }

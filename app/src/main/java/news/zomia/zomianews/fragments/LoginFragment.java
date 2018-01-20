@@ -3,6 +3,7 @@ package news.zomia.zomianews.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Token;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.DataRepository;
+import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.di.Injectable;
 import retrofit2.Call;
@@ -37,11 +40,13 @@ public class LoginFragment extends Fragment implements
     OnSuccessAuthorizationListener onSuccessAuthorizationCallback;
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
-    private ZomiaService zomiaService;
     private View rootView;
     private ProgressBar loadingProgressBar;
     @Inject
     SharedPreferences sharedPref;
+    @Inject
+    DataRepository dataRepo;
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -58,8 +63,6 @@ public class LoginFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        zomiaService = ApiUtils.getAPIService();
 
         loadingProgressBar = (ProgressBar) view.findViewById(R.id.loadingProgressBar);
 
@@ -108,7 +111,7 @@ public class LoginFragment extends Fragment implements
 
         loadingProgressBar.setVisibility(View.VISIBLE);
 
-        zomiaService.authenticateUser(user).enqueue(new Callback<Token>() {
+        dataRepo.getZomiaService().authenticateUser(user).enqueue(new Callback<Token>() {
             @Override
             public void onResponse(Call<Token> call, Response<Token> response) {
                 //To get the status code
@@ -172,5 +175,4 @@ public class LoginFragment extends Fragment implements
             }
         }
     }
-
 }
