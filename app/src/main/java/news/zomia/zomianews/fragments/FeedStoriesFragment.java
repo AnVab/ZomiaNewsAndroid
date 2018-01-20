@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +60,6 @@ public class FeedStoriesFragment extends Fragment implements
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,17 +74,6 @@ public class FeedStoriesFragment extends Fragment implements
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-
-        /*swipeRefreshLayout.post(new Runnable() {
-
-            @Override
-            public void run() {
-
-                swipeRefreshLayout.setRefreshing(true);
-
-                LoadFeedStories(feedId);
-            }
-        });*/
 
         return rootView;
     }
@@ -116,12 +103,10 @@ public class FeedStoriesFragment extends Fragment implements
             // update UI
             if (resource != null && resource.data != null) {
                 storiesAdapter.replace(resource.data);
-                //storiesAdapter.notifyDataSetChanged();
-                Log.d(TAG, "UPDATE UI DATA");
+                swipeRefreshLayout.setRefreshing(false);
             } else {
                 storiesAdapter.replace(Collections.emptyList());
-                //storiesAdapter.notifyDataSetChanged();
-                Log.d(TAG, "UPDATE UI NULL");
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -143,9 +128,6 @@ public class FeedStoriesFragment extends Fragment implements
         super.onPause();
     }
 
-
-
-
     @Override
     public void onItemClicked(int position) {
         Result selectedStory = (Result) storiesAdapter.getItem(position);
@@ -154,9 +136,7 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public boolean onItemLongClicked(int position) {
-
         toggleSelection(position);
-
         return true;
     }
 
@@ -172,62 +152,10 @@ public class FeedStoriesFragment extends Fragment implements
         storiesAdapter.toggleSelection(position);
     }
 
-    public void updateStoriesView(int feedId)
-    {
-
-    }
-
     @Override
     public void onRefresh() {
-        /*LoadFeedStories(feedId);*/
-    }
-/*
-    private void LoadFeedStories(int feedId)
-    {
         swipeRefreshLayout.setRefreshing(true);
-
-        zomiaService.getStories(feedId).enqueue(new Callback<Stories>() {
-            @Override
-            public void onResponse(Call<Stories> call, Response<Stories> response) {
-                //To get the status code
-                if(response.isSuccessful())
-                {
-                    switch(response.code())
-                    {
-                        case 200:
-                            //No errors
-                            //Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
-                            // Send the event to the host activity
-                            ShowStories(response.body());
-
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                        default:
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                    }
-                }
-                else
-                {
-                    //Connection problem
-                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Stories> call, Throwable t) {
-                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-    }
-*/
-    private void ShowStories(List<Result> stories)
-    {
-        /*if(stories != null) {
-            storiesList.addAll(stories);
-            storiesAdapter.notifyDataSetChanged();
-        }*/
+        storyViewModel.refresh();
     }
 
     @Override
