@@ -11,15 +11,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,16 +27,10 @@ import javax.inject.Inject;
 import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
-import news.zomia.zomianews.data.model.Stories;
-import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.data.service.Resource;
-import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,7 +42,6 @@ public class FeedStoriesFragment extends Fragment implements
         Injectable {
 
     private static final String TAG = "ZomiaFStoriesFragment";
-    private ZomiaService zomiaService;
     private View rootView;
     private Integer feedId;
 
@@ -63,7 +53,6 @@ public class FeedStoriesFragment extends Fragment implements
 
     SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storiesListView;
-    private List<Result> storiesList;
     private StoriesAdapter storiesAdapter;
 
     OnStorySelectedListener onStorySelectedListenerCallback;
@@ -106,17 +95,11 @@ public class FeedStoriesFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        zomiaService = ApiUtils.getAPIService();
-
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
-
-
-
         storiesListView.setItemAnimator(new DefaultItemAnimator());
+
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         storiesListView.setLayoutManager(llm);
-
-        //LoadFeedStories(feedId);
     }
 
     @Override
@@ -124,21 +107,20 @@ public class FeedStoriesFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
 
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
-        storiesList = new ArrayList<Result>();
+
         storiesAdapter = new StoriesAdapter(getActivity(), this);
         storiesListView.setAdapter(storiesAdapter);
 
         LiveData<Resource<List<Result>>> repo = storyViewModel.getStories();
         repo.observe(this, resource -> {
             // update UI
-
             if (resource != null && resource.data != null) {
                 storiesAdapter.replace(resource.data);
-                storiesAdapter.notifyDataSetChanged();
+                //storiesAdapter.notifyDataSetChanged();
                 Log.d(TAG, "UPDATE UI DATA");
             } else {
                 storiesAdapter.replace(Collections.emptyList());
-                storiesAdapter.notifyDataSetChanged();
+                //storiesAdapter.notifyDataSetChanged();
                 Log.d(TAG, "UPDATE UI NULL");
             }
         });

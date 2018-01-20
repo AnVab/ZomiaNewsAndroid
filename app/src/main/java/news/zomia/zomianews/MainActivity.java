@@ -21,7 +21,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 
 import android.support.v7.app.ActionBar;
@@ -73,8 +72,6 @@ public class MainActivity extends AppCompatActivity
         // Enable the Up button
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Fragment feedsListFlag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-
         loginFragment = new LoginFragment();
 
         feedStoriesFragment = new FeedStoriesFragment();
@@ -86,10 +83,6 @@ public class MainActivity extends AppCompatActivity
         userSessionInfo.setToken(token);
 
         updateZomiaUrl();
-
-        if (savedInstanceState != null) {
-            return;
-        }
 
         if(token.isEmpty())
             LoadLoginFragment();
