@@ -95,14 +95,12 @@ public class MainActivity extends AppCompatActivity
         return dispatchingAndroidInjector;
     }
 
-    public void onSuccessAuthorization(Token token) {
-        userToken = token;
+    public void onSuccessAuthorization() {
 
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.preferences_token), userToken.getToken());
-        editor.commit();
-
-        ApiUtils.setAccessToken(userToken.getToken());
+        //Read saved session token
+        String token = sharedPref.getString(getString(R.string.preferences_token), "");
+        //Set current session token
+        userSessionInfo.setToken(token);
 
         LoadFeedsListFragment();
     }

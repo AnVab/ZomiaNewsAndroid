@@ -30,7 +30,7 @@ public class Result {
     @Expose
     private String content;
     //Non serializable field. Used only for Database storage.
-    //@Expose
+    @Expose
     @ColumnInfo(name = "feed_id")
     private transient Integer feedId;
 
