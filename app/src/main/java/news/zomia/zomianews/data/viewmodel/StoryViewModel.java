@@ -46,7 +46,7 @@ public class StoryViewModel  extends ViewModel {
         return stories;
     }
 
-    public void setFeedId(@NonNull int feedId) {
+    public void setFeedId(@NonNull Integer feedId) {
         /*if (Objects.equals(feedId, selectedFeedId.getValue())) {
             return;
         }*/

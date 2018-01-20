@@ -71,6 +71,6 @@ public class Result {
     }
 
     public void setFeedId(Integer id) {
-        this.feedId = feedId;
+        this.feedId = id;
     }
 }

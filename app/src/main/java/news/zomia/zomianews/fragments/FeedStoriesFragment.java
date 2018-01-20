@@ -53,7 +53,7 @@ public class FeedStoriesFragment extends Fragment implements
     private static final String TAG = "ZomiaFStoriesFragment";
     private ZomiaService zomiaService;
     private View rootView;
-    private int feedId;
+    private Integer feedId;
 
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 

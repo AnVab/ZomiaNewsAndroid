@@ -30,8 +30,8 @@ public interface FeedDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertStories(List<Result> stories);
 
-    @Query("SELECT * FROM result")// where feed_id = :feedId")
-    public LiveData<List<Result>> loadAllStoriesSync();//Integer feedId);
+    @Query("SELECT * FROM result where feed_id = :feedId")
+    public LiveData<List<Result>> loadAllStoriesSync(Integer feedId);
 
 
 /*  @Query("SELECT * FROM feed")// WHERE feed_id = feed_id")

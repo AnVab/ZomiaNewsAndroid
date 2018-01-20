@@ -79,13 +79,14 @@ public class DataRepository {
         }.asLiveData();
     }
 
-    public LiveData<Resource<List<Result>>> loadStories(int feedId) {
+    public LiveData<Resource<List<Result>>> loadStories(Integer feedId) {
 
         Log.d("ZOMIA", "loadStories feedId: " + feedId);
         return new NetworkBoundResource<List<Result>, Stories>(appExecutors) {
 
             @Override
             protected void saveCallResult(@NonNull Stories item) {
+                Log.d("ZOMIA", "saveCallResult feedId: " + feedId);
                 //Set feed id while saving to the database
                 for (Result story : item.getResults()) {
                     story.setFeedId(feedId);
@@ -114,7 +115,7 @@ public class DataRepository {
                 //LiveData<List<Result>> res = feedDao.loadAllStoriesSync();//feedId);
                 //return res;
                 Log.d("ZOMIA", "loadFromDb feedId: " + feedId);
-                return feedDao.loadAllStoriesSync();
+                return feedDao.loadAllStoriesSync(feedId);
             }
 
             @NonNull
