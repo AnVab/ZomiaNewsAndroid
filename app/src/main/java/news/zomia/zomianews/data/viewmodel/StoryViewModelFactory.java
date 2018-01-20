@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import news.zomia.zomianews.data.service.DataRepository;
 
@@ -11,6 +12,7 @@ import news.zomia.zomianews.data.service.DataRepository;
  * Created by Andrey on 18.01.2018.
  */
 
+@Singleton
 public class StoryViewModelFactory  implements ViewModelProvider.Factory {
     private final DataRepository dataRepo;
 

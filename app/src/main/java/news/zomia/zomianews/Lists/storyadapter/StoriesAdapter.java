@@ -1,7 +1,12 @@
 package news.zomia.zomianews.Lists.storyadapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.support.annotation.MainThread;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +24,7 @@ import java.util.regex.Pattern;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.util.Objects;
 
 /**
  * Created by Andrey on 03.01.2018.
@@ -33,17 +39,20 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     private static final int TYPE_ACTIVE = 1;
 
     private List<Result> stories;
+    // each time data is set, we update this variable so that if DiffUtil calculation returns
+    // after repetitive updates, we can ignore the old calculation
+    private int dataVersion = 0;
 
     private StoryViewHolder.ClickListener clickListener;
 
-    public StoriesAdapter(Context context, List<Result> stories, StoryViewHolder.ClickListener clickListener) {
+    public StoriesAdapter(Context context, /*List<Result> stories,*/ StoryViewHolder.ClickListener clickListener) {
         super();
 
         this.clickListener = clickListener;
 
         //this.inflater = LayoutInflater.from(context);
         this.context = context;
-        this.stories = stories;
+        //this.stories = stories;
     }
 
     public void removeItem(int position) {
@@ -65,12 +74,82 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @Override
     public int getItemCount() {
-        try {
-            int size = stories.size();
-            return size;
-        } catch(NullPointerException ex) {
-            return 0;
+        return stories == null ? 0 : stories.size();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @MainThread
+    public void replace(List<Result> update) {
+        Log.d("ZOMIA","Size " + update.size() );
+        dataVersion ++;
+        if (stories == null) {
+            if (update == null) {
+                return;
+            }
+            stories = update;
+            notifyDataSetChanged();
+        } else if (update == null) {
+            int oldSize = stories.size();
+            stories = null;
+            notifyItemRangeRemoved(0, oldSize);
+            Log.d("ZOMIA","Size null " );
+        } else {
+            final int startVersion = dataVersion;
+            final List<Result> oldItems = stories;
+            new AsyncTask<Void, Void, DiffUtil.DiffResult>() {
+                @Override
+                protected DiffUtil.DiffResult  doInBackground(Void... voids) {
+                    return DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                        @Override
+                        public int getOldListSize() {
+                            return oldItems.size();
+                        }
+
+                        @Override
+                        public int getNewListSize() {
+                            return update.size();
+                        }
+
+                        @Override
+                        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                            Result oldItem = oldItems.get(oldItemPosition);
+                            Result newItem = update.get(newItemPosition);
+                            return StoriesAdapter.this.areItemsTheSame(oldItem, newItem);
+                        }
+
+                        @Override
+                        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                            Result oldItem = oldItems.get(oldItemPosition);
+                            Result newItem = update.get(newItemPosition);
+                            return StoriesAdapter.this.areContentsTheSame(oldItem, newItem);
+                        }
+                    });
+                }
+
+                @Override
+                protected void onPostExecute(DiffUtil.DiffResult diffResult) {
+                    if (startVersion != dataVersion) {
+                        // ignore update
+                        return;
+                    }
+                    Log.d("ZOMIA","onPostExecute " + update.size());
+                    stories = update;
+                    diffResult.dispatchUpdatesTo(StoriesAdapter.this);
+
+                }
+            }.execute();
         }
+    }
+
+
+    protected boolean areItemsTheSame(Result oldItem, Result newItem) {
+        return Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                Objects.equals(oldItem.getTitle(), newItem.getTitle());
+    }
+
+
+    protected boolean areContentsTheSame(Result oldItem, Result newItem) {
+        return Objects.equals(oldItem.getContent(), newItem.getContent());
     }
 
     @Override

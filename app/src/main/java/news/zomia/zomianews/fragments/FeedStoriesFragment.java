@@ -15,12 +15,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -123,23 +125,21 @@ public class FeedStoriesFragment extends Fragment implements
 
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
         storiesList = new ArrayList<Result>();
-
+        storiesAdapter = new StoriesAdapter(getActivity(), this);
         storiesListView.setAdapter(storiesAdapter);
 
         LiveData<Resource<List<Result>>> repo = storyViewModel.getStories();
         repo.observe(this, resource -> {
             // update UI
-            if (resource != null) {
-                //ShowStories(resource.data);
 
-
-                if(resource.data != null) {
-                    storiesList.clear();
-                    storiesList.addAll(resource.data);
-                    //storiesAdapter.notifyDataSetChanged();
-                    storiesAdapter = new StoriesAdapter(getActivity(), storiesList, this);
-                }
-
+            if (resource != null && resource.data != null) {
+                storiesAdapter.replace(resource.data);
+                storiesAdapter.notifyDataSetChanged();
+                Log.d(TAG, "UPDATE UI DATA");
+            } else {
+                storiesAdapter.replace(Collections.emptyList());
+                storiesAdapter.notifyDataSetChanged();
+                Log.d(TAG, "UPDATE UI NULL");
             }
         });
 
@@ -242,10 +242,10 @@ public class FeedStoriesFragment extends Fragment implements
 */
     private void ShowStories(List<Result> stories)
     {
-        if(stories != null) {
+        /*if(stories != null) {
             storiesList.addAll(stories);
             storiesAdapter.notifyDataSetChanged();
-        }
+        }*/
     }
 
     @Override

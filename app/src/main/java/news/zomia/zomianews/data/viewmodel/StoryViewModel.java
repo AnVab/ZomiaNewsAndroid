@@ -38,6 +38,8 @@ public class StoryViewModel  extends ViewModel {
                 return dataRepo.loadStories(selectedFeedId.getValue());
             }
         });
+
+        //stories = dataRepo.loadStories(selectedFeedId.getValue());
     }
 
     public LiveData<Resource<List<Result>>> getStories() {

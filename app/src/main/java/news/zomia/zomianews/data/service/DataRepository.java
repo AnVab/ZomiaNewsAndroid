@@ -80,6 +80,8 @@ public class DataRepository {
     }
 
     public LiveData<Resource<List<Result>>> loadStories(int feedId) {
+
+        Log.d("ZOMIA", "loadStories feedId: " + feedId);
         return new NetworkBoundResource<List<Result>, Stories>(appExecutors) {
 
             @Override
@@ -111,7 +113,8 @@ public class DataRepository {
             protected LiveData<List<Result>> loadFromDb() {
                 //LiveData<List<Result>> res = feedDao.loadAllStoriesSync();//feedId);
                 //return res;
-                return feedDao.loadAllStoriesSync(feedId);
+                Log.d("ZOMIA", "loadFromDb feedId: " + feedId);
+                return feedDao.loadAllStoriesSync();
             }
 
             @NonNull
@@ -124,6 +127,7 @@ public class DataRepository {
             @Override
             protected Stories processResponse(ApiResponse<Stories> response) {
                 Stories body = response.body;
+                Log.d("ZOMIA", "processResponse " + body.getResults().size());
                 /*if (body != null) {
                     body.setNext(response.getNextPage());
                 }*/
