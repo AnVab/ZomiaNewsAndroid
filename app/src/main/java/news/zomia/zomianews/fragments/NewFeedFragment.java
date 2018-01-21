@@ -9,14 +9,20 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -32,6 +38,7 @@ import retrofit2.Response;
  * A simple {@link Fragment} subclass.
  */
 public class NewFeedFragment extends Fragment implements
+        AdapterView.OnItemSelectedListener,
         LifecycleRegistryOwner,
         Injectable {
 
@@ -66,7 +73,7 @@ public class NewFeedFragment extends Fragment implements
         super.onViewCreated(view, savedInstanceState);
 
         feedSourcePathTextView = (TextView)  view.findViewById(R.id.feedSourcePathTextView);
-        ExpandableListView feedTypeList = (ExpandableListView) view.findViewById(R.id.feedTypeList);
+
         Button addTagButton = (Button) view.findViewById(R.id.addTagButton);
         ListView tagsListView = (ListView) view.findViewById(R.id.tagsListView);
 
@@ -111,6 +118,13 @@ public class NewFeedFragment extends Fragment implements
                 }
             }
         });
+
+        Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.channel_categories, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        feedTypeList.setAdapter(adapter);
+        feedTypeList.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -149,5 +163,16 @@ public class NewFeedFragment extends Fragment implements
     // Container Activity must implement this interface
     public interface OnFeedAddedListener {
         public void onFeedAdded();
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        Log.d("ZOMIA", "Selected: " + parent.getItemAtPosition(pos));
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
     }
 }
