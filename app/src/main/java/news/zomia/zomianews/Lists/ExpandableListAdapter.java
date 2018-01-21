@@ -10,11 +10,13 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.FeedStoriesCount;
 
 /**
  * Created by Andrey on 02.01.2018.
@@ -30,11 +32,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     private List<String> tags;
     //Child items of tags
     private Map<String, List<Feed>> feedsCollections;
+    private Map<Integer, Integer> feedsStoriesCountMap;
 
     public ExpandableListAdapter(Activity context, List<String> tags,
-                                 Map<String, List<Feed>> feedsCollections) {
+                                 Map<String, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
         this.inflater = LayoutInflater.from(context);
         this.feedsCollections = feedsCollections;
+        this.feedsStoriesCountMap = feedsStoriesCountMap;
         this.tags = tags;
     }
 
@@ -89,6 +93,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         TextView channelType = (TextView) view.findViewById(R.id.descriptionTextView);
         channelType.setText("rss");
 
+        TextView storiesCountTextView =  (TextView) view.findViewById(R.id.storiesCountTextView);
+
+        if(feedsStoriesCountMap.get(feed.getFeedId()) != null) {
+            storiesCountTextView.setText(feedsStoriesCountMap.get(feed.getFeedId()).toString());
+        }
+        else
+            storiesCountTextView.setText("0");
+
         return view;
     }
 
@@ -113,5 +125,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    public void setFeedStoriesCount(List<FeedStoriesCount> feedStoriesCount)
+    {
+        feedsStoriesCountMap.clear();
+        for(FeedStoriesCount count: feedStoriesCount)
+        {
+            feedsStoriesCountMap.put(count.getFeedId(), count.getStoriesCountTotal());
+        }
     }
 }

@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +20,14 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import news.zomia.zomianews.Lists.ExpandableListAdapter;
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.di.Injectable;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.service.Resource;
@@ -55,6 +58,7 @@ public class FeedsListFragment extends Fragment implements
     SwipeRefreshLayout swipeRefreshLayout;
     List<String> tagList;
     Map<String, List<Feed>> feedsCollection;
+    private Map<Integer, Integer> feedsStoriesCountMap;
     List<Feed> childList;
     ExpandableListView expListView;
     ExpandableListAdapter expListAdapter;
@@ -112,8 +116,8 @@ public class FeedsListFragment extends Fragment implements
         createTagList();
 
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
-
-        LiveData<Resource<List<Feed>>> repo = feedViewModel.getFeeds();
+        feedsStoriesCountMap = new HashMap<Integer, Integer>();
+        /*LiveData<Resource<List<Feed>>> repo = feedViewModel.getFeeds();
         if(repo != null) {
             repo.observe(getActivity(), resource -> {
 
@@ -128,15 +132,19 @@ public class FeedsListFragment extends Fragment implements
                     //createCollection(resource.data);
 
             });
-        }
+        }*/
+        expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection, feedsStoriesCountMap);
+        expListView.setAdapter(expListAdapter);
 
+        //Load feed channels. Update expandable list data.
         feedViewModel.getFeeds().observe(this, resource -> {
             // update UI
             if (resource != null) {
                 createCollection(resource.data);
-                expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection);
-                expListView.setAdapter(expListAdapter);
+                swipeRefreshLayout.setRefreshing(false);
             }
+            else
+                swipeRefreshLayout.setRefreshing(false);
         });
 
         //Set item onclick listener
@@ -154,6 +162,21 @@ public class FeedsListFragment extends Fragment implements
                 return true;
             }
         });
+
+        //Load available stories count for all feed channels. Update expandable list data.
+        feedViewModel.getFeedStoriesCount().observe(this, resource -> {
+            // update UI
+            if (resource != null && resource.data != null) {
+
+                feedsStoriesCountMap.clear();
+                for(FeedStoriesCount count: resource.data) {
+                    feedsStoriesCountMap.put(count.getFeedId(), count.getStoriesCountTotal());
+                    Log.d("ZOMIA", "Feed id: " + count.getFeedId() + "  stories count: " + count.getStoriesCountTotal());
+                }
+
+                expListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -161,101 +184,11 @@ public class FeedsListFragment extends Fragment implements
         return lifecycleRegistry;
     }
 
-    /*@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.layout_feeds_list, container, false);
-
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
-                android.R.color.holo_green_dark,
-                android.R.color.holo_orange_dark,
-                android.R.color.holo_blue_dark);
-
-        /*swipeRefreshLayout.post(new Runnable() {
-
-            @Override
-            public void run() {
-
-                //swipeRefreshLayout.setRefreshing(true);
-
-                LoadFeeds();
-            }
-        });*/
-
-    /*    return rootView;
-    }*/
-
-
-
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         feedViewModel.refresh();
     }
-
-   /* @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-       // apiService = ApiUtils.getAPIService();
-
-        tagList = new ArrayList<String>();
-        createTagList();
-        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-        /*feedsCollection = new LinkedHashMap<String, List<Feed>>();
-
-        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-        expListAdapter = new ExpandableListAdapter(
-                getActivity(), tagList, feedsCollection);
-
-        expListView.setAdapter(expListAdapter);
-*/
-        //expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-        /*expListView.setAdapter(expListAdapter);
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
-
-                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
-                        .show();
-
-                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
-
-                return true;
-            }
-        });*/
-
-        //LoadFeeds();
-
-        /*expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
-
-                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
-                        .show();
-
-                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
-
-                return true;
-            }
-        });*/
-
-   /*     FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
-        addFeedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                onFeedsListListenerCallback.onNewFeedAddAction();
-            }
-        });
-    }*/
 
     @Override
     public void onPause() {

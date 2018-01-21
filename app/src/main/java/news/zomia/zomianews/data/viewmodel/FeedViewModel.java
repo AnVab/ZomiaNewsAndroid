@@ -10,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 
@@ -22,23 +23,25 @@ public class FeedViewModel extends ViewModel {
     private String feedId;
     private LiveData<Resource<List<Feed>>> feeds;
 
+    private LiveData<Resource<List<FeedStoriesCount>>> feedStoriesCount;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public FeedViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
         feeds = dataRepo.loadFeeds();
+
+        feedStoriesCount = dataRepo.loadFeedStoriesCount();
     }
 
     public LiveData<Resource<List<Feed>>> getFeeds() {
-       /* if(feeds == null)
-        {
-            feeds = new MutableLiveData<Resource<List<Feed>>>();
-            feeds = dataRepo.loadFeeds();
-        }*/
         return feeds;
     }
 
     public void refresh() {
         feeds = dataRepo.loadFeeds();
+    }
+
+    public LiveData<Resource<List<FeedStoriesCount>>> getFeedStoriesCount() {
+        return feedStoriesCount;
     }
 }

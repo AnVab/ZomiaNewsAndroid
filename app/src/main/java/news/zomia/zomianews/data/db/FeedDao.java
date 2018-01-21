@@ -11,6 +11,7 @@ import android.arch.persistence.room.Update;
 import java.util.List;
 
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.model.Result;
 
 /**
@@ -36,6 +37,6 @@ public interface FeedDao {
     @Query("SELECT * FROM result where id = :storyId")
     public LiveData<Result> findStoryById(Integer storyId);
 
-    @Query("SELECT COUNT(*) FROM result WHERE feed_id = :feedId ")
-    public LiveData<Integer> countFeedStoriesTotal(Integer feedId);
+    @Query("SELECT feed_id, COUNT(*) FROM result  GROUP BY feed_id")
+    public abstract LiveData<List<FeedStoriesCount>> countFeedStoriesTotal();
 }

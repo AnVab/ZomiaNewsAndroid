@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.model.Stories;
 import news.zomia.zomianews.data.util.AbsentLiveData;
@@ -164,6 +165,32 @@ public class DataRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<Result>> createCall() {
+                return null;
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<Resource<List<FeedStoriesCount>>> loadFeedStoriesCount() {
+        return new NetworkBoundResource<List<FeedStoriesCount>,List<FeedStoriesCount>>(appExecutors) {
+            @Override
+            protected void saveCallResult(@NonNull List<FeedStoriesCount> item) {
+                return;
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<FeedStoriesCount> data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<FeedStoriesCount>> loadFromDb() {
+                return feedDao.countFeedStoriesTotal();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<FeedStoriesCount>>> createCall() {
                 return null;
             }
         }.asLiveData();
