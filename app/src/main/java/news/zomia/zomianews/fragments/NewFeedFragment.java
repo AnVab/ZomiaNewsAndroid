@@ -2,9 +2,12 @@ package news.zomia.zomianews.fragments;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +18,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.inject.Inject;
+
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.service.ApiUtils;
+import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.ZomiaService;
+import news.zomia.zomianews.di.Injectable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -26,13 +33,17 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NewFeedFragment extends Fragment {
+public class NewFeedFragment extends Fragment implements
+        LifecycleRegistryOwner,
+        Injectable {
 
-    private ZomiaService zomiaService;
     private View rootView;
     TextView feedSourcePathTextView;
 
+    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
     OnFeedAddedListener onFeedAddedListenerCallback;
+    @Inject
+    DataRepository dataRepo;
 
     public NewFeedFragment() {
         // Required empty public constructor
@@ -56,14 +67,12 @@ public class NewFeedFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        zomiaService = ApiUtils.getAPIService();
-
         feedSourcePathTextView = (TextView)  view.findViewById(R.id.feedSourcePathTextView);
         ExpandableListView feedTypeList = (ExpandableListView) view.findViewById(R.id.feedTypeList);
         Button addTagButton = (Button) view.findViewById(R.id.addTagButton);
         ListView tagsListView = (ListView) view.findViewById(R.id.tagsListView);
 
-        Button addFeedButton = (Button) view.findViewById(R.id.addFeedButton);
+        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -73,7 +82,7 @@ public class NewFeedFragment extends Fragment {
                     {
                         Feed feed = new Feed();
                         feed.setUrl(feedUrl);
-                        zomiaService.addNewFeed(feed).enqueue(new Callback<Feed>() {
+                        dataRepo.getZomiaService().addNewFeed(feed).enqueue(new Callback<Feed>() {
                             @Override
                             public void onResponse(Call<Feed> call, Response<Feed> response) {
                                 //To get the status code
@@ -104,6 +113,11 @@ public class NewFeedFragment extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return lifecycleRegistry;
     }
 
     @Override

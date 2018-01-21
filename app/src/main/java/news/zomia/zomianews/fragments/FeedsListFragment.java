@@ -117,8 +117,14 @@ public class FeedsListFragment extends Fragment implements
         if(repo != null) {
             repo.observe(getActivity(), resource -> {
 
-                if (resource != null)
+                if (resource != null) {
                     ShowFeeds(resource.data);
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                else
+                {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                     //createCollection(resource.data);
 
             });
@@ -186,7 +192,8 @@ public class FeedsListFragment extends Fragment implements
 
     @Override
     public void onRefresh() {
-        LoadFeeds();
+        swipeRefreshLayout.setRefreshing(true);
+        feedViewModel.refresh();
     }
 
    /* @Override

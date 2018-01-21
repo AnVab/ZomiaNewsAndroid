@@ -37,4 +37,8 @@ public class FeedViewModel extends ViewModel {
         }*/
         return feeds;
     }
+
+    public void refresh() {
+        feeds = dataRepo.loadFeeds();
+    }
 }

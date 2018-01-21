@@ -62,7 +62,8 @@ public class DataRepository {
 
             @Override
             protected boolean shouldFetch(@Nullable List<Feed> data) {
-                return data == null || data.isEmpty();
+                //return data == null || data.isEmpty();
+                return true;
             }
 
             @NonNull @Override

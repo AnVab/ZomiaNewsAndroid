@@ -7,22 +7,6 @@
     android:layout_height="match_parent"
     tools:layout_editor_absoluteY="81dp">
 
-    <Button
-        android:id="@+id/addFeedButton"
-        style="@style/Widget.AppCompat.Button"
-        android:layout_width="352dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tagsListView" />
-
     <EditText
         android:id="@+id/feedSourcePathTextView"
         android:layout_width="241dp"
@@ -75,7 +59,7 @@
         android:id="@+id/tagsListView"
         android:layout_width="352dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="78dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -94,5 +78,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/feedSourcePathTextView"
         app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addFeedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_action_done" />
 
 </android.support.constraint.ConstraintLayout>
