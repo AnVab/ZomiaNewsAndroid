@@ -22,9 +22,7 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.data.service.DataRepository;
-import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.di.Injectable;
 import retrofit2.Call;
 import retrofit2.Callback;

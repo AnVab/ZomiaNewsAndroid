@@ -3,7 +3,6 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Result;
-import news.zomia.zomianews.data.service.ApiUtils;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
