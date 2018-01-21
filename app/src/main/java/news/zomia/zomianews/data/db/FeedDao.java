@@ -35,4 +35,7 @@ public interface FeedDao {
 
     @Query("SELECT * FROM result where id = :storyId")
     public LiveData<Result> findStoryById(Integer storyId);
+
+    @Query("SELECT COUNT(*) FROM result WHERE feed_id = :feedId ")
+    public LiveData<Integer> countFeedStoriesTotal(Integer feedId);
 }
