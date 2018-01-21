@@ -32,4 +32,7 @@ public interface FeedDao {
 
     @Query("SELECT * FROM result where feed_id = :feedId ORDER BY date DESC")
     public LiveData<List<Result>> loadAllStoriesSync(Integer feedId);
+
+    @Query("SELECT * FROM result where id = :storyId")
+    public LiveData<Result> findStoryById(Integer storyId);
 }

@@ -16,6 +16,7 @@ import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.util.AbsentLiveData;
 import news.zomia.zomianews.data.util.Objects;
+import okhttp3.Interceptor;
 
 /**
  * Created by Andrey on 17.01.2018.
@@ -26,7 +27,8 @@ public class StoryViewModel  extends ViewModel {
 
     private MutableLiveData<Integer> selectedFeedId = new MutableLiveData<>();
     private LiveData<Resource<List<Result>>> stories;
-    private MutableLiveData<Resource<Result>> currentStory = null;
+    private MutableLiveData<Integer> selectedCurrentStory = new MutableLiveData<>();
+    private LiveData<Resource<Result>> currentStory = null;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public StoryViewModel(DataRepository dataRepo) {
@@ -39,7 +41,13 @@ public class StoryViewModel  extends ViewModel {
             }
         });
 
-        //stories = dataRepo.loadStories(selectedFeedId.getValue());
+        currentStory = Transformations.switchMap(selectedCurrentStory, result -> {
+            if (result == null ) {
+                return AbsentLiveData.create();
+            } else {
+                return dataRepo.loadStory(stories.getValue().data.get(selectedCurrentStory.getValue()).getId());
+            }
+        });
     }
 
     public LiveData<Resource<List<Result>>> getStories() {
@@ -57,5 +65,23 @@ public class StoryViewModel  extends ViewModel {
         if (selectedFeedId.getValue() != null) {
             selectedFeedId.setValue(selectedFeedId.getValue());
         }
+    }
+
+
+    public void setCurrentStoryPosition(@NonNull Integer storyListPosition) {
+        selectedCurrentStory.setValue(storyListPosition);
+    }
+
+    public void goToNextCurrentStoryPosition() {
+
+        Integer newValue = selectedCurrentStory.getValue() + 1;
+        if(newValue < stories.getValue().data.size())
+            selectedCurrentStory.setValue(newValue);
+        else
+            selectedCurrentStory.setValue(0);
+    }
+
+    public LiveData<Resource<Result>> getCurrentStory() {
+        return currentStory;
     }
 }

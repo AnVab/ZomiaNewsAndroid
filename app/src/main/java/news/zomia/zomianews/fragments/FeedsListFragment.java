@@ -363,31 +363,7 @@ public class FeedsListFragment extends Fragment implements
         tagList.add("News");
         tagList.add("Games");
         tagList.add("Bookmarks");
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
+
         if(expListAdapter != null)
             expListAdapter.notifyDataSetChanged();
     }

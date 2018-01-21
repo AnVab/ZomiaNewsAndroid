@@ -2,6 +2,9 @@ package news.zomia.zomianews.fragments;
 
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,20 +24,32 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.inject.Inject;
+
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
+import news.zomia.zomianews.data.viewmodel.StoryViewModel;
+import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
+import news.zomia.zomianews.di.Injectable;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class StoryViewerFragment extends Fragment
-        implements SwipeRefreshLayout.OnRefreshListener{
+        implements SwipeRefreshLayout.OnRefreshListener,
+        LifecycleRegistryOwner,
+        Injectable {
 
     private static final String TAG = "StoryViewerFragment";
 
     OnStoryViewerListener onStoryViewerListenerCallback;
 
     private View rootView;
+    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+
+    @Inject
+    StoryViewModelFactory storyViewModelFactory;
+    private StoryViewModel storyViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
@@ -52,10 +67,6 @@ public class StoryViewerFragment extends Fragment
 
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_news_viewer, container, false);
-        date = getArguments().getString("date");
-        title = getArguments().getString("title");
-        content = getArguments().getString("content");
-
         return rootView;
     }
 
@@ -90,7 +101,7 @@ public class StoryViewerFragment extends Fragment
         {
             @Override
             public void onSwipeLeft() {
-                onStoryViewerListenerCallback.nextStoryRequest(1);
+                storyViewModel.goToNextCurrentStoryPosition();
             }
 
             @Override
@@ -128,7 +139,39 @@ public class StoryViewerFragment extends Fragment
             }
         });
 
-        loadContent();
+        //loadContent();
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        storyViewModel = ViewModelProviders.of(getActivity()).get(StoryViewModel.class);
+
+        storyViewModel.getCurrentStory().observe(getActivity(), resource -> {
+                // Update the UI.
+                if (resource != null && resource.data != null) {
+
+                    date = resource.data.getDate();
+                    title = resource.data.getTitle();
+                    content = resource.data.getContent();
+
+                    loadContent();
+
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                else
+                {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
+        });
+    }
+
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return lifecycleRegistry;
     }
 
     public void loadContent()

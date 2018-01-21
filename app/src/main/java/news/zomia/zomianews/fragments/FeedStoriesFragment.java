@@ -130,6 +130,8 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public void onItemClicked(int position) {
+        storyViewModel.setCurrentStoryPosition(position);
+
         Result selectedStory = (Result) storiesAdapter.getItem(position);
         onStorySelectedListenerCallback.onStorySelected(selectedStory);
     }

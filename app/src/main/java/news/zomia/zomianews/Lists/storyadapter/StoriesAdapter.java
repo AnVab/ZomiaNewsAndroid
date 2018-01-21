@@ -80,7 +80,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     @SuppressLint("StaticFieldLeak")
     @MainThread
     public void replace(List<Result> update) {
-        Log.d("ZOMIA","Size " + update.size() );
+
         dataVersion ++;
         if (stories == null) {
             if (update == null) {
@@ -92,7 +92,6 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             int oldSize = stories.size();
             stories = null;
             notifyItemRangeRemoved(0, oldSize);
-            Log.d("ZOMIA","Size null " );
         } else {
             final int startVersion = dataVersion;
             final List<Result> oldItems = stories;
@@ -132,7 +131,6 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
                         // ignore update
                         return;
                     }
-                    Log.d("ZOMIA","onPostExecute " + update.size());
                     stories = update;
                     diffResult.dispatchUpdatesTo(StoriesAdapter.this);
 

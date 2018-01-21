@@ -142,4 +142,30 @@ public class DataRepository {
             }
         }.asLiveData();
     }
+
+    public LiveData<Resource<Result>> loadStory(Integer storyId) {
+        return new NetworkBoundResource<Result,Result>(appExecutors) {
+            @Override
+            protected void saveCallResult(@NonNull Result item) {
+                return;
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable Result data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<Result> loadFromDb() {
+                return feedDao.findStoryById(storyId);
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<Result>> createCall() {
+                return null;
+            }
+        }.asLiveData();
+    }
 }
