@@ -28,6 +28,8 @@ import java.util.Map;
 import news.zomia.zomianews.Lists.ExpandableListAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
+import news.zomia.zomianews.data.model.Tag;
+import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.di.Injectable;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.service.Resource;
@@ -56,8 +58,8 @@ public class FeedsListFragment extends Fragment implements
     private FeedViewModel feedViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
-    List<String> tagList;
-    Map<String, List<Feed>> feedsCollection;
+    List<Tag> tagList;
+    Map<Integer, List<Feed>> feedsCollection;
     private Map<Integer, Integer> feedsStoriesCountMap;
     List<Feed> childList;
     ExpandableListView expListView;
@@ -112,27 +114,10 @@ public class FeedsListFragment extends Fragment implements
 
         feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
 
-        //Create tags array for a map
-        createTagList();
-
-        feedsCollection = new LinkedHashMap<String, List<Feed>>();
+        tagList = new ArrayList<Tag>();
+        feedsCollection = new LinkedHashMap<Integer, List<Feed>>();
         feedsStoriesCountMap = new HashMap<Integer, Integer>();
-        /*LiveData<Resource<List<Feed>>> repo = feedViewModel.getFeeds();
-        if(repo != null) {
-            repo.observe(getActivity(), resource -> {
 
-                if (resource != null) {
-                    ShowFeeds(resource.data);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-                else
-                {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-                    //createCollection(resource.data);
-
-            });
-        }*/
         expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection, feedsStoriesCountMap);
         expListView.setAdapter(expListAdapter);
 
@@ -140,7 +125,67 @@ public class FeedsListFragment extends Fragment implements
         feedViewModel.getFeeds().observe(this, resource -> {
             // update UI
             if (resource != null) {
-                createCollection(resource.data);
+
+                if(resource.data != null && resource.data.size() > 0) {
+                    //For now do nothing
+                }
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            else
+                swipeRefreshLayout.setRefreshing(false);
+        });
+
+        //Load tags. Update expandable list data.
+        feedViewModel.getFeedsWithTags().observe(this, resource -> {
+            // update UI
+            if (resource != null && resource.data != null) {
+
+                //Add map with tag - feed list pairs
+                feedsCollection.clear();
+                for(TagFeedPair tagFeedPair: resource.data)
+                {
+                    //Check if the map has the tag
+                    List<Feed> feedList = feedsCollection.get(tagFeedPair.tag.getId());
+                    if (feedList != null) {
+                        feedList.add(tagFeedPair.feed);
+                    } else {
+                        // Key might be present
+                        if (feedsCollection.containsKey(tagFeedPair.tag.getId())) {
+                            // Okay, there's a key but the value is null
+                            feedList = new ArrayList<Feed>();
+                            feedList.add(tagFeedPair.feed);
+                            feedsCollection.put(tagFeedPair.tag.getId(),feedList);
+                        } else {
+                            // Definitely no such key
+                            feedList = new ArrayList<Feed>();
+                            feedList.add(tagFeedPair.feed);
+                            feedsCollection.put(tagFeedPair.tag.getId(),feedList);
+                        }
+                    }
+                }
+
+                if(expListAdapter != null)
+                    expListAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            else
+                swipeRefreshLayout.setRefreshing(false);
+        });
+
+        //Load tags. Update expandable list data.
+        feedViewModel.getTags().observe(this, resource -> {
+            // update UI
+            if (resource != null && resource.data != null) {
+
+                //Add tags
+                tagList.clear();
+                tagList.addAll(resource.data);
+
+                if(expListAdapter != null)
+                    expListAdapter.notifyDataSetChanged();
+
                 swipeRefreshLayout.setRefreshing(false);
             }
             else
@@ -167,11 +212,10 @@ public class FeedsListFragment extends Fragment implements
         feedViewModel.getFeedStoriesCount().observe(this, resource -> {
             // update UI
             if (resource != null && resource.data != null) {
-
+                //Add stories count to show on the list
                 feedsStoriesCountMap.clear();
                 for(FeedStoriesCount count: resource.data) {
                     feedsStoriesCountMap.put(count.getFeedId(), count.getStoriesCountTotal());
-                    Log.d("ZOMIA", "Feed id: " + count.getFeedId() + "  stories count: " + count.getStoriesCountTotal());
                 }
 
                 expListAdapter.notifyDataSetChanged();
@@ -219,108 +263,14 @@ public class FeedsListFragment extends Fragment implements
         public void onNewFeedAddAction();
     }
 
-    public void LoadFeeds()
-    {
-        swipeRefreshLayout.setRefreshing(true);
-        if(feedViewModel != null)
-            feedViewModel.getFeeds();
-
-       /* feedViewModel.getFeeds().observe(this, feeds -> {
-            // no null checks for adapter.get() since LiveData guarantees that we'll not receive
-            // the event if fragment is now show.
-            if (feeds == null) {
-                expListAdapter.get().replace(null);
-            } else {
-                adapter.get().replace(feeds.data);
-            }
-        });*/
-
-        /*swipeRefreshLayout.setRefreshing(true);
-
-        apiService.getFeedsList().enqueue(new Callback<List<Feed>>() {
-            @Override
-            public void onResponse(Call<List<Feed>> call,Response<List<Feed>> response) {
-                //To get the status code
-                if(response.isSuccessful())
-                {
-                    switch(response.code())
-                    {
-                        case 200:
-                            //No errors
-                            Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
-                            // Send the event to the host activity
-                            ShowFeeds(response.body());
-
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                        default:
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                    }
-                }
-                else
-                {
-                    //Connection problem
-                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Feed>> call, Throwable t) {
-                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });*/
-    }
-
-    public void ShowFeeds(List<Feed> feedsList)
-    {
-        //Update data sets for tags and feeds
-        //createTagList();
-        createCollection(feedsList);
-
-        //Notify adapter that data is updated
-        if(expListAdapter != null)
-            expListAdapter.notifyDataSetChanged();
-    }
-
-    private void createTagList() {
-        if(tagList == null)
-            tagList = new ArrayList<String>();
-        else
-            tagList.clear();
-
-        tagList.add("Top");
-        tagList.add("Fun");
-        tagList.add("News");
-        tagList.add("Games");
-        tagList.add("Bookmarks");
-
-        if(expListAdapter != null)
-            expListAdapter.notifyDataSetChanged();
-    }
-
-    private void createCollection(List<Feed> feedsList) {
-
-        if(feedsList != null) {
-            //feedsCollection = new LinkedHashMap<String, List<Feed>>();
-            feedsCollection.clear();
-            childList = new ArrayList<Feed>();
-            childList.addAll(feedsList);
-            String tagValue = tagList.get(0);
-
-            feedsCollection.put(tagValue, childList);
-        }
-    }
 
     @Override
     public void onResume() {
         super.onResume();
-        //feedsCollection.clear();
-        //Get items ...
-        createTagList();
-        //LoadFeeds();
+
+        if(feedViewModel != null)
+            feedViewModel.refresh();
+
         //Update list
         if(expListAdapter != null)
             expListAdapter.notifyDataSetChanged();

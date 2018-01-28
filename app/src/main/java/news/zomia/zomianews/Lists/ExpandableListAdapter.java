@@ -17,6 +17,7 @@ import java.util.Map;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
+import news.zomia.zomianews.data.model.Tag;
 
 /**
  * Created by Andrey on 02.01.2018.
@@ -29,13 +30,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     private LayoutInflater inflater;
 
     //Header titles - tags
-    private List<String> tags;
+    private List<Tag> tags;
     //Child items of tags
-    private Map<String, List<Feed>> feedsCollections;
+    private Map<Integer, List<Feed>> feedsCollections;
     private Map<Integer, Integer> feedsStoriesCountMap;
 
-    public ExpandableListAdapter(Activity context, List<String> tags,
-                                 Map<String, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
+    public ExpandableListAdapter(Activity context, List<Tag> tags,
+                                 Map<Integer, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
         this.inflater = LayoutInflater.from(context);
         this.feedsCollections = feedsCollections;
         this.feedsStoriesCountMap = feedsStoriesCountMap;
@@ -44,9 +45,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        Log.d(TAG, "groupPosition = " + groupPosition + " childPosition = " + childPosition + " feedsCollections.size = " + feedsCollections.size() + " tags.size = " +tags.size());
 
-        return this.feedsCollections.get(this.tags.get(groupPosition))
+        return this.feedsCollections.get(this.tags.get(groupPosition).getId())
                 .get(childPosition);
     }
 
@@ -72,10 +72,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        if(this.feedsCollections == null || this.tags == null || this.feedsCollections.get(this.tags.get(groupPosition)) == null)
+        if(this.feedsCollections == null || this.tags == null || this.feedsCollections.get(this.tags.get(groupPosition).getId()) == null)
             return 0;
         else
-            return this.feedsCollections.get(this.tags.get(groupPosition)).size();
+            return this.feedsCollections.get(this.tags.get(groupPosition).getId()).size();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View view, ViewGroup viewGroup) {
-        String tag = (String) getGroup(groupPosition);
+        String tag = ((Tag) getGroup(groupPosition)).getName();
         if (view == null) {
             view = inflater.inflate(R.layout.layout_feeds_list_group_item, null);
         }

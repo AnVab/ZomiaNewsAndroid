@@ -19,6 +19,10 @@ import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.model.Result;
 import news.zomia.zomianews.data.model.Stories;
+import news.zomia.zomianews.data.model.Tag;
+import news.zomia.zomianews.data.model.TagFeedJoin;
+import news.zomia.zomianews.data.model.TagFeedPair;
+import news.zomia.zomianews.data.model.TagJson;
 import news.zomia.zomianews.data.util.AbsentLiveData;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
@@ -70,7 +74,7 @@ public class DataRepository {
             @NonNull @Override
             protected LiveData<List<Feed>> loadFromDb() {
                 Log.d("ZOMIA", "feedDao.loadFromDb");
-                return feedDao.loadAllFeedsSync();
+                return feedDao.loadAllFeeds();
             }
 
             @NonNull @Override
@@ -98,9 +102,6 @@ public class DataRepository {
                     story.setFeedId(feedId);
                 }
 
-                /*RepoSearchResult repoSearchResult = new RepoSearchResult(
-                        query, storiesResult, item.getTotal(), item.getNextPage());*/
-
                 db.beginTransaction();
                 try {
                     feedDao.insertStories(item.getResults());
@@ -122,7 +123,7 @@ public class DataRepository {
                 //LiveData<List<Result>> res = feedDao.loadAllStoriesSync();//feedId);
                 //return res;
                 Log.d("ZOMIA", "loadFromDb feedId: " + feedId);
-                return feedDao.loadAllStoriesSync(feedId);
+                return feedDao.loadAllStories(feedId);
             }
 
             @NonNull
@@ -194,5 +195,85 @@ public class DataRepository {
                 return null;
             }
         }.asLiveData();
+    }
+
+    public LiveData<Resource<List<Tag>>> loadTags() {
+
+        Log.d("ZOMIA", "loadTags");
+
+        return new NetworkBoundResource<List<Tag>,List<TagJson>>(appExecutors) {
+            @Override
+            protected void saveCallResult(@NonNull List<TagJson> item) {
+                //Save tags
+                for(TagJson tagFeed: item)
+                {
+                    db.beginTransaction();
+                    try {
+                        //Save tag to db
+                        feedDao.insertTag(new Tag(tagFeed.getId(), tagFeed.getName()));
+
+                        //Save tags and feeds join data
+                        for(int i = 0; i < tagFeed.getFeedsId().size(); i++)
+                            feedDao.insertTagFeedJoin(new TagFeedJoin(tagFeed.getId(), tagFeed.getFeedsId().get(i)));
+
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Tag> data) {
+                //return data == null || data.isEmpty();
+                return true;
+            }
+
+            @NonNull @Override
+            protected LiveData<List<Tag>> loadFromDb() {
+                Log.d("ZOMIA", "feedDao.loadFromDb");
+                return feedDao.getTags();
+            }
+
+            @NonNull @Override
+            protected LiveData<ApiResponse<List<TagJson>>> createCall() {
+                Log.d("ZOMIA", "webService.getTagsList");
+                return webService.getTagsList();
+            }
+
+            @Override
+            protected void onFetchFailed() {
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<Resource<List<TagFeedPair>>> getFeedsWithTags() {
+        return new NetworkBoundResource<List<TagFeedPair>,List<TagFeedPair>>(appExecutors) {
+            @Override
+            protected void saveCallResult(@NonNull List<TagFeedPair> item) {
+                return;
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<TagFeedPair> data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<TagFeedPair>> loadFromDb() {
+                return feedDao.getFeedsWithTags();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<TagFeedPair>>> createCall() {
+                return null;
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<List<Feed>> getFeedsForTag(Integer tagId) {
+        return feedDao.getFeedsForTag(tagId);
     }
 }

@@ -14,9 +14,9 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class Feed {
 
-
     @SerializedName("id")
     @Expose
+    @ColumnInfo(name = "fid")
     private Integer id;
     @PrimaryKey
     @ColumnInfo(name = "feed_id")

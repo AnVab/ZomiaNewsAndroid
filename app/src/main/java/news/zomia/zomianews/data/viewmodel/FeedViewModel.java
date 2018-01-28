@@ -11,6 +11,8 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
+import news.zomia.zomianews.data.model.Tag;
+import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 
@@ -20,15 +22,17 @@ import news.zomia.zomianews.data.service.Resource;
 
 public class FeedViewModel extends ViewModel {
     DataRepository dataRepo;
-    private String feedId;
     private LiveData<Resource<List<Feed>>> feeds;
 
     private LiveData<Resource<List<FeedStoriesCount>>> feedStoriesCount;
+
+    private LiveData<Resource<List<Tag>>> tags;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public FeedViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
         feeds = dataRepo.loadFeeds();
+        tags = dataRepo.loadTags();
 
         feedStoriesCount = dataRepo.loadFeedStoriesCount();
     }
@@ -37,11 +41,24 @@ public class FeedViewModel extends ViewModel {
         return feeds;
     }
 
+    public LiveData<Resource<List<Tag>>> getTags() {
+        return tags;
+    }
+
     public void refresh() {
         feeds = dataRepo.loadFeeds();
+        tags = dataRepo.loadTags();
     }
 
     public LiveData<Resource<List<FeedStoriesCount>>> getFeedStoriesCount() {
         return feedStoriesCount;
+    }
+
+    public LiveData<Resource<List<TagFeedPair>>> getFeedsWithTags() {
+        return dataRepo.getFeedsWithTags();
+    }
+
+    public LiveData<List<Feed>> getFeedsForTag(Integer tagId) {
+        return dataRepo.getFeedsForTag(tagId);
     }
 }
