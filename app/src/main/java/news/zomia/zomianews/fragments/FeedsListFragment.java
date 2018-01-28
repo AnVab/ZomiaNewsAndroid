@@ -310,11 +310,11 @@ public class FeedsListFragment extends Fragment implements
     public void onResume() {
         super.onResume();
 
-        if(feedViewModel != null)
-            feedViewModel.refresh();
+       // if(feedViewModel != null)
+        //    feedViewModel.refresh();
 
         //Update list
-        if(expListAdapter != null)
-            expListAdapter.notifyDataSetChanged();
+        //if(expListAdapter != null)
+        //    expListAdapter.notifyDataSetChanged();
     }
 }

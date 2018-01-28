@@ -24,7 +24,6 @@ import news.zomia.zomianews.data.model.Tag;
  */
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter
-       // implements Filterable
 {
     private static final String TAG = "ZomiaExpandableList";
     private LayoutInflater inflater;

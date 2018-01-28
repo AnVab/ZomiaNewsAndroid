@@ -41,10 +41,10 @@ public interface FeedDao {
     @Query("SELECT * FROM feed INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=:tagId")
     public LiveData<List<Feed>> getFeedsForTag(Integer tagId);
 
-    @Query("SELECT * FROM feed LEFT JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id is null")
+    @Query("SELECT feed.* FROM feed LEFT JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id is null")
     public LiveData<List<Feed>> getFeedsWithNoTag();
 
-    @Query("SELECT * FROM feed, tag INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=tid AND TagFeedJoin.feed_id =fid ORDER BY name, title ASC")
+    @Query("SELECT * FROM feed, tag INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=tid AND TagFeedJoin.feed_id =feed.feed_id ORDER BY name, title ASC")
     public LiveData<List<TagFeedPair>> getFeedsWithTags();
 
     //Feeds

@@ -18,10 +18,10 @@ public class Feed {
     @Expose
     @ColumnInfo(name = "fid")
     private Integer id;
-    @PrimaryKey
-    @ColumnInfo(name = "feed_id")
     @SerializedName("feed_id")
     @Expose
+    @PrimaryKey
+    @ColumnInfo(name = "feed_id")
     private Integer feedId;
     @SerializedName("status")
     @Expose
