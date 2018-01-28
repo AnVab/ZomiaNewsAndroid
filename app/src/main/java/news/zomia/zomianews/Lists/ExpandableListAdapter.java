@@ -114,6 +114,16 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         TextView item = (TextView) view.findViewById(R.id.tagNameTextView);
         //item.setTypeface(null, Typeface.BOLD);
         item.setText(tag);
+
+        //Set feeds count for the tag
+        TextView itemFeedCount = (TextView) view.findViewById(R.id.tagFeedsCountTextView);
+        if(itemFeedCount != null && this.feedsCollections != null && this.feedsCollections.get(tag) != null)
+        {
+            itemFeedCount.setText(String.valueOf(this.feedsCollections.get(tag).size()));
+        }
+        else
+            itemFeedCount.setText(String.valueOf(0));
+
         return view;
     }
 
