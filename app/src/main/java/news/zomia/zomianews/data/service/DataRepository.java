@@ -273,7 +273,29 @@ public class DataRepository {
         }.asLiveData();
     }
 
-    public LiveData<List<Feed>> getFeedsForTag(Integer tagId) {
-        return feedDao.getFeedsForTag(tagId);
+    public LiveData<Resource<List<Feed>>> getFeedsWithNoTag() {
+        return new NetworkBoundResource<List<Feed>,List<Feed>>(appExecutors) {
+            @Override
+            protected void saveCallResult(@NonNull List<Feed> item) {
+                return;
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Feed> data) {
+                return false;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Feed>> loadFromDb() {
+                return feedDao.getFeedsWithNoTag();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<Feed>>> createCall() {
+                return null;
+            }
+        }.asLiveData();
     }
 }

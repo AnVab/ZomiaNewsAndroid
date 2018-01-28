@@ -58,7 +58,7 @@ public class FeedViewModel extends ViewModel {
         return dataRepo.getFeedsWithTags();
     }
 
-    public LiveData<List<Feed>> getFeedsForTag(Integer tagId) {
-        return dataRepo.getFeedsForTag(tagId);
+    public LiveData<Resource<List<Feed>>> getFeedsWithNoTag() {
+        return dataRepo.getFeedsWithNoTag();
     }
 }

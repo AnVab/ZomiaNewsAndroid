@@ -30,13 +30,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     private LayoutInflater inflater;
 
     //Header titles - tags
-    private List<Tag> tags;
+    private List<String> tags;
     //Child items of tags
-    private Map<Integer, List<Feed>> feedsCollections;
+    private Map<String, List<Feed>> feedsCollections;
     private Map<Integer, Integer> feedsStoriesCountMap;
 
-    public ExpandableListAdapter(Activity context, List<Tag> tags,
-                                 Map<Integer, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
+    public ExpandableListAdapter(Activity context, List<String> tags,
+                                 Map<String, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
         this.inflater = LayoutInflater.from(context);
         this.feedsCollections = feedsCollections;
         this.feedsStoriesCountMap = feedsStoriesCountMap;
@@ -46,7 +46,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     @Override
     public Object getChild(int groupPosition, int childPosition) {
 
-        return this.feedsCollections.get(this.tags.get(groupPosition).getId())
+        return this.feedsCollections.get(this.tags.get(groupPosition))
                 .get(childPosition);
     }
 
@@ -72,10 +72,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        if(this.feedsCollections == null || this.tags == null || this.feedsCollections.get(this.tags.get(groupPosition).getId()) == null)
+        if(this.feedsCollections == null || this.tags == null || this.feedsCollections.get(this.tags.get(groupPosition)) == null)
             return 0;
         else
-            return this.feedsCollections.get(this.tags.get(groupPosition).getId()).size();
+            return this.feedsCollections.get(this.tags.get(groupPosition)).size();
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View view, ViewGroup viewGroup) {
-        String tag = ((Tag) getGroup(groupPosition)).getName();
+        String tag = (String) getGroup(groupPosition);
         if (view == null) {
             view = inflater.inflate(R.layout.layout_feeds_list_group_item, null);
         }

@@ -58,8 +58,8 @@ public class FeedsListFragment extends Fragment implements
     private FeedViewModel feedViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
-    List<Tag> tagList;
-    Map<Integer, List<Feed>> feedsCollection;
+    List<String> tagList;
+    Map<String, List<Feed>> feedsCollection;
     private Map<Integer, Integer> feedsStoriesCountMap;
     List<Feed> childList;
     ExpandableListView expListView;
@@ -114,8 +114,8 @@ public class FeedsListFragment extends Fragment implements
 
         feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
 
-        tagList = new ArrayList<Tag>();
-        feedsCollection = new LinkedHashMap<Integer, List<Feed>>();
+        tagList = new ArrayList<String>();
+        feedsCollection = new LinkedHashMap<String, List<Feed>>();
         feedsStoriesCountMap = new HashMap<Integer, Integer>();
 
         expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection, feedsStoriesCountMap);
@@ -136,7 +136,7 @@ public class FeedsListFragment extends Fragment implements
                 swipeRefreshLayout.setRefreshing(false);
         });
 
-        //Load tags. Update expandable list data.
+        //Load feeds with tags. Update expandable list data.
         feedViewModel.getFeedsWithTags().observe(this, resource -> {
             // update UI
             if (resource != null && resource.data != null) {
@@ -146,22 +146,56 @@ public class FeedsListFragment extends Fragment implements
                 for(TagFeedPair tagFeedPair: resource.data)
                 {
                     //Check if the map has the tag
-                    List<Feed> feedList = feedsCollection.get(tagFeedPair.tag.getId());
+                    List<Feed> feedList = feedsCollection.get(tagFeedPair.tag.getName());
                     if (feedList != null) {
                         feedList.add(tagFeedPair.feed);
                     } else {
                         // Key might be present
-                        if (feedsCollection.containsKey(tagFeedPair.tag.getId())) {
+                        if (feedsCollection.containsKey(tagFeedPair.tag.getName())) {
                             // Okay, there's a key but the value is null
                             feedList = new ArrayList<Feed>();
                             feedList.add(tagFeedPair.feed);
-                            feedsCollection.put(tagFeedPair.tag.getId(),feedList);
+                            feedsCollection.put(tagFeedPair.tag.getName(),feedList);
                         } else {
                             // Definitely no such key
                             feedList = new ArrayList<Feed>();
                             feedList.add(tagFeedPair.feed);
-                            feedsCollection.put(tagFeedPair.tag.getId(),feedList);
+                            feedsCollection.put(tagFeedPair.tag.getName(),feedList);
                         }
+                    }
+                }
+
+                if(expListAdapter != null)
+                    expListAdapter.notifyDataSetChanged();
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            else
+                swipeRefreshLayout.setRefreshing(false);
+        });
+
+        //Load feeds with no tag. Update expandable list data.
+        feedViewModel.getFeedsWithNoTag().observe(this, resource -> {
+            // update UI
+            if (resource != null && resource.data != null) {
+
+                //Check if the map has the tag
+                List<Feed> feedList = feedsCollection.get("Undecided");
+                if (feedList != null) {
+                    feedList.clear();
+                    feedList.addAll(resource.data);
+                } else {
+                    // Key might be present
+                    if (feedsCollection.containsKey("Undecided")) {
+                        // Okay, there's a key but the value is null
+                        feedList = new ArrayList<Feed>();
+                        feedList.addAll(resource.data);
+                        feedsCollection.put("Undecided",feedList);
+                    } else {
+                        // Definitely no such key
+                        feedList = new ArrayList<Feed>();
+                        feedList.addAll(resource.data);
+                        feedsCollection.put("Undecided",feedList);
                     }
                 }
 
@@ -181,8 +215,16 @@ public class FeedsListFragment extends Fragment implements
 
                 //Add tags
                 tagList.clear();
-                tagList.addAll(resource.data);
+                //Add default group for feeds with no tags
+                tagList.add("Undecided");
 
+                //Add tags
+                for(Tag tag: resource.data)
+                {
+                    tagList.add(tag.getName());
+                }
+
+                //Update list
                 if(expListAdapter != null)
                     expListAdapter.notifyDataSetChanged();
 
