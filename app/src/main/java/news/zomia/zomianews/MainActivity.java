@@ -53,9 +53,9 @@ public class MainActivity extends AppCompatActivity
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
 
-    LoginFragment loginFragment;
 
-    FeedStoriesFragment feedStoriesFragment;
+
+
     StoryViewerFragment storyViewerFragment;
     private Feed currentFeed;
 
@@ -71,9 +71,7 @@ public class MainActivity extends AppCompatActivity
         // Enable the Up button
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        loginFragment = new LoginFragment();
 
-        feedStoriesFragment = new FeedStoriesFragment();
         storyViewerFragment = new StoryViewerFragment();
 
         //Read saved session token
@@ -127,6 +125,8 @@ public class MainActivity extends AppCompatActivity
 
                 removeBottomPadding();
 
+                FeedStoriesFragment feedStoriesFragment;
+                feedStoriesFragment = new FeedStoriesFragment();
                 // Create fragment and give it an argument for the selected article
                 Bundle args = new Bundle();
                 args.putInt("feedId", feed.getFeedId());
@@ -204,6 +204,9 @@ public class MainActivity extends AppCompatActivity
         if (findViewById(R.id.fragment_container) != null) {
 
             removeBottomPadding();
+
+            LoginFragment loginFragment;
+            loginFragment = new LoginFragment();
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
