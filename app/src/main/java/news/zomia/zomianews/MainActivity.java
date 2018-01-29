@@ -285,13 +285,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        ShowToolbar();
+        //Check if we get back to the FragmentTransaction on the top then exit app
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
+            finish();
+        }
+        else {
+            super.onBackPressed();
+            ShowToolbar();
 
-        //Add bottom padding if we returned back to the feeds list fragment
-        Fragment feedsListFlag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (feedsListFlag instanceof FeedsListFragment)
-            addBottomPadding();
+            //Add bottom padding if we returned back to the feeds list fragment
+            Fragment feedsListFlag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (feedsListFlag instanceof FeedsListFragment)
+                addBottomPadding();
+        }
     }
 
     private void ShowToolbar()

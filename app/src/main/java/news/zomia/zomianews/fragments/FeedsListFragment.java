@@ -259,7 +259,7 @@ public class FeedsListFragment extends Fragment implements
 
             //Expand list
             if(expListAdapter.getGroupCount() > 0)
-                expListView.expandGroup(0,true);
+                expListView.expandGroup(0,false);
 
             swipeRefreshLayout.setRefreshing(false);
         }
