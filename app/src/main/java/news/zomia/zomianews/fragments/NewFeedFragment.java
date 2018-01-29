@@ -4,6 +4,7 @@ package news.zomia.zomianews.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,12 +24,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.service.DataRepository;
+import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.viewmodel.FeedViewModel;
+import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,10 +51,19 @@ public class NewFeedFragment extends Fragment implements
     private View rootView;
     TextView feedSourcePathTextView;
 
+    private List<String> tagList;
+    private ListView tagsListView;
+    private ArrayAdapter<String> tagsListViewAdapter;
+
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+
     OnFeedAddedListener onFeedAddedListenerCallback;
     @Inject
     DataRepository dataRepo;
+    @Inject
+    FeedViewModelFactory feedViewModelFactory;
+
+    private FeedViewModel feedViewModel;
 
     public NewFeedFragment() {
         // Required empty public constructor
@@ -74,57 +89,113 @@ public class NewFeedFragment extends Fragment implements
 
         feedSourcePathTextView = (TextView)  view.findViewById(R.id.feedSourcePathTextView);
 
+        //Tag list
+        tagsListView = (ListView) view.findViewById(R.id.tagsListView);
+        tagList = new ArrayList<String>();
+        ArrayAdapter<String> tagsListViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, tagList);
+        tagsListView.setAdapter(tagsListViewAdapter);
+        tagsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+        //Add tag to the list button
         Button addTagButton = (Button) view.findViewById(R.id.addTagButton);
-        ListView tagsListView = (ListView) view.findViewById(R.id.tagsListView);
 
+        //Add feed button
         FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
-        addFeedButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+        addFeedButton.setOnClickListener(addFeedButtonOnClickListener);
 
-                if (feedSourcePathTextView != null) {
-                    String feedUrl = feedSourcePathTextView.getText().toString();
-                    if (!feedUrl.isEmpty())
-                    {
-                        Feed feed = new Feed();
-                        feed.setUrl(feedUrl);
-                        dataRepo.getZomiaService().addNewFeed(feed).enqueue(new Callback<Feed>() {
-                            @Override
-                            public void onResponse(Call<Feed> call, Response<Feed> response) {
-                                //To get the status code
-                                if (response.isSuccessful()) {
-                                    switch (response.code()) {
-                                        case 200:
-                                            //No errors
-                                            Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
-                                            // Send the event to the host activity
-                                            onFeedAddedListenerCallback.onFeedAdded();
-                                            break;
-                                        default:
+        //Feed channel type
+        Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
+        ArrayAdapter<CharSequence> feedTypeListAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.channel_categories, android.R.layout.simple_spinner_item);
+        feedTypeListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        feedTypeList.setAdapter(feedTypeListAdapter);
+        feedTypeList.setOnItemSelectedListener(this);
+    }
 
-                                            break;
-                                    }
-                                } else {
-                                    //Connection problem
-                                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
+    //Click listener for adding new feed
+    private View.OnClickListener addFeedButtonOnClickListener = new View.OnClickListener()
+    {
+        public void onClick(View v)
+        {
+            if (feedSourcePathTextView != null) {
+                String feedUrl = feedSourcePathTextView.getText().toString();
+                if (!feedUrl.isEmpty())
+                {
+                    Feed feed = new Feed();
+                    feed.setUrl(feedUrl);
+                    dataRepo.getZomiaService().addNewFeed(feed).enqueue(new Callback<Feed>() {
+                        @Override
+                        public void onResponse(Call<Feed> call, Response<Feed> response) {
+                            //To get the status code
+                            if (response.isSuccessful()) {
+                                switch (response.code()) {
+                                    case 200:
+                                        //No errors
+                                        Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
+                                        // Send the event to the host activity
+                                        onFeedAddedListenerCallback.onFeedAdded();
+                                        break;
+                                    default:
+
+                                        break;
                                 }
+                            } else {
+                                //Connection problem
+                                Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
                             }
+                        }
 
-                            @Override
-                            public void onFailure(Call<Feed> call, Throwable t) {
-                                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
+                        @Override
+                        public void onFailure(Call<Feed> call, Throwable t) {
+                            Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
             }
-        });
+        }
+    };
 
-        Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.channel_categories, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        feedTypeList.setAdapter(adapter);
-        feedTypeList.setOnItemSelectedListener(this);
+    //On get tags list observer function
+    private void onGetTags(Resource<List<Tag>> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+
+            //Add tags
+            tagList.clear();
+
+            //Add tags
+            for(Tag tag: resource.data)
+            {
+                tagList.add(tag.getName());
+            }
+
+            //Update list
+            if(tagsListViewAdapter != null)
+                tagsListViewAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        //Load tags. Update expandable list data.
+        feedViewModel.getTags().observe(this, this::onGetTags);
+    }
+
+    @Override
+    public void onStop() {
+        //Unsubscribe all livedata observers
+        feedViewModel.getTags().removeObservers(this);
+
+        super.onStop();
     }
 
     @Override

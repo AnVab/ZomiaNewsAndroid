@@ -38,7 +38,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     private static final int TYPE_INACTIVE = 0;
     private static final int TYPE_ACTIVE = 1;
 
-    private List<Result> stories;
+    private List<Result> items;
     // each time data is set, we update this variable so that if DiffUtil calculation returns
     // after repetitive updates, we can ignore the old calculation
     private int dataVersion = 0;
@@ -56,25 +56,25 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     }
 
     public void removeItem(int position) {
-        stories.remove(position);
+        items.remove(position);
         notifyItemRemoved(position);
     }
 
     private void removeRange(int positionStart, int itemCount) {
         for (int i = 0; i < itemCount; ++i) {
-            stories.remove(positionStart);
+            items.remove(positionStart);
         }
         notifyItemRangeRemoved(positionStart, itemCount);
     }
 
     public Result getItem(int position)
     {
-        return stories.get(position);
+        return items.get(position);
     }
 
     @Override
     public int getItemCount() {
-        return stories == null ? 0 : stories.size();
+        return items == null ? 0 : items.size();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -82,19 +82,19 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     public void replace(List<Result> update) {
 
         dataVersion ++;
-        if (stories == null) {
+        if (items == null) {
             if (update == null) {
                 return;
             }
-            stories = update;
+            items = update;
             notifyDataSetChanged();
         } else if (update == null) {
-            int oldSize = stories.size();
-            stories = null;
+            int oldSize = items.size();
+            items = null;
             notifyItemRangeRemoved(0, oldSize);
         } else {
             final int startVersion = dataVersion;
-            final List<Result> oldItems = stories;
+            final List<Result> oldItems = items;
             new AsyncTask<Void, Void, DiffUtil.DiffResult>() {
                 @Override
                 protected DiffUtil.DiffResult  doInBackground(Void... voids) {
@@ -131,7 +131,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
                         // ignore update
                         return;
                     }
-                    stories = update;
+                    items = update;
                     diffResult.dispatchUpdatesTo(StoriesAdapter.this);
 
                 }
@@ -161,7 +161,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @Override
     public void onBindViewHolder(StoryViewHolder personViewHolder, int position) {
-        String storyUrl = GetStoryUrl(stories.get(position).getContent());
+        String storyUrl = GetStoryUrl(items.get(position).getContent());
         int imgWidth = 250;
         int imgHeight = 250;
 
@@ -182,12 +182,12 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             personViewHolder.storyImageView.setImageResource(R.mipmap.ic_launcher);
         }
 
-        personViewHolder.storyTitleTextView.setText(stories.get(position).getTitle());
+        personViewHolder.storyTitleTextView.setText(items.get(position).getTitle());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date d = null;
         try {
-            d = dateFormat.parse(stories.get(position).getDate());
+            d = dateFormat.parse(items.get(position).getDate());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -199,7 +199,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @Override
     public int getItemViewType(int position) {
-        final Result item = stories.get(position);
+        final Result item = items.get(position);
         //return item.isFresh() ? TYPE_ACTIVE : TYPE_INACTIVE;
 
         return TYPE_ACTIVE;
