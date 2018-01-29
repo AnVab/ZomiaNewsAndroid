@@ -189,6 +189,16 @@ public class FeedsListFragment extends Fragment implements
 
             //Add map with tag - feed list pairs
             //feedsCollection.clear();
+            //Clear old lists
+            for(TagFeedPair tagFeedPair: resource.data)
+            {
+                List<Feed> feedList = feedsCollection.get(tagFeedPair.tag.getName());
+                if (feedList != null) {
+                    feedList.clear();
+                }
+            }
+
+            //Add new tags and lists
             for(TagFeedPair tagFeedPair: resource.data)
             {
                 //Check if the map has the tag
@@ -225,27 +235,31 @@ public class FeedsListFragment extends Fragment implements
         if (resource != null && resource.data != null) {
 
             //Check if the map has the tag
-            List<Feed> feedList = feedsCollection.get("Undecided");
+            List<Feed> feedList = feedsCollection.get(getString(R.string.tag_undecided));
             if (feedList != null) {
                 feedList.clear();
                 feedList.addAll(resource.data);
             } else {
                 // Key might be present
-                if (feedsCollection.containsKey("Undecided")) {
+                if (feedsCollection.containsKey(getString(R.string.tag_undecided))) {
                     // Okay, there's a key but the value is null
                     feedList = new ArrayList<Feed>();
                     feedList.addAll(resource.data);
-                    feedsCollection.put("Undecided",feedList);
+                    feedsCollection.put(getString(R.string.tag_undecided),feedList);
                 } else {
                     // Definitely no such key
                     feedList = new ArrayList<Feed>();
                     feedList.addAll(resource.data);
-                    feedsCollection.put("Undecided",feedList);
+                    feedsCollection.put(getString(R.string.tag_undecided),feedList);
                 }
             }
 
             if(expListAdapter != null)
                 expListAdapter.notifyDataSetChanged();
+
+            //Expand list
+            if(expListAdapter.getGroupCount() > 0)
+                expListView.expandGroup(0,true);
 
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -260,7 +274,7 @@ public class FeedsListFragment extends Fragment implements
             //Add tags
             tagList.clear();
             //Add default group for feeds with no tags
-            tagList.add("Undecided");
+            tagList.add(getString(R.string.tag_undecided));
 
             //Add tags
             for(Tag tag: resource.data)
