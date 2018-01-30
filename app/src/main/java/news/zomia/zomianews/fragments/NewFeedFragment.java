@@ -87,7 +87,7 @@ public class NewFeedFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        feedSourcePathTextView = (TextView)  view.findViewById(R.id.feedSourcePathTextView);
+        feedSourcePathTextView = (TextView) view.findViewById(R.id.feedSourcePathTextView);
 
         //Tag list
         tagsListView = (ListView) view.findViewById(R.id.tagsListView);
@@ -97,10 +97,11 @@ public class NewFeedFragment extends Fragment implements
         tagsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         //Add tag to the list button
-        Button addTagButton = (Button) view.findViewById(R.id.addTagButton);
+        FloatingActionButton addTagButton = (FloatingActionButton) view.findViewById(R.id.addTagButton);
+        addTagButton.setOnClickListener(addTagButtonOnClickListener);
 
         //Add feed button
-        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
+        FloatingActionButton addFeedButton = (FloatingActionButton) view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(addFeedButtonOnClickListener);
 
         //Feed channel type
@@ -111,6 +112,12 @@ public class NewFeedFragment extends Fragment implements
         feedTypeList.setAdapter(feedTypeListAdapter);
         feedTypeList.setOnItemSelectedListener(this);
     }
+
+    //Click listener for adding new feed
+    private View.OnClickListener addTagButtonOnClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+        }
+    };
 
     //Click listener for adding new feed
     private View.OnClickListener addFeedButtonOnClickListener = new View.OnClickListener()
