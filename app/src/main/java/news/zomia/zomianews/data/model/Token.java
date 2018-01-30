@@ -14,6 +14,7 @@ public class Token {
     @SerializedName("token")
     @Expose
     private String token;
+
     @SerializedName("user_id")
     @Expose
     private Integer userId;

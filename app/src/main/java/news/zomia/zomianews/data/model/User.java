@@ -11,6 +11,7 @@ public class User {
     @SerializedName("email")
     @Expose
     private String email;
+
     @SerializedName("password")
     @Expose
     private String password;

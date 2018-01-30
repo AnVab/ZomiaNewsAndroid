@@ -12,6 +12,7 @@ public class UserInfo {
     @SerializedName("url")
     @Expose
     private String url;
+
     @SerializedName("email")
     @Expose
     private String email;

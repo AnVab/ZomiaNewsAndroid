@@ -2,6 +2,7 @@ package news.zomia.zomianews.data.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
@@ -12,24 +13,39 @@ import com.google.gson.annotations.SerializedName;
  * A class for a DB entity for Tag info
  */
 
-@Entity
+@Entity(indices = {@Index(value = {"tag_id"},
+        unique = true)})
 public class Tag {
+
     @PrimaryKey
     @ColumnInfo(name = "tid")
-    private Integer id;
+    private Integer tId;
+
+    @ColumnInfo(name = "tag_id")
+    private Integer tagId;
+
+    @ColumnInfo(name = "name")
     private String name;
 
-    public Tag(final int id, final String name) {
-        this.id = id;
+    public Tag(final Integer tagId, final String name) {
+        this.tagId = tagId;
         this.name = name;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getTId() {
+        return tId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setTId(Integer tId) {
+        this.tId = tId;
+    }
+
+    public Integer getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Integer tagId) {
+        this.tagId = tagId;
     }
 
     public String getName() {

@@ -33,7 +33,7 @@ public interface FeedDao {
     @Query("SELECT * FROM tag  ORDER BY name ASC")
     public LiveData<List<Tag>> getTags();
 
-    @Query("SELECT * FROM tag INNER JOIN TagFeedJoin ON tag.tid=TagFeedJoin.tag_id WHERE  TagFeedJoin.feed_id=:feedId")
+    @Query("SELECT * FROM tag INNER JOIN TagFeedJoin ON tag.tag_id=TagFeedJoin.tag_id WHERE  TagFeedJoin.feed_id=:feedId")
     public LiveData<List<Tag>> getTagsForFeed(Integer feedId);
 
     @Query("SELECT * FROM feed INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=:tagId")
@@ -42,7 +42,7 @@ public interface FeedDao {
     @Query("SELECT feed.* FROM feed LEFT JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id is null")
     public LiveData<List<Feed>> getFeedsWithNoTag();
 
-    @Query("SELECT * FROM feed, tag INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=tid AND TagFeedJoin.feed_id =feed.feed_id ORDER BY name, title ASC")
+    @Query("SELECT * FROM feed, tag INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=tag.tag_id AND TagFeedJoin.feed_id =feed.feed_id ORDER BY name, title ASC")
     public LiveData<List<TagFeedPair>> getFeedsWithTags();
 
     //Feeds
@@ -59,7 +59,7 @@ public interface FeedDao {
     @Query("SELECT * FROM Story WHERE feed_id = :feedId ORDER BY date DESC")
     public LiveData<List<Story>> loadAllStories(Integer feedId);
 
-    @Query("SELECT * FROM Story WHERE id = :storyId")
+    @Query("SELECT * FROM Story WHERE story_id = :storyId")
     public LiveData<Story> findStoryById(Integer storyId);
 
     @Query("SELECT feed_id, COUNT(*) FROM Story GROUP BY feed_id")

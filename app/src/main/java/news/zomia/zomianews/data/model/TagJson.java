@@ -15,14 +15,16 @@ import java.util.List;
 
 public class TagJson {
 
+    @Expose
     @SerializedName("id")
-    @Expose
     private Integer id;
+
+    @Expose
     @SerializedName("name")
-    @Expose
     private String name;
-    @SerializedName("feeds_id")
+
     @Expose
+    @SerializedName("feeds_id")
     private List<Integer> feedsId = null;
 
     public Integer getId() {

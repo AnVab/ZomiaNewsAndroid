@@ -42,7 +42,7 @@ public class StoryViewModel  extends ViewModel {
             if (result == null ) {
                 return AbsentLiveData.create();
             } else {
-                return dataRepo.loadStory(stories.getValue().data.get(selectedCurrentStory.getValue()).getId());
+                return dataRepo.loadStory(stories.getValue().data.get(selectedCurrentStory.getValue()).getStoryId());
             }
         });
     }

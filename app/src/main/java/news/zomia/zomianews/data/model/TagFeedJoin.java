@@ -12,15 +12,17 @@ import android.arch.persistence.room.ForeignKey;
         primaryKeys = { "tag_id", "feed_id" },
         foreignKeys = {
                 @ForeignKey(entity = Tag.class,
-                        parentColumns = "tid",
+                        parentColumns = "tag_id",
                         childColumns = "tag_id")/*,
                 @ForeignKey(entity = Feed.class,
                         parentColumns = "feed_id",
                         childColumns = "feed_id")*/
         })
 public class TagFeedJoin {
+
     @ColumnInfo(name = "tag_id")
     public final int tagId;
+
     @ColumnInfo(name = "feed_id")
     public final int feedId;
 

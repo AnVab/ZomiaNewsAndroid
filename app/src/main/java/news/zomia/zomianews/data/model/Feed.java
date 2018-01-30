@@ -2,6 +2,7 @@ package news.zomia.zomianews.data.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
@@ -11,40 +12,42 @@ import com.google.gson.annotations.SerializedName;
  * Created by Andrey on 26.12.2017.
  */
 
-@Entity
+@Entity(indices = {@Index(value = {"feed_id"},
+        unique = true)})
 public class Feed {
 
-    @SerializedName("id")
-    @Expose
+    //Not serializable field. Used in database
     @ColumnInfo(name = "fid")
-    private Integer id;
-    @SerializedName("feed_id")
-    @Expose
     @PrimaryKey
+    private transient Integer fId;
+
+    @Expose
+    @SerializedName("feed_id")
     @ColumnInfo(name = "feed_id")
     private Integer feedId;
-    @SerializedName("status")
+
     @Expose
-    private String status;
     @SerializedName("title")
-    @Expose
     private String title;
+
+    @Expose
     @SerializedName("description")
-    @Expose
     private String description;
+
+    @Expose
     @SerializedName("link")
-    @Expose
     private String link;
-    @SerializedName("url")
+
     @Expose
+    @SerializedName("url")
     private String url;
 
-    public Integer getId() {
-        return id;
+    public Integer getFId() {
+        return fId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setFId(Integer fId) {
+        this.fId = fId;
     }
 
     public Integer getFeedId() {
@@ -53,14 +56,6 @@ public class Feed {
 
     public void setFeedId(Integer feedId) {
         this.feedId = feedId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String getTitle() {
