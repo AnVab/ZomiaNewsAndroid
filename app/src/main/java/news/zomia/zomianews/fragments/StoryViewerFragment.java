@@ -53,7 +53,7 @@ public class StoryViewerFragment extends Fragment
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-    private String date;
+    private Date date;
     private String title;
     private String content;
 
@@ -177,7 +177,7 @@ public class StoryViewerFragment extends Fragment
     public void loadContent()
     {
         if(storyPageViewer != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             Date d = null;
             try {
                 d = dateFormat.parse(date);
@@ -185,8 +185,8 @@ public class StoryViewerFragment extends Fragment
                 e.printStackTrace();
             }
             String dateToText = "";
-            if(d != null)
-                dateToText = d.toString();
+            if(d != null)*/
+            String dateToText = date.toString();//.toString();
 
             storyPageViewer.loadDataWithBaseURL("", getStyledFont(title, dateToText, content), "text/html", "UTF-8", "");
         }

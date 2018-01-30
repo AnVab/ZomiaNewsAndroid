@@ -184,15 +184,15 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
         personViewHolder.storyTitleTextView.setText(items.get(position).getTitle());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date d = null;
         try {
             d = dateFormat.parse(items.get(position).getDate());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(d != null)
-            personViewHolder.storyDateTextView.setText(d.toString());
+        if(d != null)*/
+        personViewHolder.storyDateTextView.setText(items.get(position).getDate().toString());
 
         personViewHolder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
     }

@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity
 
             // Create fragment and give it an argument for the selected article
             Bundle args = new Bundle();
-            args.putString("date", story.getDate());
+            args.putString("date", story.getDate().toString());
             args.putString("title", story.getTitle());
             args.putString("content", story.getContent());
 
