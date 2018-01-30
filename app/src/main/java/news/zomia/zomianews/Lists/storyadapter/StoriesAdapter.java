@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +14,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import news.zomia.zomianews.R;
-import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.util.Objects;
 
 /**
@@ -38,14 +34,14 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     private static final int TYPE_INACTIVE = 0;
     private static final int TYPE_ACTIVE = 1;
 
-    private List<Result> items;
+    private List<Story> items;
     // each time data is set, we update this variable so that if DiffUtil calculation returns
     // after repetitive updates, we can ignore the old calculation
     private int dataVersion = 0;
 
     private StoryViewHolder.ClickListener clickListener;
 
-    public StoriesAdapter(Context context, /*List<Result> stories,*/ StoryViewHolder.ClickListener clickListener) {
+    public StoriesAdapter(Context context, /*List<Story> stories,*/ StoryViewHolder.ClickListener clickListener) {
         super();
 
         this.clickListener = clickListener;
@@ -67,7 +63,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
         notifyItemRangeRemoved(positionStart, itemCount);
     }
 
-    public Result getItem(int position)
+    public Story getItem(int position)
     {
         return items.get(position);
     }
@@ -79,7 +75,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @SuppressLint("StaticFieldLeak")
     @MainThread
-    public void replace(List<Result> update) {
+    public void replace(List<Story> update) {
 
         dataVersion ++;
         if (items == null) {
@@ -94,7 +90,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             notifyItemRangeRemoved(0, oldSize);
         } else {
             final int startVersion = dataVersion;
-            final List<Result> oldItems = items;
+            final List<Story> oldItems = items;
             new AsyncTask<Void, Void, DiffUtil.DiffResult>() {
                 @Override
                 protected DiffUtil.DiffResult  doInBackground(Void... voids) {
@@ -111,15 +107,15 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
                         @Override
                         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                            Result oldItem = oldItems.get(oldItemPosition);
-                            Result newItem = update.get(newItemPosition);
+                            Story oldItem = oldItems.get(oldItemPosition);
+                            Story newItem = update.get(newItemPosition);
                             return StoriesAdapter.this.areItemsTheSame(oldItem, newItem);
                         }
 
                         @Override
                         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                            Result oldItem = oldItems.get(oldItemPosition);
-                            Result newItem = update.get(newItemPosition);
+                            Story oldItem = oldItems.get(oldItemPosition);
+                            Story newItem = update.get(newItemPosition);
                             return StoriesAdapter.this.areContentsTheSame(oldItem, newItem);
                         }
                     });
@@ -140,13 +136,13 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     }
 
 
-    protected boolean areItemsTheSame(Result oldItem, Result newItem) {
+    protected boolean areItemsTheSame(Story oldItem, Story newItem) {
         return Objects.equals(oldItem.getDate(), newItem.getDate()) &&
                 Objects.equals(oldItem.getTitle(), newItem.getTitle());
     }
 
 
-    protected boolean areContentsTheSame(Result oldItem, Result newItem) {
+    protected boolean areContentsTheSame(Story oldItem, Story newItem) {
         return Objects.equals(oldItem.getContent(), newItem.getContent());
     }
 
@@ -199,7 +195,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @Override
     public int getItemViewType(int position) {
-        final Result item = items.get(position);
+        final Story item = items.get(position);
         //return item.isFresh() ? TYPE_ACTIVE : TYPE_INACTIVE;
 
         return TYPE_ACTIVE;

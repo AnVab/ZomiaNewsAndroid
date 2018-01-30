@@ -1,8 +1,6 @@
 package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -17,14 +15,12 @@ import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
-import news.zomia.zomianews.data.model.Result;
-import news.zomia.zomianews.data.model.StoriesResponse;
+import news.zomia.zomianews.data.model.ListResponse;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.model.TagJson;
-import news.zomia.zomianews.data.model.TagsResponse;
-import news.zomia.zomianews.data.util.AbsentLiveData;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
 
@@ -60,10 +56,16 @@ public class DataRepository {
 
         Log.d("ZOMIA", "loadFeeds");
 
-        return new NetworkBoundResource<List<Feed>,List<Feed>>(appExecutors) {
+        return new NetworkBoundResource<List<Feed>,ListResponse<Feed>>(appExecutors) {
             @Override
-            protected void saveCallResult(@NonNull List<Feed> item) {
-                feedDao.insertFeeds(item);
+            protected void saveCallResult(@NonNull ListResponse<Feed> item) {
+                db.beginTransaction();
+                try {
+                    feedDao.insertFeeds(item.getResults());
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
             }
 
             @Override
@@ -79,9 +81,15 @@ public class DataRepository {
             }
 
             @NonNull @Override
-            protected LiveData<ApiResponse<List<Feed>>> createCall() {
+            protected LiveData<ApiResponse<ListResponse<Feed>>> createCall() {
                 Log.d("ZOMIA", "webService.getFeedsList");
                 return webService.getFeedsList();
+            }
+
+            @Override
+            protected ListResponse<Feed> processResponse(ApiResponse<ListResponse<Feed>> response) {
+                ListResponse<Feed> body = response.body;
+                return body;
             }
 
             @Override
@@ -90,14 +98,14 @@ public class DataRepository {
         }.asLiveData();
     }
 
-    public LiveData<Resource<List<Result>>> loadStories(Integer feedId) {
+    public LiveData<Resource<List<Story>>> loadStories(Integer feedId) {
 
-        return new NetworkBoundResource<List<Result>, StoriesResponse>(appExecutors) {
+        return new NetworkBoundResource<List<Story>, ListResponse<Story>>(appExecutors) {
 
             @Override
-            protected void saveCallResult(@NonNull StoriesResponse item) {
+            protected void saveCallResult(@NonNull ListResponse<Story> item) {
                 //Set feed id while saving to the database
-                for (Result story : item.getResults()) {
+                for (Story story : item.getResults()) {
                     story.setFeedId(feedId);
                 }
 
@@ -111,52 +119,52 @@ public class DataRepository {
             }
 
             @Override
-            protected boolean shouldFetch(@Nullable List<Result> data) {
+            protected boolean shouldFetch(@Nullable List<Story> data) {
                 //return data == null || data.isEmpty();
                 return true;
             }
 
             @NonNull
             @Override
-            protected LiveData<List<Result>> loadFromDb() {
+            protected LiveData<List<Story>> loadFromDb() {
                 return feedDao.loadAllStories(feedId);
             }
 
             @NonNull
             @Override
-            protected LiveData<ApiResponse<StoriesResponse>> createCall() {
+            protected LiveData<ApiResponse<ListResponse<Story>>> createCall() {
                 return webService.getStories(feedId);
             }
 
             @Override
-            protected StoriesResponse processResponse(ApiResponse<StoriesResponse> response) {
-                StoriesResponse body = response.body;
+            protected ListResponse<Story> processResponse(ApiResponse<ListResponse<Story>> response) {
+                ListResponse<Story> body = response.body;
                 return body;
             }
         }.asLiveData();
     }
 
-    public LiveData<Resource<Result>> loadStory(Integer storyId) {
-        return new NetworkBoundResource<Result,Result>(appExecutors) {
+    public LiveData<Resource<Story>> loadStory(Integer storyId) {
+        return new NetworkBoundResource<Story,Story>(appExecutors) {
             @Override
-            protected void saveCallResult(@NonNull Result item) {
+            protected void saveCallResult(@NonNull Story item) {
                 return;
             }
 
             @Override
-            protected boolean shouldFetch(@Nullable Result data) {
+            protected boolean shouldFetch(@Nullable Story data) {
                 return false;
             }
 
             @NonNull
             @Override
-            protected LiveData<Result> loadFromDb() {
+            protected LiveData<Story> loadFromDb() {
                 return feedDao.findStoryById(storyId);
             }
 
             @NonNull
             @Override
-            protected LiveData<ApiResponse<Result>> createCall() {
+            protected LiveData<ApiResponse<Story>> createCall() {
                 return null;
             }
         }.asLiveData();
@@ -190,10 +198,10 @@ public class DataRepository {
 
     public LiveData<Resource<List<Tag>>> loadTags() {
 
-        return new NetworkBoundResource<List<Tag>, TagsResponse>(appExecutors) {
+        return new NetworkBoundResource<List<Tag>, ListResponse<TagJson>>(appExecutors) {
 
             @Override
-            protected void saveCallResult(@NonNull TagsResponse item) {
+            protected void saveCallResult(@NonNull ListResponse<TagJson> item) {
 
                 //Save tags
                 for(TagJson tagFeed: item.getResults())
@@ -227,13 +235,13 @@ public class DataRepository {
 
             @NonNull
             @Override
-            protected LiveData<ApiResponse<TagsResponse>> createCall() {
+            protected LiveData<ApiResponse<ListResponse<TagJson>>> createCall() {
                 return webService.getTagsList();
             }
 
             @Override
-            protected TagsResponse processResponse(ApiResponse<TagsResponse> response) {
-                TagsResponse body = response.body;
+            protected ListResponse<TagJson> processResponse(ApiResponse<ListResponse<TagJson>> response) {
+                ListResponse<TagJson> body = response.body;
                 return body;
             }
         }.asLiveData();

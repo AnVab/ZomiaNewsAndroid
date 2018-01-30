@@ -1,14 +1,15 @@
 package news.zomia.zomianews.data.model;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
- * Created by Andrey on 26.12.2017.
+ * Created by Andrey on 30.01.2018.
  */
 
-public class StoriesResponse {
+public class ListResponse<T> {
 
     @SerializedName("next")
     @Expose
@@ -18,7 +19,7 @@ public class StoriesResponse {
     private Object previous;
     @SerializedName("results")
     @Expose
-    private List<Result> results = null;
+    private List<T> results = null;
 
     public String getNext() {
         return next;
@@ -36,12 +37,11 @@ public class StoriesResponse {
         this.previous = previous;
     }
 
-    public List<Result> getResults() {
+    public List<T> getResults() {
         return results;
     }
 
-    public void setResults(List<Result> results) {
+    public void setResults(List<T> results) {
         this.results = results;
     }
-
 }

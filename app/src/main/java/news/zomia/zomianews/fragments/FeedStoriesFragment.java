@@ -13,7 +13,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,7 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
-import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
@@ -98,7 +97,7 @@ public class FeedStoriesFragment extends Fragment implements
         storiesAdapter = new StoriesAdapter(getActivity(), this);
         storiesListView.setAdapter(storiesAdapter);
 
-        LiveData<Resource<List<Result>>> repo = storyViewModel.getStories();
+        LiveData<Resource<List<Story>>> repo = storyViewModel.getStories();
         repo.observe(this, resource -> {
             // update UI
             if (resource != null && resource.data != null) {
@@ -132,7 +131,7 @@ public class FeedStoriesFragment extends Fragment implements
     public void onItemClicked(int position) {
         storyViewModel.setCurrentStoryPosition(position);
 
-        Result selectedStory = (Result) storiesAdapter.getItem(position);
+        Story selectedStory = (Story) storiesAdapter.getItem(position);
         onStorySelectedListenerCallback.onStorySelected(selectedStory);
     }
 
@@ -180,6 +179,6 @@ public class FeedStoriesFragment extends Fragment implements
 
     // Container Activity must implement this interface
     public interface OnStorySelectedListener {
-        public void onStorySelected(Result story);
+        public void onStorySelected(Story story);
     }
 }

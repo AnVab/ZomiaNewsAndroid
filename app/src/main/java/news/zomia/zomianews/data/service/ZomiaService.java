@@ -5,9 +5,9 @@ import android.arch.lifecycle.LiveData;
 import java.util.List;
 
 import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.model.StoriesResponse;
+import news.zomia.zomianews.data.model.ListResponse;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.model.TagJson;
-import news.zomia.zomianews.data.model.TagsResponse;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.UserInfo;
 import news.zomia.zomianews.data.model.Token;
@@ -31,7 +31,7 @@ public interface ZomiaService {
     Call<Token> authenticateUser(@Body User user);
 
     @GET("api/feeds/")
-    LiveData<ApiResponse<List<Feed>>> getFeedsList();
+    LiveData<ApiResponse<ListResponse<Feed>>> getFeedsList();
 
     @POST ("api/feeds/")
     Call<Feed> addNewFeed(@Body Feed feedUrl);
@@ -43,11 +43,11 @@ public interface ZomiaService {
     Call<Feed> updateFeedInfo(@Path("id") int id, @Body Feed feed);
 
     @GET ("api/feeds/{id}/stories/")
-    LiveData<ApiResponse<StoriesResponse>> getStories(@Path("id") int id);
+    LiveData<ApiResponse<ListResponse<Story>>> getStories(@Path("id") int id);
 
     @GET ("api/users/{id}/")
     Call<UserInfo> getUserInfo(@Path("id") int id);
 
     @GET("api/tags/")
-    LiveData<ApiResponse<TagsResponse>> getTagsList();
+    LiveData<ApiResponse<ListResponse<TagJson>>> getTagsList();
 }

@@ -2,7 +2,7 @@ package news.zomia.zomianews;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void onStorySelected(Result story)
+    public void onStorySelected(Story story)
     {
         if (findViewById(R.id.fragment_container) != null) {
 

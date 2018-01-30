@@ -18,7 +18,7 @@ import java.util.Date;
 @Entity(foreignKeys = @ForeignKey(entity = Feed.class,
         parentColumns = "feed_id",
         childColumns = "feed_id"))
-public class Result {
+public class Story {
     @PrimaryKey
     @SerializedName("id")
     @Expose

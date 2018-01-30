@@ -10,13 +10,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import news.zomia.zomianews.data.model.Feed;
-import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.util.AbsentLiveData;
-import news.zomia.zomianews.data.util.Objects;
-import okhttp3.Interceptor;
 
 /**
  * Created by Andrey on 17.01.2018.
@@ -26,9 +23,9 @@ public class StoryViewModel  extends ViewModel {
     DataRepository dataRepo;
 
     private MutableLiveData<Integer> selectedFeedId = new MutableLiveData<>();
-    private LiveData<Resource<List<Result>>> stories;
+    private LiveData<Resource<List<Story>>> stories;
     private MutableLiveData<Integer> selectedCurrentStory = new MutableLiveData<>();
-    private LiveData<Resource<Result>> currentStory = null;
+    private LiveData<Resource<Story>> currentStory = null;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public StoryViewModel(DataRepository dataRepo) {
@@ -50,7 +47,7 @@ public class StoryViewModel  extends ViewModel {
         });
     }
 
-    public LiveData<Resource<List<Result>>> getStories() {
+    public LiveData<Resource<List<Story>>> getStories() {
         return stories;
     }
 
@@ -81,7 +78,7 @@ public class StoryViewModel  extends ViewModel {
             selectedCurrentStory.setValue(0);
     }
 
-    public LiveData<Resource<Result>> getCurrentStory() {
+    public LiveData<Resource<Story>> getCurrentStory() {
         return currentStory;
     }
 }

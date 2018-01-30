@@ -2,17 +2,15 @@ package news.zomia.zomianews.data.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import java.util.List;
 
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
-import news.zomia.zomianews.data.model.Result;
+import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
@@ -56,14 +54,14 @@ public interface FeedDao {
 
     //Stories
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insertStories(List<Result> stories);
+    public void insertStories(List<Story> stories);
 
-    @Query("SELECT * FROM result WHERE feed_id = :feedId ORDER BY date DESC")
-    public LiveData<List<Result>> loadAllStories(Integer feedId);
+    @Query("SELECT * FROM Story WHERE feed_id = :feedId ORDER BY date DESC")
+    public LiveData<List<Story>> loadAllStories(Integer feedId);
 
-    @Query("SELECT * FROM result WHERE id = :storyId")
-    public LiveData<Result> findStoryById(Integer storyId);
+    @Query("SELECT * FROM Story WHERE id = :storyId")
+    public LiveData<Story> findStoryById(Integer storyId);
 
-    @Query("SELECT feed_id, COUNT(*) FROM result GROUP BY feed_id")
+    @Query("SELECT feed_id, COUNT(*) FROM Story GROUP BY feed_id")
     public abstract LiveData<List<FeedStoriesCount>> countFeedStoriesTotal();
 }
