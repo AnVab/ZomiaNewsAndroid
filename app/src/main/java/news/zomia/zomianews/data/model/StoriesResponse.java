@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by Andrey on 26.12.2017.
  */
 
-public class Stories {
+public class StoriesResponse {
 
     @SerializedName("next")
     @Expose

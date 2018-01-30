@@ -18,11 +18,12 @@ import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.model.Result;
-import news.zomia.zomianews.data.model.Stories;
+import news.zomia.zomianews.data.model.StoriesResponse;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.model.TagJson;
+import news.zomia.zomianews.data.model.TagsResponse;
 import news.zomia.zomianews.data.util.AbsentLiveData;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
@@ -91,12 +92,10 @@ public class DataRepository {
 
     public LiveData<Resource<List<Result>>> loadStories(Integer feedId) {
 
-        Log.d("ZOMIA", "loadStories feedId: " + feedId);
-        return new NetworkBoundResource<List<Result>, Stories>(appExecutors) {
+        return new NetworkBoundResource<List<Result>, StoriesResponse>(appExecutors) {
 
             @Override
-            protected void saveCallResult(@NonNull Stories item) {
-                Log.d("ZOMIA", "saveCallResult feedId: " + feedId);
+            protected void saveCallResult(@NonNull StoriesResponse item) {
                 //Set feed id while saving to the database
                 for (Result story : item.getResults()) {
                     story.setFeedId(feedId);
@@ -120,26 +119,18 @@ public class DataRepository {
             @NonNull
             @Override
             protected LiveData<List<Result>> loadFromDb() {
-                //LiveData<List<Result>> res = feedDao.loadAllStoriesSync();//feedId);
-                //return res;
-                Log.d("ZOMIA", "loadFromDb feedId: " + feedId);
                 return feedDao.loadAllStories(feedId);
             }
 
             @NonNull
             @Override
-            protected LiveData<ApiResponse<Stories>> createCall() {
-                Log.d("ZOMIA", "Result.getStories");
+            protected LiveData<ApiResponse<StoriesResponse>> createCall() {
                 return webService.getStories(feedId);
             }
 
             @Override
-            protected Stories processResponse(ApiResponse<Stories> response) {
-                Stories body = response.body;
-                Log.d("ZOMIA", "processResponse " + body.getResults().size());
-                /*if (body != null) {
-                    body.setNext(response.getNextPage());
-                }*/
+            protected StoriesResponse processResponse(ApiResponse<StoriesResponse> response) {
+                StoriesResponse body = response.body;
                 return body;
             }
         }.asLiveData();
@@ -199,13 +190,13 @@ public class DataRepository {
 
     public LiveData<Resource<List<Tag>>> loadTags() {
 
-        Log.d("ZOMIA", "loadTags");
+        return new NetworkBoundResource<List<Tag>, TagsResponse>(appExecutors) {
 
-        return new NetworkBoundResource<List<Tag>,List<TagJson>>(appExecutors) {
             @Override
-            protected void saveCallResult(@NonNull List<TagJson> item) {
+            protected void saveCallResult(@NonNull TagsResponse item) {
+
                 //Save tags
-                for(TagJson tagFeed: item)
+                for(TagJson tagFeed: item.getResults())
                 {
                     db.beginTransaction();
                     try {
@@ -225,24 +216,25 @@ public class DataRepository {
 
             @Override
             protected boolean shouldFetch(@Nullable List<Tag> data) {
-                //return data == null || data.isEmpty();
                 return true;
             }
 
-            @NonNull @Override
+            @NonNull
+            @Override
             protected LiveData<List<Tag>> loadFromDb() {
-                Log.d("ZOMIA", "feedDao.loadFromDb");
                 return feedDao.getTags();
             }
 
-            @NonNull @Override
-            protected LiveData<ApiResponse<List<TagJson>>> createCall() {
-                Log.d("ZOMIA", "webService.getTagsList");
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<TagsResponse>> createCall() {
                 return webService.getTagsList();
             }
 
             @Override
-            protected void onFetchFailed() {
+            protected TagsResponse processResponse(ApiResponse<TagsResponse> response) {
+                TagsResponse body = response.body;
+                return body;
             }
         }.asLiveData();
     }
