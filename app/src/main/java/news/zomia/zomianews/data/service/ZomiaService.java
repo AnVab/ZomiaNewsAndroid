@@ -7,6 +7,7 @@ import java.util.List;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.ListResponse;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagJson;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.UserInfo;
@@ -50,4 +51,7 @@ public interface ZomiaService {
 
     @GET("api/tags/")
     LiveData<ApiResponse<ListResponse<TagJson>>> getTagsList();
+
+    @POST ("api/tags/")
+    Call<TagJson> addNewTag(@Body TagJson tagName);
 }

@@ -298,4 +298,12 @@ public class DataRepository {
             }
         }.asLiveData();
     }
+
+    public LiveData<Resource<Boolean>> insertNewTag(String tagName) {
+        InsertNewTagTask insertNewTagTask = new InsertNewTagTask(
+                tagName, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(insertNewTagTask);
+        return insertNewTagTask.getLiveData();
+    }
 }
