@@ -28,6 +28,8 @@
     <string name="pref_server_port_dialog">Server port</string>
 
     <string name="tag_name">Tag Name</string>
+    <string name="tag_insert_success">New tag added</string>
+    <string name="tag_insert_error">New tag add error</string>
     <string name="enter_text">Enter text</string>
     <string name="tag_undecided">Undecided</string>
 

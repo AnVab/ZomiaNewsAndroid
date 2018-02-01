@@ -4,6 +4,7 @@ package news.zomia.zomianews.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -67,6 +68,7 @@ public class NewFeedFragment extends Fragment implements
     FeedViewModelFactory feedViewModelFactory;
 
     private FeedViewModel feedViewModel;
+    private LiveData<Resource<Boolean>> tagInsertLiveData;
 
     public NewFeedFragment() {
         // Required empty public constructor
@@ -139,7 +141,7 @@ public class NewFeedFragment extends Fragment implements
 
                         if (!tagNameNew.isEmpty())
                         {
-                            //Insert new tag name to db and send request to server
+                            registerOnTagInsertObserver(tagNameNew);
                         }
                     }
                 })
@@ -153,6 +155,17 @@ public class NewFeedFragment extends Fragment implements
         // create an alert dialog
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
+    }
+    private void registerOnTagInsertObserver(String tagName)
+    {
+        //Insert new tag name to db and send request to server
+        tagInsertLiveData = feedViewModel.insertNewTag(tagName);
+        tagInsertLiveData.observe(this, this::onNewTagInserted);
+    }
+
+    private void unregisterOnTagInsertObserver()
+    {
+        tagInsertLiveData.removeObservers(this);
     }
 
     //Click listener for adding new feed
@@ -202,7 +215,6 @@ public class NewFeedFragment extends Fragment implements
     private void onGetTags(Resource<List<Tag>> resource) {
         // update UI
         if (resource != null && resource.data != null) {
-
             //Add tags
             tagList.clear();
 
@@ -215,6 +227,25 @@ public class NewFeedFragment extends Fragment implements
             //Update list
             if(tagsListViewAdapter != null)
                 tagsListViewAdapter.notifyDataSetChanged();
+
+            tagsListView.requestLayout();
+        }
+    }
+
+    private void onNewTagInserted(@Nullable Resource<Boolean> resource) {
+        // update UI
+        Log.d("ZOMIA", "onNewTagInserted");
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.tag_insert_success), Toast.LENGTH_LONG).show();
+                    unregisterOnTagInsertObserver();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.tag_insert_error), Toast.LENGTH_LONG).show();
+                    unregisterOnTagInsertObserver();
+                    break;
+            }
         }
     }
 

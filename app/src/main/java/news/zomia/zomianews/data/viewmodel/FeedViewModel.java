@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -27,6 +28,8 @@ public class FeedViewModel extends ViewModel {
     private LiveData<Resource<List<FeedStoriesCount>>> feedStoriesCount;
 
     private LiveData<Resource<List<Tag>>> tags;
+
+    private LiveData<Resource<Boolean>> tagInsertLiveData;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public FeedViewModel(DataRepository dataRepo) {
@@ -60,5 +63,9 @@ public class FeedViewModel extends ViewModel {
 
     public LiveData<Resource<List<Feed>>> getFeedsWithNoTag() {
         return dataRepo.getFeedsWithNoTag();
+    }
+
+    public LiveData<Resource<Boolean>> insertNewTag(String tagName) {
+        return dataRepo.insertNewTag(tagName);
     }
 }

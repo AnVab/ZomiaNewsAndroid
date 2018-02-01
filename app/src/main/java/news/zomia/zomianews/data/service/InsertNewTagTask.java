@@ -51,7 +51,7 @@ public class InsertNewTagTask implements Runnable {
                 } finally {
                     db.endTransaction();
                 }
-
+                liveData.postValue(Resource.success(apiResponse.body != null));
             } else {
                 //Received error
                 liveData.postValue(Resource.error(apiResponse.errorMessage, true));
