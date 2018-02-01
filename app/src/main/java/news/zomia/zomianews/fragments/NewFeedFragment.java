@@ -32,6 +32,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import news.zomia.zomianews.Lists.TagListAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Tag;
@@ -55,10 +56,6 @@ public class NewFeedFragment extends Fragment implements
     private View rootView;
     TextView feedSourcePathTextView;
 
-    private List<String> tagList;
-    private ListView tagsListView;
-    private ArrayAdapter<String> tagsListViewAdapter;
-
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     OnFeedAddedListener onFeedAddedListenerCallback;
@@ -68,8 +65,9 @@ public class NewFeedFragment extends Fragment implements
     FeedViewModelFactory feedViewModelFactory;
 
     private FeedViewModel feedViewModel;
+    private ListView tagsListView;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
-
+    TagListAdapter tagsListViewAdapter;
     public NewFeedFragment() {
         // Required empty public constructor
     }
@@ -96,8 +94,7 @@ public class NewFeedFragment extends Fragment implements
 
         //Tag list
         tagsListView = (ListView) view.findViewById(R.id.tagsListView);
-        tagList = new ArrayList<String>();
-        ArrayAdapter<String> tagsListViewAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, tagList);
+        tagsListViewAdapter = new TagListAdapter(getActivity());
         tagsListView.setAdapter(tagsListViewAdapter);
         tagsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
@@ -216,19 +213,11 @@ public class NewFeedFragment extends Fragment implements
         // update UI
         if (resource != null && resource.data != null) {
             //Add tags
-            tagList.clear();
-
-            //Add tags
-            for(Tag tag: resource.data)
-            {
-                tagList.add(tag.getName());
-            }
+            tagsListViewAdapter.replace(resource.data);
 
             //Update list
             if(tagsListViewAdapter != null)
                 tagsListViewAdapter.notifyDataSetChanged();
-
-            tagsListView.requestLayout();
         }
     }
 
