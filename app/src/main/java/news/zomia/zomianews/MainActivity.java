@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity
         // Enable the Up button
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-
         storyViewerFragment = new StoryViewerFragment();
 
         //Read saved session token
@@ -262,6 +261,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_search:
                 // User chose the "Favorite" action, mark the current item
                 // as a favorite...
+                return true;
+
+            case android.R.id.home:
+                onBackPressed();
                 return true;
 
             default:
