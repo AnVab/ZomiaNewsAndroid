@@ -42,6 +42,10 @@ public class Feed {
     @SerializedName("url")
     private String url;
 
+    @Expose
+    @SerializedName("tag")
+    private String tag;
+
     public Integer getFId() {
         return fId;
     }
@@ -90,4 +94,11 @@ public class Feed {
         this.url = url;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 }

@@ -300,10 +300,18 @@ public class DataRepository {
     }
 
     public LiveData<Resource<Boolean>> insertNewTag(String tagName) {
-        InsertNewTagTask insertNewTagTask = new InsertNewTagTask(
+        InsertNewTagTask insertNewTask = new InsertNewTagTask(
                 tagName, webService, feedDao, db);
 
-        appExecutors.networkIO().execute(insertNewTagTask);
-        return insertNewTagTask.getLiveData();
+        appExecutors.networkIO().execute(insertNewTask);
+        return insertNewTask.getLiveData();
+    }
+
+    public LiveData<Resource<Boolean>> insertNewFeed(String feedUrl, String tag) {
+        InsertNewFeedTask insertNewTask = new InsertNewFeedTask(
+                feedUrl, tag, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(insertNewTask);
+        return insertNewTask.getLiveData();
     }
 }

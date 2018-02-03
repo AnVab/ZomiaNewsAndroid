@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,7 @@ public class NewFeedFragment extends Fragment implements
     private FeedViewModel feedViewModel;
     private ListView tagsListView;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
+    private LiveData<Resource<Boolean>> feedInsertLiveData;
     TagListAdapter tagsListViewAdapter;
     public NewFeedFragment() {
         // Required empty public constructor
@@ -132,17 +134,15 @@ public class NewFeedFragment extends Fragment implements
         final EditText editText = (EditText) promptView.findViewById(R.id.edittext);
         // setup a dialog window
         alertDialogBuilder.setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String tagNameNew = editText.getText().toString();
 
                         if (!tagNameNew.isEmpty())
-                        {
                             registerOnTagInsertObserver(tagNameNew);
-                        }
                     }
                 })
-                .setNegativeButton("Cancel",
+                .setNegativeButton(getString(R.string.cancel),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -153,6 +153,7 @@ public class NewFeedFragment extends Fragment implements
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }
+
     private void registerOnTagInsertObserver(String tagName)
     {
         //Insert new tag name to db and send request to server
@@ -162,7 +163,8 @@ public class NewFeedFragment extends Fragment implements
 
     private void unregisterOnTagInsertObserver()
     {
-        tagInsertLiveData.removeObservers(this);
+        if(tagInsertLiveData != null)
+            tagInsertLiveData.removeObservers(this);
     }
 
     //Click listener for adding new feed
@@ -173,40 +175,37 @@ public class NewFeedFragment extends Fragment implements
             if (feedSourcePathTextView != null) {
                 String feedUrl = feedSourcePathTextView.getText().toString();
                 if (!feedUrl.isEmpty())
-                {
-                    Feed feed = new Feed();
-                    feed.setUrl(feedUrl);
-                    dataRepo.getZomiaService().addNewFeed(feed).enqueue(new Callback<Feed>() {
-                        @Override
-                        public void onResponse(Call<Feed> call, Response<Feed> response) {
-                            //To get the status code
-                            if (response.isSuccessful()) {
-                                switch (response.code()) {
-                                    case 200:
-                                        //No errors
-                                        Toast.makeText(getActivity(), getString(R.string.success), Toast.LENGTH_LONG).show();
-                                        // Send the event to the host activity
-                                        onFeedAddedListenerCallback.onFeedAdded();
-                                        break;
-                                    default:
-
-                                        break;
-                                }
-                            } else {
-                                //Connection problem
-                                Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Feed> call, Throwable t) {
-                            Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
+                    registerOnFeedInsertObserver(feedUrl, getSelectedTagNames());
             }
         }
     };
+
+    private String getSelectedTagNames()
+    {
+        SparseBooleanArray checkedTags = tagsListView.getCheckedItemPositions();
+        StringBuilder tagsSb = new StringBuilder();
+        for (int i = 0; i < checkedTags.size(); i++) {
+            int key = checkedTags.keyAt(i);
+            if(checkedTags.get(key)) {
+                tagsSb.append(tagsListViewAdapter.getTag(key).getName());
+                tagsSb.append(" ");
+            }
+        }
+        return tagsSb.toString();
+    }
+
+    private void registerOnFeedInsertObserver(String feedUrl, String tagsList)
+    {
+        //Insert new tag name to db and send request to server
+        feedInsertLiveData = feedViewModel.insertNewFeed(feedUrl, tagsList);
+        feedInsertLiveData.observe(this, this::onNewFeedInserted);
+    }
+
+    private void unregisterOnFeedInsertObserver()
+    {
+        if(feedInsertLiveData != null)
+            feedInsertLiveData.removeObservers(this);
+    }
 
     //On get tags list observer function
     private void onGetTags(Resource<List<Tag>> resource) {
@@ -223,7 +222,6 @@ public class NewFeedFragment extends Fragment implements
 
     private void onNewTagInserted(@Nullable Resource<Boolean> resource) {
         // update UI
-        Log.d("ZOMIA", "onNewTagInserted");
         if (resource != null && resource.data != null) {
             switch (resource.status) {
                 case SUCCESS:
@@ -233,6 +231,25 @@ public class NewFeedFragment extends Fragment implements
                 case ERROR:
                     Toast.makeText(getActivity(), getString(R.string.tag_insert_error), Toast.LENGTH_LONG).show();
                     unregisterOnTagInsertObserver();
+                    break;
+            }
+        }
+    }
+
+    private void onNewFeedInserted(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.feed_insert_success), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedInsertObserver();
+
+                    // Send the event to the host activity
+                    onFeedAddedListenerCallback.onFeedAdded();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.feed_insert_error), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedInsertObserver();
                     break;
             }
         }
@@ -257,6 +274,8 @@ public class NewFeedFragment extends Fragment implements
     public void onStop() {
         //Unsubscribe all livedata observers
         feedViewModel.getTags().removeObservers(this);
+        unregisterOnTagInsertObserver();
+        unregisterOnFeedInsertObserver();
 
         super.onStop();
     }

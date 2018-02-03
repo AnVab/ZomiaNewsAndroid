@@ -72,7 +72,7 @@ public class TagListAdapter extends BaseAdapter {
     }
 
     //Tag on position
-    Tag getTag(int position) {
+    public Tag getTag(int position) {
         return ((Tag) getItem(position));
     }
 
@@ -80,5 +80,10 @@ public class TagListAdapter extends BaseAdapter {
     {
         this.items.clear();
         this.items.addAll(items);
+    }
+
+    public List<Tag> getItems()
+    {
+        return items;
     }
 }

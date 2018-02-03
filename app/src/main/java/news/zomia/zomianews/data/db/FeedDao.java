@@ -47,6 +47,9 @@ public interface FeedDao {
 
     //Feeds
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void  insertFeed(Feed feed);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void  insertFeeds(List<Feed> feeds);
 
     @Query("SELECT * FROM feed")
