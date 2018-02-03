@@ -93,6 +93,9 @@ public class StoryViewerFragment extends Fragment
 
         storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
         storyPageViewer.getSettings().setJavaScriptEnabled(true);
+        storyPageViewer.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        storyPageViewer.setScrollbarFadingEnabled(true);
+        storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
         //storyPageViewer.getSettings().setLoadWithOverviewMode(true);
         //storyPageViewer.getSettings().setUseWideViewPort(true);
         //storyPageViewer.getSettings().setMinimumFontSize(40);

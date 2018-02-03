@@ -72,7 +72,14 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
         }*/
 
     public boolean onTouch(View v, MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
+
+        //stop default scroll action
+        if(event.getAction()== MotionEvent.ACTION_MOVE) {
+            return true;
+        } else {
+            return v.onTouchEvent(event);
+        }
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -84,24 +91,24 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if ((velocityX * velocityX) > (velocityY * velocityY)) {
-                if (velocityX < 0) {
-                    Log.d(TAG, "Right to Left swipe performed");
-                    onSwipeLeft();
-                } else {
-                    Log.d(TAG, "Left to Right swipe performed");
-                    onSwipeRight();
-                }
-            } else {
-                if (velocityY < 0) {
-                    Log.d(TAG, "Down to Up swipe performed");
-                    onSwipeUp();
-                } else {
-                    Log.d(TAG, "Up to Down swipe performed");
-                    onSwipeDown();
-                }
+
+            final int SWIPE_MIN_DISTANCE = 120;
+            final int SWIPE_MAX_OFF_PATH = 250;
+            final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                return false;
+            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
+                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(TAG, "Right to Left swipe performed");
+                onSwipeLeft();
+            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(TAG, "Left to Right swipe performed");
+                onSwipeRight();
             }
-            return false;
+
+            return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
 }
