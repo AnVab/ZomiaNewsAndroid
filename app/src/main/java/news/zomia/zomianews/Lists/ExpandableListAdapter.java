@@ -37,15 +37,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
     private Map<String, List<Feed>> feedsCollectionsOriginal;
     private Map<Integer, Integer> feedsStoriesCountMap;
 
-    public ExpandableListAdapter(Activity context,
-                                 Map<Integer, Integer> feedsStoriesCountMap) {
+    public ExpandableListAdapter(Activity context) {
         this.inflater = LayoutInflater.from(context);
 
         this.feedsCollections = new HashMap<String, List<Feed>>();
         this.feedsCollectionsOriginal = new HashMap<String, List<Feed>>();
         this.feedsCollectionsOriginal.putAll(feedsCollections);
 
-        this.feedsStoriesCountMap = feedsStoriesCountMap;
+        this.feedsStoriesCountMap = new HashMap<Integer, Integer>();
 
         this.tags = new ArrayList<String>();
         this.tagsOriginal = new ArrayList<String>();
@@ -173,6 +172,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
         this.tagsOriginal.clear();
         this.tagsOriginal.addAll(this.tags);
+
+        notifyDataSetChanged();
+    }
+
+    public void replaceFeedsStoriesCountMap(Map<Integer, Integer> feedsStoriesCountMap)
+    {
+        this.feedsStoriesCountMap.clear();
+        this.feedsStoriesCountMap.putAll(feedsStoriesCountMap);
 
         notifyDataSetChanged();
     }

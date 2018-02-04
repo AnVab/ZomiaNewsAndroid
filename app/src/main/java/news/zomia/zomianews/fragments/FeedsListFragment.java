@@ -60,9 +60,9 @@ public class FeedsListFragment extends Fragment implements
     private FeedViewModel feedViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
-    List<String> tagList;
-    Map<String, List<Feed>> feedsCollection;
-    private Map<Integer, Integer> feedsStoriesCountMap;
+
+    private Map<String, List<Feed>> feedsCollection;
+
     List<Feed> childList;
     ExpandableListView expListView;
     ExpandableListAdapter expListAdapter;
@@ -110,11 +110,11 @@ public class FeedsListFragment extends Fragment implements
             }
         });
 
-        tagList = new ArrayList<String>();
-        feedsCollection = new LinkedHashMap<String, List<Feed>>();
-        feedsStoriesCountMap = new HashMap<Integer, Integer>();
 
-        expListAdapter = new ExpandableListAdapter(getActivity(), feedsStoriesCountMap);
+        feedsCollection = new LinkedHashMap<String, List<Feed>>();
+
+
+        expListAdapter = new ExpandableListAdapter(getActivity());
         expListView.setAdapter(expListAdapter);
 
         //Set item onclick listener
@@ -304,7 +304,7 @@ public class FeedsListFragment extends Fragment implements
         if (resource != null && resource.data != null) {
 
             //Add tags
-            tagList.clear();
+            List<String> tagList = new ArrayList<String>();
             //Add default group for feeds with no tags
             tagList.add(getString(R.string.tag_undecided));
 
@@ -328,12 +328,13 @@ public class FeedsListFragment extends Fragment implements
         // update UI
         if (resource != null && resource.data != null) {
             //Add stories count to show on the list
-            feedsStoriesCountMap.clear();
+            Map<Integer, Integer> feedsStoriesCountMap = new HashMap<Integer, Integer>();
+
             for(FeedStoriesCount count: resource.data) {
                 feedsStoriesCountMap.put(count.getFeedId(), count.getStoriesCountTotal());
             }
 
-            expListAdapter.notifyDataSetChanged();
+            expListAdapter.replaceFeedsStoriesCountMap(feedsStoriesCountMap);
         }
     }
 
