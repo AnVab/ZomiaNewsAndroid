@@ -2,6 +2,7 @@ package news.zomia.zomianews.fragments;
 
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ public class FeedsListFragment extends Fragment implements
     List<Feed> childList;
     ExpandableListView expListView;
     ExpandableListAdapter expListAdapter;
+    private SearchView filterFeedsSearchView;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -111,7 +114,7 @@ public class FeedsListFragment extends Fragment implements
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
         feedsStoriesCountMap = new HashMap<Integer, Integer>();
 
-        expListAdapter = new ExpandableListAdapter(getActivity(), tagList, feedsCollection, feedsStoriesCountMap);
+        expListAdapter = new ExpandableListAdapter(getActivity(), feedsStoriesCountMap);
         expListView.setAdapter(expListAdapter);
 
         //Set item onclick listener
@@ -129,7 +132,36 @@ public class FeedsListFragment extends Fragment implements
                 return true;
             }
         });
+
+
+        SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
+        filterFeedsSearchView = (SearchView)  view.findViewById(R.id.filterFeedsSearchView);
+
+        filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        filterFeedsSearchView.setIconifiedByDefault(false);
+        filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
+
+        //filterFeedsSearchView.setOnCloseListener(this);
     }
+
+    SearchView.OnQueryTextListener feedTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            if(query.length() < 3 && expListAdapter != null){
+                expListAdapter.filterData(query);
+                return false;
+            }
+            else
+                return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            if(expListAdapter != null)
+                expListAdapter.filterData(newText);
+            return false;
+        }
+    };
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -222,7 +254,7 @@ public class FeedsListFragment extends Fragment implements
             }
 
             if(expListAdapter != null)
-                expListAdapter.notifyDataSetChanged();
+                expListAdapter.replaceFeedsCollection(feedsCollection);
 
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -255,7 +287,7 @@ public class FeedsListFragment extends Fragment implements
             }
 
             if(expListAdapter != null)
-                expListAdapter.notifyDataSetChanged();
+                expListAdapter.replaceFeedsCollection(feedsCollection);
 
             //Expand list
             if(expListAdapter.getGroupCount() > 0)
@@ -284,7 +316,7 @@ public class FeedsListFragment extends Fragment implements
 
             //Update list
             if(expListAdapter != null)
-                expListAdapter.notifyDataSetChanged();
+                expListAdapter.replaceTagsList(tagList);
 
             swipeRefreshLayout.setRefreshing(false);
         }

@@ -10,6 +10,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +31,25 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
     //Header titles - tags
     private List<String> tags;
+    private List<String> tagsOriginal;
     //Child items of tags
     private Map<String, List<Feed>> feedsCollections;
+    private Map<String, List<Feed>> feedsCollectionsOriginal;
     private Map<Integer, Integer> feedsStoriesCountMap;
 
-    public ExpandableListAdapter(Activity context, List<String> tags,
-                                 Map<String, List<Feed>> feedsCollections, Map<Integer, Integer> feedsStoriesCountMap) {
+    public ExpandableListAdapter(Activity context,
+                                 Map<Integer, Integer> feedsStoriesCountMap) {
         this.inflater = LayoutInflater.from(context);
-        this.feedsCollections = feedsCollections;
+
+        this.feedsCollections = new HashMap<String, List<Feed>>();
+        this.feedsCollectionsOriginal = new HashMap<String, List<Feed>>();
+        this.feedsCollectionsOriginal.putAll(feedsCollections);
+
         this.feedsStoriesCountMap = feedsStoriesCountMap;
-        this.tags = tags;
+
+        this.tags = new ArrayList<String>();
+        this.tagsOriginal = new ArrayList<String>();
+        this.tagsOriginal.addAll(this.tags);
     }
 
     @Override
@@ -143,5 +153,62 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         {
             feedsStoriesCountMap.put(count.getFeedId(), count.getStoriesCountTotal());
         }
+    }
+
+    public void replaceFeedsCollection(Map<String, List<Feed>> feedsCollections)
+    {
+        this.feedsCollections.clear();
+        this.feedsCollections.putAll(feedsCollections);
+
+        this.feedsCollectionsOriginal.clear();
+        this.feedsCollectionsOriginal.putAll(feedsCollections);
+
+        notifyDataSetChanged();
+    }
+
+    public void replaceTagsList(List<String> tags)
+    {
+        this.tags.clear();
+        this.tags.addAll(tags);
+
+        this.tagsOriginal.clear();
+        this.tagsOriginal.addAll(this.tags);
+
+        notifyDataSetChanged();
+    }
+
+    public void filterData(String query){
+        query = query.toLowerCase();
+
+        feedsCollections.clear();
+        tags.clear();
+
+        if(query.isEmpty()){
+            feedsCollections.putAll(feedsCollectionsOriginal);
+            tags.addAll(tagsOriginal);
+        }
+        else {
+
+            for(String tagName: tagsOriginal)
+            {
+                String key = tagName;
+                List<Feed> feedList = feedsCollectionsOriginal.get(tagName);
+                List<Feed> newfeedList = new ArrayList<Feed>();
+
+                if(feedList != null) {
+                    for (Feed feed : feedList) {
+                        if ((feed.getTitle() != null && feed.getTitle().toLowerCase().contains(query))) {
+                            newfeedList.add(feed);
+                        }
+                    }
+
+                    if(newfeedList.size() > 0){
+                        feedsCollections.put(key, newfeedList);
+                        tags.add(key);
+                    }
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }
