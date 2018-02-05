@@ -4,15 +4,19 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.service.StoryBoundaryCallback;
 import news.zomia.zomianews.data.util.AbsentLiveData;
 
 /**
@@ -23,31 +27,45 @@ public class StoryViewModel  extends ViewModel {
     DataRepository dataRepo;
 
     private MutableLiveData<Integer> selectedFeedId = new MutableLiveData<>();
-    private LiveData<Resource<List<Story>>> stories;
+    private LiveData<PagedList<Story>> stories;
     private MutableLiveData<Integer> selectedCurrentStory = new MutableLiveData<>();
     private LiveData<Resource<Story>> currentStory = null;
+
+    private LiveData<Resource<Boolean>> networkState;
+
+    StoryBoundaryCallback storyBoundaryCallback;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public StoryViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
-        stories = Transformations.switchMap(selectedFeedId, results -> {
+        /*stories = Transformations.switchMap(selectedFeedId, results -> {
             if (results == null ) {
                 return AbsentLiveData.create();
             } else {
                 return dataRepo.loadStories(selectedFeedId.getValue());
             }
-        });
+        });*/
+
+        PagedList.Config pagedListConfig =
+                (new PagedList.Config.Builder()).setEnablePlaceholders(true)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20).build();
+
+        storyBoundaryCallback = new StoryBoundaryCallback(dataRepo.getZomiaService(), dataRepo.getDb(), dataRepo.getFeedDao(), dataRepo.getAppExecutors());
+        networkState = storyBoundaryCallback.getNetworkState();
+        stories = (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(/*selectedFeedId.getValue()*/), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
+                .build();
 
         currentStory = Transformations.switchMap(selectedCurrentStory, result -> {
             if (result == null ) {
                 return AbsentLiveData.create();
             } else {
-                return dataRepo.loadStory(stories.getValue().data.get(selectedCurrentStory.getValue()).getStoryId());
+                return dataRepo.loadStory(stories.getValue().get(selectedCurrentStory.getValue()).getStoryId());
             }
         });
     }
 
-    public LiveData<Resource<List<Story>>> getStories() {
+    public LiveData<PagedList<Story>> getStories() {
         return stories;
     }
 
@@ -55,6 +73,8 @@ public class StoryViewModel  extends ViewModel {
         /*if (Objects.equals(feedId, selectedFeedId.getValue())) {
             return;
         }*/
+        storyBoundaryCallback.setSelectedFeedId(feedId);
+
         selectedFeedId.setValue(feedId);
     }
 
@@ -72,7 +92,7 @@ public class StoryViewModel  extends ViewModel {
     public void goToNextCurrentStoryPosition() {
 
         Integer newValue = selectedCurrentStory.getValue() + 1;
-        if(newValue < stories.getValue().data.size())
+        if(newValue < stories.getValue().size())
             selectedCurrentStory.setValue(newValue);
         else
             selectedCurrentStory.setValue(0);

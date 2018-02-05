@@ -2,6 +2,7 @@ package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.LiveData;
 
+import java.util.Date;
 import java.util.List;
 
 import news.zomia.zomianews.data.model.Feed;
@@ -45,6 +46,9 @@ public interface ZomiaService {
 
     @GET ("api/feeds/{id}/stories/")
     LiveData<ApiResponse<ListResponse<Story>>> getStories(@Path("id") int id);
+
+    @GET ("api/feeds/{id}/stories/")
+    Call<ListResponse<Story>> getStoriesCursor(@Path("id") int id, @Query("cursor") String cursor);
 
     @GET ("api/users/{id}/")
     Call<UserInfo> getUserInfo(@Path("id") int id);

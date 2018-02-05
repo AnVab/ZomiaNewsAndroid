@@ -52,6 +52,19 @@ public class DataRepository {
     {
         return webService;
     }
+    public ZomiaDb getDb()
+    {
+        return db;
+    }
+    public FeedDao getFeedDao()
+    {
+        return feedDao;
+    }
+    public AppExecutors getAppExecutors()
+    {
+        return appExecutors;
+    }
+
     public LiveData<Resource<List<Feed>>> loadFeeds() {
 
         Log.d("ZOMIA", "loadFeeds");

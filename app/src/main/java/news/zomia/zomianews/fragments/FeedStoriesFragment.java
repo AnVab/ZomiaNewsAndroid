@@ -5,6 +5,7 @@ import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,16 +99,19 @@ public class FeedStoriesFragment extends Fragment implements
         storiesAdapter = new StoriesAdapter(getActivity(), this);
         storiesListView.setAdapter(storiesAdapter);
 
-        LiveData<Resource<List<Story>>> repo = storyViewModel.getStories();
+        LiveData<PagedList<Story>> repo = storyViewModel.getStories();
         repo.observe(this, resource -> {
-            // update UI
-            if (resource != null && resource.data != null) {
-                storiesAdapter.replace(resource.data);
+
+            Log.d("ZOMIA", "UPDATE UI STORIES");
+            storiesAdapter.setList(resource);
+            /*// update UI
+            if (resource != null){// && resource.data != null) {
+                storiesAdapter.replace(resource);
                 swipeRefreshLayout.setRefreshing(false);
             } else {
                 storiesAdapter.replace(Collections.emptyList());
                 swipeRefreshLayout.setRefreshing(false);
-            }
+            }*/
         });
 
         storyViewModel.setFeedId(feedId);
@@ -131,13 +136,13 @@ public class FeedStoriesFragment extends Fragment implements
     public void onItemClicked(int position) {
         storyViewModel.setCurrentStoryPosition(position);
 
-        Story selectedStory = (Story) storiesAdapter.getItem(position);
+        Story selectedStory = (Story) storiesAdapter.getStory(position);
         onStorySelectedListenerCallback.onStorySelected(selectedStory);
     }
 
     @Override
     public boolean onItemLongClicked(int position) {
-        toggleSelection(position);
+        //toggleSelection(position);
         return true;
     }
 
@@ -149,9 +154,9 @@ public class FeedStoriesFragment extends Fragment implements
      *
      * @param position Position of the item to toggle the selection state
      */
-    private void toggleSelection(int position) {
+    /*private void toggleSelection(int position) {
         storiesAdapter.toggleSelection(position);
-    }
+    }*/
 
     @Override
     public void onRefresh() {

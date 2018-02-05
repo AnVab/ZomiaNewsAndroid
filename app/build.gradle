@@ -55,4 +55,7 @@ dependencies {
     compile 'com.google.dagger:dagger-android:2.14.1'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.14.1'
     compile 'com.google.dagger:dagger-android-support:2.14.1'
+
+    //Paging
+    implementation "android.arch.paging:runtime:1.0.0-alpha5"
 }

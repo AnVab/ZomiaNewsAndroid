@@ -1,6 +1,7 @@
 package news.zomia.zomianews.data.db;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
@@ -61,6 +62,9 @@ public interface FeedDao {
 
     @Query("SELECT * FROM Story WHERE feed_id = :feedId ORDER BY date DESC")
     public LiveData<List<Story>> loadAllStories(Integer feedId);
+
+    @Query("SELECT * FROM Story")// WHERE feed_id = :feedId ORDER BY date DESC")
+    public abstract DataSource.Factory<Integer, Story> loadAllStories2();//Integer feedId);
 
     @Query("SELECT * FROM Story WHERE story_id = :storyId")
     public LiveData<Story> findStoryById(Integer storyId);

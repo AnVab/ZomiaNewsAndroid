@@ -1,9 +1,13 @@
 package news.zomia.zomianews.Lists.storyadapter;
 
 import android.annotation.SuppressLint;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,7 +30,7 @@ import news.zomia.zomianews.data.util.Objects;
  * Created by Andrey on 03.01.2018.
  */
 
-public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHolder>{
+public class StoriesAdapter extends PagedListAdapter<Story, StoriesAdapter.StoryViewHolder> {//SelectableAdapter<StoriesAdapter.StoryViewHolder>{
 
     private LayoutInflater inflater;
     private Context  context;
@@ -34,7 +38,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     private static final int TYPE_INACTIVE = 0;
     private static final int TYPE_ACTIVE = 1;
 
-    private List<Story> items;
+    //private PagedList<Story> items;
     // each time data is set, we update this variable so that if DiffUtil calculation returns
     // after repetitive updates, we can ignore the old calculation
     private int dataVersion = 0;
@@ -42,7 +46,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
     private StoryViewHolder.ClickListener clickListener;
 
     public StoriesAdapter(Context context, /*List<Story> stories,*/ StoryViewHolder.ClickListener clickListener) {
-        super();
+        super(DIFF_CALLBACK);
 
         this.clickListener = clickListener;
 
@@ -51,7 +55,25 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
         //this.stories = stories;
     }
 
-    public void removeItem(int position) {
+    public static final DiffCallback<Story> DIFF_CALLBACK = new DiffCallback<Story>() {
+        @Override
+        public boolean areItemsTheSame(
+                @NonNull Story oldItem, @NonNull Story newItem) {
+            // User properties may have changed if reloaded from the DB, but ID is fixed
+            return areItemsTheSame(oldItem, newItem);
+            //return false;
+        }
+        @Override
+        public boolean areContentsTheSame(
+                @NonNull Story oldItem, @NonNull Story newItem) {
+            // NOTE: if you use equals, your object must properly override Object#equals()
+            // Incorrectly returning false here will result in too many animations.
+            return areContentsTheSame(oldItem, newItem);
+            //return false;
+        }
+    };
+
+    /*public void removeItem(int position) {
         items.remove(position);
         notifyItemRemoved(position);
     }
@@ -61,21 +83,21 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             items.remove(positionStart);
         }
         notifyItemRangeRemoved(positionStart, itemCount);
-    }
+    }*/
 
-    public Story getItem(int position)
+    public Story getStory(int position)
     {
-        return items.get(position);
+        return getItem(position);
     }
-
+/*
     @Override
     public int getItemCount() {
         return items == null ? 0 : items.size();
     }
-
-    @SuppressLint("StaticFieldLeak")
+*/
+    /*@SuppressLint("StaticFieldLeak")
     @MainThread
-    public void replace(List<Story> update) {
+    public void replace(PagedList<Story> update) {
 
         dataVersion ++;
         if (items == null) {
@@ -133,7 +155,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
                 }
             }.execute();
         }
-    }
+    }*/
 
 
     protected boolean areItemsTheSame(Story oldItem, Story newItem) {
@@ -157,7 +179,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
 
     @Override
     public void onBindViewHolder(StoryViewHolder personViewHolder, int position) {
-        String storyUrl = GetStoryUrl(items.get(position).getContent());
+        String storyUrl = GetStoryUrl(getItem(position).getContent());
         int imgWidth = 250;
         int imgHeight = 250;
 
@@ -178,7 +200,7 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             personViewHolder.storyImageView.setImageResource(R.mipmap.ic_launcher);
         }
 
-        personViewHolder.storyTitleTextView.setText(items.get(position).getTitle());
+        personViewHolder.storyTitleTextView.setText(getItem(position).getTitle());
 
         /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date d = null;
@@ -188,18 +210,18 @@ public class StoriesAdapter extends SelectableAdapter<StoriesAdapter.StoryViewHo
             e.printStackTrace();
         }
         if(d != null)*/
-        personViewHolder.storyDateTextView.setText(items.get(position).getDate().toString());
+        personViewHolder.storyDateTextView.setText(getItem(position).getDate().toString());
 
-        personViewHolder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
+        //personViewHolder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
     }
 
-    @Override
+    /*@Override
     public int getItemViewType(int position) {
         final Story item = items.get(position);
         //return item.isFresh() ? TYPE_ACTIVE : TYPE_INACTIVE;
 
         return TYPE_ACTIVE;
-    }
+    }*/
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
