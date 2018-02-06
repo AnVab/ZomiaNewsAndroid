@@ -70,7 +70,6 @@ public class FeedStoriesFragment extends Fragment implements
         rootView =  inflater.inflate(R.layout.layout_feed_stories, container, false);
         feedId = getArguments().getInt("feedId");
 
-
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
@@ -101,12 +100,12 @@ public class FeedStoriesFragment extends Fragment implements
         storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesListView.setAdapter(storiesAdapter);
 
-        LiveData<PagedList<Story>> repo = storyViewModel.getStories();
-        repo.observe(this, resource -> {
-
+        storyViewModel.getStories().observe(this, resource -> {
             // update UI
             Log.d("ZOMIA", "UPDATE UI STORIES");
             storiesAdapter.setList(resource);
+            if(resource != null)
+                swipeRefreshLayout.setRefreshing(false);
         });
 
         storyViewModel.networkState.observe(this, networkState -> {
@@ -184,7 +183,7 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public void onRetryClick(View view, int position) {
-
+        storyViewModel.refresh();
     }
 
     // Container Activity must implement this interface

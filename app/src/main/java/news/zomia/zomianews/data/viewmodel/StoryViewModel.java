@@ -39,24 +39,14 @@ public class StoryViewModel  extends ViewModel {
     @Inject // DataRepository parameter is provided by Dagger 2
     public StoryViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
-        /*stories = Transformations.switchMap(selectedFeedId, results -> {
-            if (results == null ) {
-                return AbsentLiveData.create();
-            } else {
-                return dataRepo.loadStories(selectedFeedId.getValue());
-            }
-        });*/
 
         PagedList.Config pagedListConfig =
                 (new PagedList.Config.Builder()).setEnablePlaceholders(true)
-                        .setPrefetchDistance(5)
-                        .setPageSize(10).build();
+                        .setPrefetchDistance(10)
+                        .setPageSize(20).build();
 
         storyBoundaryCallback = new StoryBoundaryCallback(dataRepo.getZomiaService(), dataRepo.getDb(), dataRepo.getFeedDao(), dataRepo.getAppExecutors());
         networkState = storyBoundaryCallback.getNetworkState();
-
-        /*stories = (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(selectedFeedId.getValue()), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
-                .build();*/
 
         stories = Transformations.switchMap(selectedFeedId, results -> {
             if (results == null ) {
@@ -81,9 +71,7 @@ public class StoryViewModel  extends ViewModel {
     }
 
     public void setFeedId(@NonNull Integer feedId) {
-        /*if (Objects.equals(feedId, selectedFeedId.getValue())) {
-            return;
-        }*/
+
         storyBoundaryCallback.setSelectedFeedId(feedId);
 
         selectedFeedId.setValue(feedId);
