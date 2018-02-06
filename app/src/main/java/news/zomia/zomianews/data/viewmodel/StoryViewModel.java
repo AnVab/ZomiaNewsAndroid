@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.DataRepository;
+import news.zomia.zomianews.data.service.NetworkState;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.service.StoryBoundaryCallback;
 import news.zomia.zomianews.data.util.AbsentLiveData;
@@ -31,7 +32,7 @@ public class StoryViewModel  extends ViewModel {
     private MutableLiveData<Integer> selectedCurrentStory = new MutableLiveData<>();
     private LiveData<Resource<Story>> currentStory = null;
 
-    private LiveData<Resource<Boolean>> networkState;
+    public LiveData<NetworkState> networkState;
 
     StoryBoundaryCallback storyBoundaryCallback;
 
@@ -48,13 +49,23 @@ public class StoryViewModel  extends ViewModel {
 
         PagedList.Config pagedListConfig =
                 (new PagedList.Config.Builder()).setEnablePlaceholders(true)
-                        .setPrefetchDistance(10)
-                        .setPageSize(20).build();
+                        .setPrefetchDistance(5)
+                        .setPageSize(10).build();
 
         storyBoundaryCallback = new StoryBoundaryCallback(dataRepo.getZomiaService(), dataRepo.getDb(), dataRepo.getFeedDao(), dataRepo.getAppExecutors());
         networkState = storyBoundaryCallback.getNetworkState();
-        stories = (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(/*selectedFeedId.getValue()*/), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
-                .build();
+
+        /*stories = (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(selectedFeedId.getValue()), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
+                .build();*/
+
+        stories = Transformations.switchMap(selectedFeedId, results -> {
+            if (results == null ) {
+                return AbsentLiveData.create();
+            } else {
+                return (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(selectedFeedId.getValue()), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
+                        .build();
+            }
+        });
 
         currentStory = Transformations.switchMap(selectedCurrentStory, result -> {
             if (result == null ) {

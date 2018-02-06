@@ -31,18 +31,14 @@ import retrofit2.Response;
 
 public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
 
-    public static final String TAG = "ZOMIAStoryBoundaryCback";
+    private static final String TAG = StoryBoundaryCallback.class.getSimpleName();
 
     ZomiaService webService;
-
     FeedDao feedDao;
-
     ZomiaDb db;
-
-    Integer feedId;
-
     AppExecutors appExecutors;
-    private final MutableLiveData<Resource<Boolean>> liveData = new MutableLiveData<>();
+    Integer feedId;
+    private MutableLiveData networkState;
 
     public StoryBoundaryCallback(ZomiaService webService, ZomiaDb db, FeedDao feedDao, AppExecutors appExecutors) {
         super();
@@ -50,28 +46,26 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
         this.db = db;
         this.feedDao = feedDao;
         this.appExecutors = appExecutors;
+        networkState = new MutableLiveData();
 
         feedId = 0;
     }
 
     public MutableLiveData getNetworkState() {
-        return liveData;
+        return networkState;
     }
 
     @Override
     public void onZeroItemsLoaded() {
-        //super.onZeroItemsLoaded();
-        //fetchFromNetwork(null);
+        fetchFromNetwork(null);
     }
 
     @Override
     public void onItemAtFrontLoaded(@NonNull Story itemAtFront) {
-        //super.onItemAtFrontLoaded(itemAtFront);
     }
 
     @Override
     public void onItemAtEndLoaded(@NonNull Story itemAtEnd) {
-        // super.onItemAtEndLoaded(itemAtEnd);
         fetchFromNetwork(itemAtEnd);
     }
 
@@ -93,13 +87,13 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
             _feedId = story.getFeedId();
         }
 
-        liveData.postValue(Resource.loading(true));
+        networkState.postValue(NetworkState.LOADING);
 
         webService.getStoriesCursor(_feedId, getCursor(date)).enqueue(new Callback<ListResponse<Story>>() {
             @Override
             public void onResponse(Call<ListResponse<Story>> call, Response<ListResponse<Story>> response) {
                 appExecutors.diskIO().execute(()->{
-                    if((response.code() >= 200 && response.code() < 300) && response.body() != null) {
+                    if(response.isSuccessful() && (response.code() >= 200 && response.code() < 300) && response.body() != null) {
 
                         //Set feed id while saving to the database
                         for (Story story : response.body().getResults()) {
@@ -113,11 +107,10 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
                         } finally {
                             db.endTransaction();
                         }
-                        liveData.postValue(Resource.success(true));
+                        networkState.postValue(NetworkState.LOADED);
                     }
                     else
-                        liveData.postValue(Resource.error(response.message(), true));
-
+                        networkState.postValue(new NetworkState(Status.ERROR, response.message()));
                 });
             }
 
@@ -129,12 +122,12 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
                     errorMessage = "unknown error";
                 }
                 Log.d(TAG, errorMessage);
-                //liveData.postValue(new NetworkState(Status.ERROR, errorMessage));
-                liveData.postValue(Resource.error(errorMessage, true));
+                networkState.postValue(new NetworkState(Status.ERROR, errorMessage));
             }
         });
     }
 
+    //Convert story date to a cursor string for a next page data
     private String getCursor(Date date)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

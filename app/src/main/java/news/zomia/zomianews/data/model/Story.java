@@ -6,6 +6,8 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
+import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.DiffCallback;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -22,6 +24,37 @@ import java.util.Date;
         indices = {@Index(value = {"story_id"},
                 unique = true)})
 public class Story {
+
+    public static DiffCallback<Story> DIFF_CALLBACK = new DiffCallback<Story>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
+            return oldItem.getFeedId() == newItem.getFeedId() &&
+                    oldItem.getStoryId() == newItem.getStoryId() &&
+                    oldItem.getTitle() == newItem.getTitle() &&
+                    oldItem.getDate() == newItem.getDate();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+
+        Story story = (Story) obj;
+
+        return story.getFeedId() == this.getFeedId() &&
+                story.getStoryId() == this.getStoryId() &&
+                story.getTitle() == this.getTitle() &&
+                story.getDate() == this.getDate() &&
+                story.getContent() == this.getContent();
+    }
+
+
     //Not serializable field. Used in database
     @ColumnInfo(name = "sid")
     @PrimaryKey

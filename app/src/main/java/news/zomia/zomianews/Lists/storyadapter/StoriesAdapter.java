@@ -13,7 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -24,19 +26,23 @@ import java.util.regex.Pattern;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.service.NetworkState;
+import news.zomia.zomianews.data.service.Status;
+import news.zomia.zomianews.data.util.ListItemClickListener;
 import news.zomia.zomianews.data.util.Objects;
 
 /**
  * Created by Andrey on 03.01.2018.
  */
 
-public class StoriesAdapter extends PagedListAdapter<Story, StoriesAdapter.StoryViewHolder> {//SelectableAdapter<StoriesAdapter.StoryViewHolder>{
+public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHolder> {//SelectableAdapter<StoriesAdapter.StoryViewHolder>{
 
     private LayoutInflater inflater;
     private Context  context;
+    private NetworkState networkState;
 
-    private static final int TYPE_INACTIVE = 0;
-    private static final int TYPE_ACTIVE = 1;
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
 
     //private PagedList<Story> items;
     // each time data is set, we update this variable so that if DiffUtil calculation returns
@@ -44,203 +50,94 @@ public class StoriesAdapter extends PagedListAdapter<Story, StoriesAdapter.Story
     private int dataVersion = 0;
 
     private StoryViewHolder.ClickListener clickListener;
+    private ListItemClickListener itemClickListener;
 
-    public StoriesAdapter(Context context, /*List<Story> stories,*/ StoryViewHolder.ClickListener clickListener) {
-        super(DIFF_CALLBACK);
+    public StoriesAdapter(Context context, /*List<Story> stories,*/ StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
+        super(Story.DIFF_CALLBACK);
 
         this.clickListener = clickListener;
+        this.itemClickListener = itemClickListener;
 
         //this.inflater = LayoutInflater.from(context);
         this.context = context;
         //this.stories = stories;
     }
 
-    public static final DiffCallback<Story> DIFF_CALLBACK = new DiffCallback<Story>() {
-        @Override
-        public boolean areItemsTheSame(
-                @NonNull Story oldItem, @NonNull Story newItem) {
-            // User properties may have changed if reloaded from the DB, but ID is fixed
-            return areItemsTheSame(oldItem, newItem);
-            //return false;
+    public void setNetworkState(NetworkState newNetworkState) {
+        NetworkState previousState = this.networkState;
+        boolean previousExtraRow = hasExtraRow();
+        this.networkState = newNetworkState;
+        boolean newExtraRow = hasExtraRow();
+        if (previousExtraRow != newExtraRow) {
+            if (previousExtraRow) {
+                notifyItemRemoved(getItemCount());
+            } else {
+                notifyItemInserted(getItemCount());
+            }
+        } else if (newExtraRow && previousState != newNetworkState) {
+            notifyItemChanged(getItemCount() - 1);
         }
-        @Override
-        public boolean areContentsTheSame(
-                @NonNull Story oldItem, @NonNull Story newItem) {
-            // NOTE: if you use equals, your object must properly override Object#equals()
-            // Incorrectly returning false here will result in too many animations.
-            return areContentsTheSame(oldItem, newItem);
-            //return false;
-        }
-    };
-
-    /*public void removeItem(int position) {
-        items.remove(position);
-        notifyItemRemoved(position);
     }
 
-    private void removeRange(int positionStart, int itemCount) {
-        for (int i = 0; i < itemCount; ++i) {
-            items.remove(positionStart);
+    private boolean hasExtraRow() {
+        if (networkState != null && networkState != NetworkState.LOADED) {
+            return true;
+        } else {
+            return false;
         }
-        notifyItemRangeRemoved(positionStart, itemCount);
-    }*/
+    }
 
     public Story getStory(int position)
     {
         return getItem(position);
     }
-/*
-    @Override
-    public int getItemCount() {
-        return items == null ? 0 : items.size();
-    }
-*/
-    /*@SuppressLint("StaticFieldLeak")
-    @MainThread
-    public void replace(PagedList<Story> update) {
 
-        dataVersion ++;
-        if (items == null) {
-            if (update == null) {
-                return;
-            }
-            items = update;
-            notifyDataSetChanged();
-        } else if (update == null) {
-            int oldSize = items.size();
-            items = null;
-            notifyItemRangeRemoved(0, oldSize);
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+
+        LayoutInflater layoutInflater = LayoutInflater.from(viewGroup.getContext());
+        View view;
+
+        if (viewType == R.layout.layout_stories_list_item) {
+            view = layoutInflater.inflate(R.layout.layout_stories_list_item, viewGroup, false);
+            return new StoryViewHolder(view, clickListener);
+        } else if (viewType == R.layout.layout_network_state_item) {
+            view = layoutInflater.inflate(R.layout.layout_network_state_item, viewGroup, false);
+            return new NetworkStateItemViewHolder(view, itemClickListener);
         } else {
-            final int startVersion = dataVersion;
-            final List<Story> oldItems = items;
-            new AsyncTask<Void, Void, DiffUtil.DiffResult>() {
-                @Override
-                protected DiffUtil.DiffResult  doInBackground(Void... voids) {
-                    return DiffUtil.calculateDiff(new DiffUtil.Callback() {
-                        @Override
-                        public int getOldListSize() {
-                            return oldItems.size();
-                        }
-
-                        @Override
-                        public int getNewListSize() {
-                            return update.size();
-                        }
-
-                        @Override
-                        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                            Story oldItem = oldItems.get(oldItemPosition);
-                            Story newItem = update.get(newItemPosition);
-                            return StoriesAdapter.this.areItemsTheSame(oldItem, newItem);
-                        }
-
-                        @Override
-                        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                            Story oldItem = oldItems.get(oldItemPosition);
-                            Story newItem = update.get(newItemPosition);
-                            return StoriesAdapter.this.areContentsTheSame(oldItem, newItem);
-                        }
-                    });
-                }
-
-                @Override
-                protected void onPostExecute(DiffUtil.DiffResult diffResult) {
-                    if (startVersion != dataVersion) {
-                        // ignore update
-                        return;
-                    }
-                    items = update;
-                    diffResult.dispatchUpdatesTo(StoriesAdapter.this);
-
-                }
-            }.execute();
+            throw new IllegalArgumentException("unknown view type " + viewType);
         }
-    }*/
 
-
-    protected boolean areItemsTheSame(Story oldItem, Story newItem) {
-        return Objects.equals(oldItem.getDate(), newItem.getDate()) &&
-                Objects.equals(oldItem.getTitle(), newItem.getTitle());
-    }
-
-
-    protected boolean areContentsTheSame(Story oldItem, Story newItem) {
-        return Objects.equals(oldItem.getContent(), newItem.getContent());
     }
 
     @Override
-    public StoryViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        final int layout = viewType == TYPE_INACTIVE ? R.layout.layout_stories_list_item : R.layout.layout_stories_list_item /* inactive if false */;
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(layout, viewGroup, false);
-        StoryViewHolder pvh = new StoryViewHolder(v, clickListener);
-        return pvh;
+        switch (getItemViewType(position)) {
+            case R.layout.layout_stories_list_item: {
+                ((StoryViewHolder) holder).bindTo(getItem(position), context);
+            }
+                break;
+            case R.layout.layout_network_state_item:
+                ((NetworkStateItemViewHolder) holder).bindView(networkState);
+                break;
+        }
     }
 
     @Override
-    public void onBindViewHolder(StoryViewHolder personViewHolder, int position) {
-        String storyUrl = GetStoryUrl(getItem(position).getContent());
-        int imgWidth = 250;
-        int imgHeight = 250;
-
-        //Load img from a story. If image not loaded, show default icon.
-        if(!storyUrl.isEmpty())
-            Picasso.with(context)
-                    .load(storyUrl)
-                    //.resize(imgWidth, imgHeight)
-                    .fit()
-                    .centerCrop()
-                    //.onlyScaleDown()
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
-                    .into(personViewHolder.storyImageView);
-        else {
-            personViewHolder.storyImageView.getLayoutParams().width = imgWidth;
-            personViewHolder.storyImageView.getLayoutParams().height = imgHeight;
-            personViewHolder.storyImageView.setImageResource(R.mipmap.ic_launcher);
-        }
-
-        personViewHolder.storyTitleTextView.setText(getItem(position).getTitle());
-
-        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        Date d = null;
-        try {
-            d = dateFormat.parse(items.get(position).getDate());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if(d != null)*/
-        personViewHolder.storyDateTextView.setText(getItem(position).getDate().toString());
-
-        //personViewHolder.selectedOverlay.setVisibility(isSelected(position) ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    /*@Override
     public int getItemViewType(int position) {
-        final Story item = items.get(position);
-        //return item.isFresh() ? TYPE_ACTIVE : TYPE_INACTIVE;
-
-        return TYPE_ACTIVE;
-    }*/
+        if (hasExtraRow() && position == getItemCount() - 1) {
+            return R.layout.layout_network_state_item;
+        } else {
+            return R.layout.layout_stories_list_item;
+        }
+    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private String GetStoryUrl(String content)
-    {
-        String imgRegex = "<[iI][mM][gG][^>]+[sS][rR][cC]\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
-        Pattern p = Pattern.compile(imgRegex);
-        Matcher m = p.matcher(content);
-
-        if (m.find()) {
-            String imgSrc = m.group(1);
-            return imgSrc;
-        }
-        else
-            return "";
-    }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
             View.OnLongClickListener {
@@ -287,6 +184,86 @@ public class StoriesAdapter extends PagedListAdapter<Story, StoriesAdapter.Story
         public interface ClickListener {
             void onItemClicked(int position);
             boolean onItemLongClicked(int position);
+        }
+
+        public void bindTo(Story story, Context context) {
+
+            String storyUrl = "";
+            if(story != null)
+                storyUrl = GetStoryUrl(story.getContent());
+            int imgWidth = 250;
+            int imgHeight = 250;
+
+            //Load img from a story. If image not loaded, show default icon.
+            if(!storyUrl.isEmpty())
+                Picasso.with(context)
+                        .load(storyUrl)
+                        //.resize(imgWidth, imgHeight)
+                        .fit()
+                        .centerCrop()
+                        //.onlyScaleDown()
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.mipmap.ic_launcher)
+                        .into(storyImageView);
+            else {
+                storyImageView.getLayoutParams().width = imgWidth;
+                storyImageView.getLayoutParams().height = imgHeight;
+                storyImageView.setImageResource(R.mipmap.ic_launcher);
+            }
+
+            storyTitleTextView.setText(story.getTitle());
+            storyDateTextView.setText(story.getDate().toString());
+        }
+
+        private String GetStoryUrl(String content)
+        {
+            String imgRegex = "<[iI][mM][gG][^>]+[sS][rR][cC]\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>";
+            Pattern p = Pattern.compile(imgRegex);
+            Matcher m = p.matcher(content);
+
+            if (m.find()) {
+                String imgSrc = m.group(1);
+                return imgSrc;
+            }
+            else
+                return "";
+        }
+    }
+
+    static class NetworkStateItemViewHolder extends RecyclerView.ViewHolder {
+
+        private final ProgressBar progressBar;
+        private final TextView errorMsg;
+        private Button button;
+
+        public NetworkStateItemViewHolder(View itemView, ListItemClickListener listItemClickListener) {
+            super(itemView);
+            progressBar = itemView.findViewById(R.id.progress_bar);
+            errorMsg = itemView.findViewById(R.id.error_msg);
+            /*button = itemView.findViewById(R.id.retry_button);
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listItemClickListener.onRetryClick(view, getAdapterPosition());
+                }
+            });*/
+        }
+
+
+        public void bindView(NetworkState networkState) {
+            if (networkState != null && networkState.getStatus() == Status.LOADING) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
+
+            if (networkState != null && networkState.getStatus() == Status.ERROR) {
+                errorMsg.setVisibility(View.VISIBLE);
+                errorMsg.setText(networkState.getMsg());
+            } else {
+                errorMsg.setVisibility(View.GONE);
+            }
         }
     }
 }

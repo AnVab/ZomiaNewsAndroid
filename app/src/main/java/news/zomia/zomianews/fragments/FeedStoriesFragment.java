@@ -28,6 +28,7 @@ import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.util.ListItemClickListener;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
@@ -37,6 +38,7 @@ import news.zomia.zomianews.di.Injectable;
  */
 public class FeedStoriesFragment extends Fragment implements
         StoriesAdapter.StoryViewHolder.ClickListener,
+        ListItemClickListener,
         SwipeRefreshLayout.OnRefreshListener,
         LifecycleRegistryOwner,
         Injectable {
@@ -96,22 +98,20 @@ public class FeedStoriesFragment extends Fragment implements
 
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
 
-        storiesAdapter = new StoriesAdapter(getActivity(), this);
+        storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesListView.setAdapter(storiesAdapter);
 
         LiveData<PagedList<Story>> repo = storyViewModel.getStories();
         repo.observe(this, resource -> {
 
+            // update UI
             Log.d("ZOMIA", "UPDATE UI STORIES");
             storiesAdapter.setList(resource);
-            /*// update UI
-            if (resource != null){// && resource.data != null) {
-                storiesAdapter.replace(resource);
-                swipeRefreshLayout.setRefreshing(false);
-            } else {
-                storiesAdapter.replace(Collections.emptyList());
-                swipeRefreshLayout.setRefreshing(false);
-            }*/
+        });
+
+        storyViewModel.networkState.observe(this, networkState -> {
+            storiesAdapter.setNetworkState(networkState);
+            Log.d("ZOMIA", "Network State Change");
         });
 
         storyViewModel.setFeedId(feedId);
@@ -180,6 +180,11 @@ public class FeedStoriesFragment extends Fragment implements
                         + " must implement OnStorySelectedListener");
             }
         }
+    }
+
+    @Override
+    public void onRetryClick(View view, int position) {
+
     }
 
     // Container Activity must implement this interface

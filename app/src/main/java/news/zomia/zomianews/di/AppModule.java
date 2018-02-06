@@ -97,8 +97,21 @@ public class AppModule {
     @Provides
     @Singleton
     OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
+
+        Interceptor netInterceptor = new Interceptor() {
+            @Override
+            public Response intercept(Interceptor.Chain chain) throws IOException {
+
+                Request request = chain.request().newBuilder()
+                        .addHeader("Connection", "close").build();
+
+                return chain.proceed(request);
+            }
+        };
+
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
+                .addInterceptor(netInterceptor)
+                //.addInterceptor(loggingInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor);
 
