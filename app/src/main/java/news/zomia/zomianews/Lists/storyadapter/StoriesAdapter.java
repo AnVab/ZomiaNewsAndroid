@@ -58,9 +58,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         this.clickListener = clickListener;
         this.itemClickListener = itemClickListener;
 
-        //this.inflater = LayoutInflater.from(context);
         this.context = context;
-        //this.stories = stories;
     }
 
     public void setNetworkState(NetworkState newNetworkState) {
@@ -68,6 +66,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         boolean previousExtraRow = hasExtraRow();
         this.networkState = newNetworkState;
         boolean newExtraRow = hasExtraRow();
+
         if (previousExtraRow != newExtraRow) {
             if (previousExtraRow) {
                 notifyItemRemoved(getItemCount());
@@ -98,10 +97,10 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         LayoutInflater layoutInflater = LayoutInflater.from(viewGroup.getContext());
         View view;
 
-        if (viewType == R.layout.layout_stories_list_item) {
+        if (viewType == TYPE_ITEM) {
             view = layoutInflater.inflate(R.layout.layout_stories_list_item, viewGroup, false);
             return new StoryViewHolder(view, clickListener);
-        } else if (viewType == R.layout.layout_network_state_item) {
+        } else if (viewType == TYPE_HEADER) {
             view = layoutInflater.inflate(R.layout.layout_network_state_item, viewGroup, false);
             return new NetworkStateItemViewHolder(view, itemClickListener);
         } else {
@@ -114,11 +113,11 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         switch (getItemViewType(position)) {
-            case R.layout.layout_stories_list_item: {
+            case TYPE_ITEM: {
                 ((StoryViewHolder) holder).bindTo(getItem(position), context);
             }
                 break;
-            case R.layout.layout_network_state_item:
+            case TYPE_HEADER:
                 ((NetworkStateItemViewHolder) holder).bindView(networkState);
                 break;
         }
@@ -127,9 +126,9 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     @Override
     public int getItemViewType(int position) {
         if (hasExtraRow() && position == getItemCount() - 1) {
-            return R.layout.layout_network_state_item;
+            return TYPE_HEADER;
         } else {
-            return R.layout.layout_stories_list_item;
+            return TYPE_ITEM;
         }
     }
 
@@ -189,30 +188,31 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         public void bindTo(Story story, Context context) {
 
             String storyUrl = "";
-            if(story != null)
+            if(story != null) {
                 storyUrl = GetStoryUrl(story.getContent());
-            int imgWidth = 250;
-            int imgHeight = 250;
+                int imgWidth = 250;
+                int imgHeight = 250;
 
-            //Load img from a story. If image not loaded, show default icon.
-            if(!storyUrl.isEmpty())
-                Picasso.with(context)
-                        .load(storyUrl)
-                        //.resize(imgWidth, imgHeight)
-                        .fit()
-                        .centerCrop()
-                        //.onlyScaleDown()
-                        .placeholder(R.mipmap.ic_launcher)
-                        .error(R.mipmap.ic_launcher)
-                        .into(storyImageView);
-            else {
-                storyImageView.getLayoutParams().width = imgWidth;
-                storyImageView.getLayoutParams().height = imgHeight;
-                storyImageView.setImageResource(R.mipmap.ic_launcher);
+                //Load img from a story. If image not loaded, show default icon.
+                if (!storyUrl.isEmpty())
+                    Picasso.with(context)
+                            .load(storyUrl)
+                            //.resize(imgWidth, imgHeight)
+                            .fit()
+                            .centerCrop()
+                            //.onlyScaleDown()
+                            .placeholder(R.mipmap.ic_launcher)
+                            .error(R.mipmap.ic_launcher)
+                            .into(storyImageView);
+                else {
+                    storyImageView.getLayoutParams().width = imgWidth;
+                    storyImageView.getLayoutParams().height = imgHeight;
+                    storyImageView.setImageResource(R.mipmap.ic_launcher);
+                }
+
+                storyTitleTextView.setText(story.getTitle());
+                storyDateTextView.setText(story.getDate().toString());
             }
-
-            storyTitleTextView.setText(story.getTitle());
-            storyDateTextView.setText(story.getDate().toString());
         }
 
         private String GetStoryUrl(String content)
