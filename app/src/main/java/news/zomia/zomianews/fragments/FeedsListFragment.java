@@ -382,12 +382,5 @@ public class FeedsListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-
-       // if(feedViewModel != null)
-        //    feedViewModel.refresh();
-
-        //Update list
-        //if(expListAdapter != null)
-        //    expListAdapter.notifyDataSetChanged();
     }
 }

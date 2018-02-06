@@ -132,7 +132,6 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Log.d(TAG, "dateString: " + date.toString() + " formatted: " + dateString);
         String base64 = "";
         StringBuilder sb = new StringBuilder();
         try {

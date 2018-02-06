@@ -102,7 +102,6 @@ public class FeedStoriesFragment extends Fragment implements
 
         storyViewModel.getStories().observe(this, resource -> {
             // update UI
-            Log.d("ZOMIA", "UPDATE UI STORIES");
             storiesAdapter.setList(resource);
             if(resource != null)
                 swipeRefreshLayout.setRefreshing(false);
@@ -110,7 +109,6 @@ public class FeedStoriesFragment extends Fragment implements
 
         storyViewModel.networkState.observe(this, networkState -> {
             storiesAdapter.setNetworkState(networkState);
-            Log.d("ZOMIA", "Network State Change");
         });
 
         storyViewModel.setFeedId(feedId);
@@ -141,21 +139,8 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public boolean onItemLongClicked(int position) {
-        //toggleSelection(position);
         return true;
     }
-
-    /**
-     * Toggle the selection state of an item.
-     *
-     * If the item was the last one in the selection and is unselected, the selection is stopped.
-     * Note that the selection must already be started (actionMode must not be null).
-     *
-     * @param position Position of the item to toggle the selection state
-     */
-    /*private void toggleSelection(int position) {
-        storiesAdapter.toggleSelection(position);
-    }*/
 
     @Override
     public void onRefresh() {
