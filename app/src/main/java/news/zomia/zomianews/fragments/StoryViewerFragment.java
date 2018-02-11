@@ -20,9 +20,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -53,7 +55,7 @@ public class StoryViewerFragment extends Fragment
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-    private Date date;
+    private Long dateTimestamp;
     private String title;
     private String content;
 
@@ -156,7 +158,7 @@ public class StoryViewerFragment extends Fragment
                 // Update the UI.
                 if (resource != null && resource.data != null) {
 
-                    date = resource.data.getDate();
+                    dateTimestamp = resource.data.getDate();
                     title = resource.data.getTitle();
                     content = resource.data.getContent();
 
@@ -180,16 +182,12 @@ public class StoryViewerFragment extends Fragment
     public void loadContent()
     {
         if(storyPageViewer != null) {
-            /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            Date d = null;
-            try {
-                d = dateFormat.parse(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            String dateToText = "";
-            if(d != null)*/
-            String dateToText = date.toString();//.toString();
+
+            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
+            //Convert timestamp to milliseconds format
+            Timestamp tmp = new Timestamp(dateTimestamp / 1000);
+            Date dateToStr = new Date(tmp.getTime());
+            String dateToText = formatter.format(dateToStr);
 
             storyPageViewer.loadDataWithBaseURL("", getStyledFont(title, dateToText, content), "text/html", "UTF-8", "");
         }
