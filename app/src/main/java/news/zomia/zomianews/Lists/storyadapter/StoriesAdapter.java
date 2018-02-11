@@ -20,9 +20,14 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.text.SimpleDateFormat;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
@@ -211,7 +216,13 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 }
 
                 storyTitleTextView.setText(story.getTitle());
-                storyDateTextView.setText(story.getDate().toString());
+
+                SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
+                //Convert timestamp to milliseconds format
+                Timestamp tmp = new Timestamp(story.getDate() / 1000);
+                Date dateToStr = new Date(tmp.getTime());
+                String dateString = formatter.format(dateToStr);
+                storyDateTextView.setText(dateString);
             }
         }
 

@@ -48,7 +48,7 @@ public interface ZomiaService {
     LiveData<ApiResponse<ListResponse<Story>>> getStories(@Path("id") int id);
 
     @GET ("api/feeds/{id}/stories/")
-    Call<ListResponse<Story>> getStoriesCursor(@Path("id") int id, @Query("cursor") String cursor);
+    Call<ListResponse<Story>> getStoriesCursor(@Path("id") int id, @Query(value = "cursor",encoded = true) String cursor);
 
     @GET ("api/users/{id}/")
     Call<UserInfo> getUserInfo(@Path("id") int id);
