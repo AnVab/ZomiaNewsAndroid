@@ -2,10 +2,8 @@ package news.zomia.zomianews.fragments;
 
 
 import android.app.Activity;
-import android.app.SearchManager;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -13,12 +11,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -66,7 +66,6 @@ public class FeedsListFragment extends Fragment implements
     List<Feed> childList;
     ExpandableListView expListView;
     ExpandableListAdapter expListAdapter;
-    private SearchView filterFeedsSearchView;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -98,6 +97,8 @@ public class FeedsListFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
 
@@ -132,16 +133,6 @@ public class FeedsListFragment extends Fragment implements
                 return true;
             }
         });
-
-
-        SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
-        filterFeedsSearchView = (SearchView)  view.findViewById(R.id.filterFeedsSearchView);
-
-        filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        filterFeedsSearchView.setIconifiedByDefault(false);
-        filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
-
-        //filterFeedsSearchView.setOnCloseListener(this);
     }
 
     SearchView.OnQueryTextListener feedTextListener = new SearchView.OnQueryTextListener() {
@@ -157,11 +148,37 @@ public class FeedsListFragment extends Fragment implements
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            if(expListAdapter != null)
+            if(expListAdapter != null) {
                 expListAdapter.filterData(newText);
+
+                //Expand results
+                if(newText.length() > 0 && expListAdapter.getGroupCount() > 0) {
+                    for(int i = 0; i < expListAdapter.getGroupCount(); i++)
+                        expListView.expandGroup(i, false);
+                }
+                else
+                {
+                     if(expListAdapter.getGroupCount() > 0) {
+                         //Expand undecided tags group
+                         expListView.expandGroup(0, false);
+                         //Collapse all other tags
+                         for(int i = 1; i < expListAdapter.getGroupCount(); i++)
+                             expListView.collapseGroup(i);
+                     }
+                }
+            }
             return false;
         }
     };
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Get the SearchView on the app bar
+        SearchView filterFeedsSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        //SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
+        //filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
