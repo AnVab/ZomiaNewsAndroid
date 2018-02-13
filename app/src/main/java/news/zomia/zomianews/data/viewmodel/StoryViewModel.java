@@ -41,20 +41,17 @@ public class StoryViewModel  extends ViewModel {
         this.dataRepo = dataRepo;
 
         PagedList.Config pagedListConfig =
-                (new PagedList.Config.Builder()).setEnablePlaceholders(true)
+                (new PagedList.Config.Builder()).setEnablePlaceholders(false)
                         .setPrefetchDistance(10)
-                        .setPageSize(20).build();
+                        .setPageSize(10).build();
 
         storyBoundaryCallback = new StoryBoundaryCallback(dataRepo.getZomiaService(), dataRepo.getDb(), dataRepo.getFeedDao(), dataRepo.getAppExecutors());
         networkState = storyBoundaryCallback.getNetworkState();
 
-        stories = Transformations.switchMap(selectedFeedId, results -> {
-            if (results == null ) {
-                return AbsentLiveData.create();
-            } else {
-                return (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(selectedFeedId.getValue()), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
+        stories = Transformations.switchMap(selectedFeedId, result -> {
+                storyBoundaryCallback.setSelectedFeedId(result);
+                return (new LivePagedListBuilder<>(dataRepo.getFeedDao().loadAllStories2(result), pagedListConfig).setBoundaryCallback(storyBoundaryCallback))
                         .build();
-            }
         });
 
         currentStory = Transformations.switchMap(selectedCurrentStory, result -> {
@@ -71,9 +68,6 @@ public class StoryViewModel  extends ViewModel {
     }
 
     public void setFeedId(@NonNull Integer feedId) {
-
-        storyBoundaryCallback.setSelectedFeedId(feedId);
-
         selectedFeedId.setValue(feedId);
     }
 
@@ -83,14 +77,13 @@ public class StoryViewModel  extends ViewModel {
         }
     }
 
-
     public void setCurrentStoryPosition(@NonNull Integer storyListPosition) {
         selectedCurrentStory.setValue(storyListPosition);
     }
 
     public void goToNextCurrentStoryPosition() {
 
-        Integer newValue = selectedCurrentStory.getValue() + 1;
+        Integer newValue = selectedCurrentStory.getValue() - 1;
         if(newValue < stories.getValue().size())
             selectedCurrentStory.setValue(newValue);
         else

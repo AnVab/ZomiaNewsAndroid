@@ -40,7 +40,7 @@ import news.zomia.zomianews.data.util.Objects;
  * Created by Andrey on 03.01.2018.
  */
 
-public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHolder> {//SelectableAdapter<StoriesAdapter.StoryViewHolder>{
+public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHolder> {
 
     private LayoutInflater inflater;
     private Context  context;
@@ -49,7 +49,6 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
-    //private PagedList<Story> items;
     // each time data is set, we update this variable so that if DiffUtil calculation returns
     // after repetitive updates, we can ignore the old calculation
     private int dataVersion = 0;
@@ -57,7 +56,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     private StoryViewHolder.ClickListener clickListener;
     private ListItemClickListener itemClickListener;
 
-    public StoriesAdapter(Context context, /*List<Story> stories,*/ StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
+    public StoriesAdapter(Context context, StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
         super(Story.DIFF_CALLBACK);
 
         this.clickListener = clickListener;
@@ -111,7 +110,6 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         } else {
             throw new IllegalArgumentException("unknown view type " + viewType);
         }
-
     }
 
     @Override
@@ -142,6 +140,10 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
             View.OnLongClickListener {
@@ -222,7 +224,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 Timestamp tmp = new Timestamp(story.getDate() / 1000);
                 Date dateToStr = new Date(tmp.getTime());
                 String dateString = formatter.format(dateToStr);
-                storyDateTextView.setText(dateString);
+                storyDateTextView.setText(dateString + " id: " + story.getStoryId());
             }
         }
 

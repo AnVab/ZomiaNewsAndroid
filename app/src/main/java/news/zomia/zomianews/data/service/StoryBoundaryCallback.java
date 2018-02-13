@@ -2,6 +2,8 @@ package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.PagedList;
+
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import android.support.annotation.NonNull;
 import android.util.Base64;
@@ -13,6 +15,7 @@ import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -62,6 +65,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
 
     @Override
     public void onItemAtFrontLoaded(@NonNull Story itemAtFront) {
+        /*fetchFromNetwork(itemAtFront);*/
     }
 
     @Override
@@ -77,9 +81,9 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
     public void fetchFromNetwork(Story story) {
 
         Integer _feedId;
-        Date date;
+        Long date;
         if(story == null) {
-            date = Calendar.getInstance().getTime();
+            date = System.currentTimeMillis() * 1000L;
             _feedId = this.feedId;
         }
         else {
@@ -100,6 +104,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
                             story.setFeedId(_feedId);
                         }
 
+                        //Save stories to the database
                         db.beginTransaction();
                         try {
                             feedDao.insertStories(response.body().getResults());
@@ -128,19 +133,16 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
     }
 
     //Convert story date to a cursor string for a next page data
-    private String getCursor(Date date)
+    private String getCursor(Long dateTimestamp)
     {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = formatter.format(date);
         String base64 = "";
         StringBuilder sb = new StringBuilder();
         try {
-            sb.append(URLEncoder.encode("p=", "UTF-8"));
-            sb.append(URLEncoder.encode(dateString, "UTF-8"));
+            sb.append("p=");
+            sb.append(URLEncoder.encode(dateTimestamp.toString(), "UTF-8"));
 
             byte[] data = sb.toString().getBytes();
-            Log.d(TAG, "byte: " + sb.toString());
-            base64 = Base64.encodeToString(data, Base64.DEFAULT);
+            base64 = Base64.encodeToString(data, Base64.URL_SAFE);
 
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "UnsupportedEncodingException");

@@ -12,6 +12,7 @@ import android.support.v7.recyclerview.extensions.DiffCallback;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -31,6 +32,7 @@ public class Story {
             return oldItem.getFeedId() == newItem.getFeedId() &&
                     oldItem.getStoryId() == newItem.getStoryId() &&
                     oldItem.getTitle() == newItem.getTitle() &&
+                    oldItem.getCreated() == newItem.getCreated() &&
                     oldItem.getDate() == newItem.getDate();
         }
 
@@ -51,6 +53,7 @@ public class Story {
                 story.getStoryId() == this.getStoryId() &&
                 story.getTitle() == this.getTitle() &&
                 story.getDate() == this.getDate() &&
+                story.getCreated() == this.getCreated() &&
                 story.getContent() == this.getContent();
     }
 
@@ -65,9 +68,15 @@ public class Story {
     @ColumnInfo(name = "story_id")
     private Integer storyId;
 
+    //When story story was added to the zomia site
+    @SerializedName("created")
+    @Expose
+    private Long created;
+
+    //When story story was created on a news site
     @SerializedName("date")
     @Expose
-    private Date date;
+    private Long date;
 
     @SerializedName("title")
     @Expose
@@ -98,11 +107,19 @@ public class Story {
         this.storyId = storyId;
     }
 
-    public Date getDate() {
+    public Long getCreated() {
+        return created;
+    }
+
+    public void setCreated(Long created) {
+        this.created = created;
+    }
+
+    public Long getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Long date) {
         this.date = date;
     }
 
