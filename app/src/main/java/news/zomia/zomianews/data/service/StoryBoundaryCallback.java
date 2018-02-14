@@ -132,6 +132,10 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
         });
     }
 
+    public void refresh()
+    {
+        fetchFromNetwork(null);
+    }
     //Convert story date to a cursor string for a next page data
     private String getCursor(Long dateTimestamp)
     {

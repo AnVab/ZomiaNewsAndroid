@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,6 @@ import javax.inject.Inject;
 import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
-import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.util.ListItemClickListener;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
@@ -106,12 +106,29 @@ public class FeedStoriesFragment extends Fragment implements
         storyViewModel.getStories().observe(this, resource -> {
             // update UI
             storiesAdapter.setList(resource);
-            if(resource != null)
-                swipeRefreshLayout.setRefreshing(false);
         });
 
         storyViewModel.networkState.observe(this, networkState -> {
-            storiesAdapter.setNetworkState(networkState);
+            //Add a view to the end of list to show loading status
+            //storiesAdapter.setNetworkState(networkState);
+
+            //Update pull-to-swipe indicator
+            if(networkState != null) {
+                switch (networkState.getStatus()) {
+                    case LOADING:
+                        swipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case ERROR:
+                        swipeRefreshLayout.setRefreshing(false);
+                        //Show error message
+                        Toast.makeText(getActivity(), networkState.getMsg(), Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                    case SUCCESS:
+                        swipeRefreshLayout.setRefreshing(false);
+                        break;
+                }
+            }
         });
 
         storyViewModel.setFeedId(feedId);

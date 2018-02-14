@@ -58,7 +58,7 @@ public class StoryViewModel  extends ViewModel {
             if (result == null ) {
                 return AbsentLiveData.create();
             } else {
-                return dataRepo.loadStory(stories.getValue().get(selectedCurrentStory.getValue()).getStoryId());
+                return dataRepo.loadStory(stories.getValue().get(result).getStoryId());
             }
         });
     }
@@ -72,9 +72,8 @@ public class StoryViewModel  extends ViewModel {
     }
 
     public void refresh() {
-        if (selectedFeedId.getValue() != null) {
-            selectedFeedId.setValue(selectedFeedId.getValue());
-        }
+        if(storyBoundaryCallback != null)
+            storyBoundaryCallback.refresh();
     }
 
     public void setCurrentStoryPosition(@NonNull Integer storyListPosition) {
