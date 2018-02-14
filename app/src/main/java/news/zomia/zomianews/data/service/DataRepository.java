@@ -30,12 +30,11 @@ import news.zomia.zomianews.data.util.RateLimiter;
 
 @Singleton
 public class DataRepository {
+    private static final String TAG = StoryBoundaryCallback.class.getSimpleName();
+
     private final ZomiaDb db;
-
     private final ZomiaService webService;
-
     private final FeedDao feedDao;
-
     private final AppExecutors appExecutors;
 
     private RateLimiter<String> rateLimiter = new RateLimiter<>(10, TimeUnit.MINUTES);
@@ -67,7 +66,7 @@ public class DataRepository {
 
     public LiveData<Resource<List<Feed>>> loadFeeds() {
 
-        Log.d("ZOMIA", "loadFeeds");
+        Log.d(TAG, "loadFeeds");
 
         return new NetworkBoundResource<List<Feed>,ListResponse<Feed>>(appExecutors) {
             @Override
@@ -89,13 +88,13 @@ public class DataRepository {
 
             @NonNull @Override
             protected LiveData<List<Feed>> loadFromDb() {
-                Log.d("ZOMIA", "feedDao.loadFromDb");
+                Log.d(TAG, "feedDao.loadFromDb");
                 return feedDao.loadAllFeeds();
             }
 
             @NonNull @Override
             protected LiveData<ApiResponse<ListResponse<Feed>>> createCall() {
-                Log.d("ZOMIA", "webService.getFeedsList");
+                Log.d(TAG, "webService.getFeedsList");
                 return webService.getFeedsList();
             }
 

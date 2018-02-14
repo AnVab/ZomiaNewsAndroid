@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
@@ -114,7 +115,6 @@ public class FeedsListFragment extends Fragment implements
 
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
-
         expListAdapter = new ExpandableListAdapter(getActivity());
         expListView.setAdapter(expListAdapter);
 
@@ -125,7 +125,7 @@ public class FeedsListFragment extends Fragment implements
                                         int groupPosition, int childPosition, long id) {
                 final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
 
-                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_LONG)
+                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
                         .show();
 
                 onFeedsListListenerCallback.onFeedSelected(selectedFeed);
@@ -172,12 +172,25 @@ public class FeedsListFragment extends Fragment implements
     };
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (menu.findItem(R.id.menu_search) != null)
+            menu.findItem(R.id.menu_search).setVisible(true);
+
+        if (menu.findItem(R.id.menu_refresh) != null)
+            menu.findItem(R.id.menu_refresh).setVisible(false);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Get the SearchView on the app bar
         SearchView filterFeedsSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        //SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
-        //filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
+        if (filterFeedsSearchView != null) {
+            //SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
+            //filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
+        }
     }
 
     @Override

@@ -14,10 +14,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.Collections;
@@ -85,6 +90,8 @@ public class FeedStoriesFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        setHasOptionsMenu(true);
+
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
         //storiesListView.setItemAnimator(new DefaultItemAnimator());
         //storiesListView.getItemAnimator().setChangeDuration(0);
@@ -132,6 +139,30 @@ public class FeedStoriesFragment extends Fragment implements
         });
 
         storyViewModel.setFeedId(feedId);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (menu.findItem(R.id.menu_search) != null)
+            menu.findItem(R.id.menu_search).setVisible(false);
+
+        if (menu.findItem(R.id.menu_refresh) != null)
+            menu.findItem(R.id.menu_refresh).setVisible(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                onRefresh();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
