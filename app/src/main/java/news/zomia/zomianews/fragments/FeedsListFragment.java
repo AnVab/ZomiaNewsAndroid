@@ -180,6 +180,19 @@ public class FeedsListFragment extends Fragment implements
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                onRefresh();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Get the SearchView on the app bar
         SearchView filterFeedsSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
