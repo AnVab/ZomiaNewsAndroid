@@ -36,7 +36,6 @@ import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.di.Injectable;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.service.Resource;
-import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.data.viewmodel.FeedViewModel;
 import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 
@@ -50,23 +49,17 @@ public class FeedsListFragment extends Fragment implements
         LifecycleRegistryOwner,
         Injectable {
 
-    private ZomiaService zomiaService;
     private View rootView;
 
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
     FeedViewModelFactory feedViewModelFactory;
-
     private FeedViewModel feedViewModel;
-
-    SwipeRefreshLayout swipeRefreshLayout;
-
     private Map<String, List<Feed>> feedsCollection;
-
-    List<Feed> childList;
-    ExpandableListView expListView;
-    ExpandableListAdapter expListAdapter;
+    private ExpandableListView expListView;
+    private ExpandableListAdapter expListAdapter;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -85,6 +78,7 @@ public class FeedsListFragment extends Fragment implements
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.layout_feeds_list, container, false);
 
+        //Pull to refresh layout
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
@@ -99,10 +93,10 @@ public class FeedsListFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Indicate that this fragment has appbar menu
         setHasOptionsMenu(true);
 
-        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
-
+        //Floating button to add new feeds and tags
         FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,29 +106,32 @@ public class FeedsListFragment extends Fragment implements
             }
         });
 
-
+        //Feeds and tags collection to popullate feeds to the undecided tag group.
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
+        //List of tags and feeds
+        expListView = (ExpandableListView)  view.findViewById(R.id.feedsExpandableList);
         expListAdapter = new ExpandableListAdapter(getActivity());
         expListView.setAdapter(expListAdapter);
-
-        //Set item onclick listener
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
-
-                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
-                        .show();
-
-                onFeedsListListenerCallback.onFeedSelected(selectedFeed);
-
-                return true;
-            }
-        });
+        expListView.setOnChildClickListener(tagListClickListener);
     }
 
+    ExpandableListView.OnChildClickListener tagListClickListener = new ExpandableListView.OnChildClickListener() {
+
+        public boolean onChildClick(ExpandableListView parent, View v,
+        int groupPosition, int childPosition, long id) {
+            final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
+
+            Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
+                    .show();
+
+            onFeedsListListenerCallback.onFeedSelected(selectedFeed);
+
+            return true;
+        }
+    };
+
+    //Tags and feeds text filter listener
     SearchView.OnQueryTextListener feedTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
@@ -179,7 +176,7 @@ public class FeedsListFragment extends Fragment implements
             menu.findItem(R.id.menu_search).setVisible(true);
 
         if (menu.findItem(R.id.menu_refresh) != null)
-            menu.findItem(R.id.menu_refresh).setVisible(false);
+            menu.findItem(R.id.menu_refresh).setVisible(true);
     }
 
     @Override
@@ -187,8 +184,6 @@ public class FeedsListFragment extends Fragment implements
         // Get the SearchView on the app bar
         SearchView filterFeedsSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         if (filterFeedsSearchView != null) {
-            //SearchManager searchManager = (SearchManager)getActivity().getSystemService(Context.SEARCH_SERVICE);
-            //filterFeedsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
         }
     }
@@ -215,8 +210,12 @@ public class FeedsListFragment extends Fragment implements
 
         //Load tags. Update expandable list data.
         feedViewModel.getTags().observe(this, this::onGetTags);
+
         //Load available stories count for all feed channels. Update expandable list data.
         feedViewModel.getFeedStoriesCount().observe(this, this::onGetFeedStoriesCount);
+
+        //Call to receive new live data
+        feedViewModel.refreshAll();
     }
 
     @Override
@@ -232,14 +231,23 @@ public class FeedsListFragment extends Fragment implements
     }
 
     private void onGetFeeds(Resource<List<Feed>> resource) {
-        // update UI
-        if (resource != null) {
+        //For now do nothing. We added this observer to receive feeds update.
 
-            if(resource.data != null && resource.data.size() > 0) {
-                //For now do nothing
+        if(resource != null) {
+            switch (resource.status) {
+                case LOADING:
+                    swipeRefreshLayout.setRefreshing(true);
+                    break;
+                case ERROR:
+                    swipeRefreshLayout.setRefreshing(false);
+                    //Show error message
+                    Toast.makeText(getActivity(), resource.message, Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case SUCCESS:
+                    swipeRefreshLayout.setRefreshing(false);
+                    break;
             }
-
-            swipeRefreshLayout.setRefreshing(false);
         }
         else
             swipeRefreshLayout.setRefreshing(false);
@@ -331,24 +339,38 @@ public class FeedsListFragment extends Fragment implements
 
     private void onGetTags(Resource<List<Tag>> resource) {
         // update UI
-        if (resource != null && resource.data != null) {
+        if (resource != null) {
+            if(resource.data != null) {
+                //Add tags
+                List<String> tagList = new ArrayList<String>();
+                //Add default group for feeds with no tags
+                tagList.add(getString(R.string.tag_undecided));
 
-            //Add tags
-            List<String> tagList = new ArrayList<String>();
-            //Add default group for feeds with no tags
-            tagList.add(getString(R.string.tag_undecided));
+                //Add tags
+                for (Tag tag : resource.data) {
+                    tagList.add(tag.getName());
+                }
 
-            //Add tags
-            for(Tag tag: resource.data)
-            {
-                tagList.add(tag.getName());
+                //Update list
+                if (expListAdapter != null)
+                    expListAdapter.replaceTagsList(tagList);
             }
 
-            //Update list
-            if(expListAdapter != null)
-                expListAdapter.replaceTagsList(tagList);
-
-            swipeRefreshLayout.setRefreshing(false);
+            //Show pull to refresh status
+            switch (resource.status) {
+                case LOADING:
+                    swipeRefreshLayout.setRefreshing(true);
+                    break;
+                case ERROR:
+                    swipeRefreshLayout.setRefreshing(false);
+                    //Show error message
+                    Toast.makeText(getActivity(), resource.message, Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case SUCCESS:
+                    swipeRefreshLayout.setRefreshing(false);
+                    break;
+            }
         }
         else
             swipeRefreshLayout.setRefreshing(false);
@@ -376,7 +398,7 @@ public class FeedsListFragment extends Fragment implements
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
-        feedViewModel.refresh();
+        feedViewModel.refreshAll();
     }
 
     @Override
@@ -407,7 +429,6 @@ public class FeedsListFragment extends Fragment implements
         public void onFeedSelected(Feed feed);
         public void onNewFeedAddAction();
     }
-
 
     @Override
     public void onResume() {

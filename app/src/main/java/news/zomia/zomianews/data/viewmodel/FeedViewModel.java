@@ -16,6 +16,7 @@ import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.util.AbsentLiveData;
 
 /**
  * Created by Andrey on 10.01.2018.
@@ -23,21 +24,46 @@ import news.zomia.zomianews.data.service.Resource;
 
 public class FeedViewModel extends ViewModel {
     DataRepository dataRepo;
+
+    private final MutableLiveData<Boolean> refreshFeeds = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> refreshTags = new MutableLiveData<>();
+
     private LiveData<Resource<List<Feed>>> feeds;
-
     private LiveData<Resource<List<FeedStoriesCount>>> feedStoriesCount;
-
     private LiveData<Resource<List<Tag>>> tags;
-
     private LiveData<Resource<Boolean>> tagInsertLiveData;
 
     @Inject // DataRepository parameter is provided by Dagger 2
     public FeedViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
-        feeds = dataRepo.loadFeeds();
-        tags = dataRepo.loadTags();
 
-        feedStoriesCount = dataRepo.loadFeedStoriesCount();
+        feeds = Transformations.switchMap(refreshFeeds, data -> {
+            if (data == null) {
+                return AbsentLiveData.create();
+            } else {
+                return dataRepo.loadFeeds();
+            }
+        });
+
+        tags = Transformations.switchMap(refreshTags, data -> {
+            if (data == null) {
+                return AbsentLiveData.create();
+            } else {
+                return dataRepo.loadTags();
+            }
+        });
+
+        feedStoriesCount = Transformations.switchMap(refreshFeeds, data -> {
+            if (data == null) {
+                return AbsentLiveData.create();
+            } else {
+                return dataRepo.loadFeedStoriesCount();
+            }
+        });
+
+        //Set flags to receive new data
+        refreshFeeds.setValue(true);
+        refreshTags.setValue(true);
     }
 
     public LiveData<Resource<List<Feed>>> getFeeds() {
@@ -48,9 +74,22 @@ public class FeedViewModel extends ViewModel {
         return tags;
     }
 
-    public void refresh() {
-        feeds = dataRepo.loadFeeds();
-        tags = dataRepo.loadTags();
+    public void refreshFeeds() {
+        if (refreshFeeds.getValue() != null) {
+            refreshFeeds.setValue(refreshFeeds.getValue());
+        }
+    }
+
+    public void refreshTags() {
+        if (refreshTags.getValue() != null) {
+            refreshTags.setValue(refreshTags.getValue());
+        }
+    }
+
+    public void refreshAll()
+    {
+        refreshFeeds();
+        refreshTags();
     }
 
     public LiveData<Resource<List<FeedStoriesCount>>> getFeedStoriesCount() {

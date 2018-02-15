@@ -74,7 +74,6 @@ public class FeedStoriesFragment extends Fragment implements
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_feed_stories, container, false);
         feedId = getArguments().getInt("feedId");
-        Log.d(TAG, "Selected feedId: " + feedId);
 
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -90,8 +89,10 @@ public class FeedStoriesFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Indicate that this fragment has appbar menu
         setHasOptionsMenu(true);
 
+        //Stories list
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
         //storiesListView.setItemAnimator(new DefaultItemAnimator());
         //storiesListView.getItemAnimator().setChangeDuration(0);
@@ -104,11 +105,11 @@ public class FeedStoriesFragment extends Fragment implements
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
-
         storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesAdapter.setHasStableIds(true);
         storiesListView.setAdapter(storiesAdapter);
+
+        storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
 
         storyViewModel.getStories().observe(this, resource -> {
             // update UI
