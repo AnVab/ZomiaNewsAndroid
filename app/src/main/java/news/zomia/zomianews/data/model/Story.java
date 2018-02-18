@@ -86,6 +86,10 @@ public class Story {
     @Expose
     private String content;
 
+    @SerializedName("status")
+    @Expose
+    private Integer status;
+
     //Non serializable field. Used only for Database storage.
     @Expose
     @ColumnInfo(name = "feed_id")
@@ -145,5 +149,13 @@ public class Story {
 
     public void setFeedId(Integer id) {
         this.feedId = id;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

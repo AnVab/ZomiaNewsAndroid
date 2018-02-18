@@ -326,4 +326,12 @@ public class DataRepository {
         appExecutors.networkIO().execute(insertNewTask);
         return insertNewTask.getLiveData();
     }
+
+    public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, int status) {
+        UpdateStoryStatusTask updateStoryTask = new UpdateStoryStatusTask(
+                feedId, storyId, status, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(updateStoryTask);
+        return updateStoryTask.getLiveData();
+    }
 }
