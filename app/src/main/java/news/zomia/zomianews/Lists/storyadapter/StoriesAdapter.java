@@ -209,7 +209,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                             .fit()
                             .centerCrop()
                             //.onlyScaleDown()
-                            .placeholder(R.mipmap.ic_launcher)
+                            .placeholder(R.drawable.progress_animation)
                             .error(R.mipmap.ic_launcher)
                             .into(storyImageView);
                 else {
