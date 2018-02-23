@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 
 import java.text.SimpleDateFormat;
 
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.NetworkState;
@@ -198,24 +200,22 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             String storyUrl = "";
             if(story != null) {
                 storyUrl = GetStoryUrl(story.getContent());
-                int imgWidth = 250;
-                int imgHeight = 250;
 
                 //Load img from a story. If image not loaded, show default icon.
-                if (!storyUrl.isEmpty())
+                if (!storyUrl.isEmpty()) {
+                    final int radius = 25;
+                    final int margin = 0;
+                    final Transformation transformation = new RoundedCornersTransformation(radius, margin);
                     Picasso.with(context)
                             .load(storyUrl)
-                            //.resize(imgWidth, imgHeight)
                             .fit()
                             .centerCrop()
-                            //.onlyScaleDown()
                             .placeholder(R.drawable.progress_animation)
-                            .error(R.mipmap.ic_launcher)
+                            .error(R.drawable.error_image)
+                            .transform(transformation)
                             .into(storyImageView);
-                else {
-                    storyImageView.getLayoutParams().width = imgWidth;
-                    storyImageView.getLayoutParams().height = imgHeight;
-                    storyImageView.setImageResource(R.mipmap.ic_launcher);
+                } else {
+                    storyImageView.setImageResource(R.drawable.image_icon);
                 }
 
                 storyTitleTextView.setText(story.getTitle());
