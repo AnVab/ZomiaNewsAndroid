@@ -53,11 +53,7 @@ public class MainActivity extends AppCompatActivity
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
 
-
-
-
     StoryViewerFragment storyViewerFragment;
-    private Feed currentFeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity
         LoadFeedsListFragment();
     }
 
-    public void onFeedSelected(Feed feed)
+    public void onFeedSelected()
     {
       /*  FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
                 getSupportFragmentManager().findFragmentById(R.id.feed_stories_fragment);
@@ -119,18 +115,12 @@ public class MainActivity extends AppCompatActivity
             // Otherwise, we're in the one-pane layout and must swap frags
 */
             if (findViewById(R.id.fragment_container) != null) {
-                //Save feed for future use
-                currentFeed = feed;
 
                 removeBottomPadding();
 
                 FeedStoriesFragment feedStoriesFragment;
                 feedStoriesFragment = new FeedStoriesFragment();
-                // Create fragment and give it an argument for the selected article
-                Bundle args = new Bundle();
-                args.putInt("feedId", feed.getFeedId());
-                feedStoriesFragment.setArguments(args);
-
+                // Create fragment
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
                 fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
@@ -195,7 +185,7 @@ public class MainActivity extends AppCompatActivity
 
     public void goBackToStoriesList()
     {
-        onFeedSelected(currentFeed);
+        onFeedSelected();
     }
 
     public void LoadLoginFragment()

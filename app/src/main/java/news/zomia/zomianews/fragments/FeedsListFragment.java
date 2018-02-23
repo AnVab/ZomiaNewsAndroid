@@ -125,7 +125,9 @@ public class FeedsListFragment extends Fragment implements
             Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
                     .show();
 
-            onFeedsListListenerCallback.onFeedSelected(selectedFeed);
+            //Set feed as selected on the viewmodel
+            feedViewModel.setSelectedFeed(selectedFeed);
+            onFeedsListListenerCallback.onFeedSelected();
 
             return true;
         }
@@ -439,7 +441,7 @@ public class FeedsListFragment extends Fragment implements
 
     // Container Activity must implement this interface
     public interface OnFeedsListListener {
-        public void onFeedSelected(Feed feed);
+        public void onFeedSelected();
         public void onNewFeedAddAction();
     }
 

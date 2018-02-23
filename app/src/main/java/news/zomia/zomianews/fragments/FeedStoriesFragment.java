@@ -34,6 +34,8 @@ import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.util.ListItemClickListener;
+import news.zomia.zomianews.data.viewmodel.FeedViewModel;
+import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
@@ -50,9 +52,12 @@ public class FeedStoriesFragment extends Fragment implements
 
     private static final String TAG = "ZomiaFStoriesFragment";
     private View rootView;
-    private Integer feedId;
 
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+
+    @Inject
+    FeedViewModelFactory feedViewModelFactory;
+    private FeedViewModel feedViewModel;
 
     @Inject
     StoryViewModelFactory storyViewModelFactory;
@@ -73,7 +78,6 @@ public class FeedStoriesFragment extends Fragment implements
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_feed_stories, container, false);
-        feedId = getArguments().getInt("feedId");
 
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -104,6 +108,8 @@ public class FeedStoriesFragment extends Fragment implements
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
 
         storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesAdapter.setHasStableIds(true);
@@ -139,7 +145,11 @@ public class FeedStoriesFragment extends Fragment implements
             }
         });
 
-        storyViewModel.setFeedId(feedId);
+        feedViewModel.getSelectedFeedId().observe(this, resource -> {
+            // update UI
+            storyViewModel.setFeedId(resource.getFeedId());
+        });
+
     }
 
     @Override
