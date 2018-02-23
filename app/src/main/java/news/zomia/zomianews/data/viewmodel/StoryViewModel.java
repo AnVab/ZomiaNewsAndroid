@@ -78,12 +78,10 @@ public class StoryViewModel  extends ViewModel {
                     LiveData<Resource<Story>> loadedStory = dataRepo.loadStory(index);
 
                     //Set status of the previoud story to readed
-                    if (previousStory != null)
-                        updatePreviousStoryHandler.updateStory(previousStory.getFeedId(), previousStory.getStoryId(), StoryStatus.read);
+                    setStoryStatus(previousStory, StoryStatus.read);
 
                     //Set status of a new story to reading
-                    if (loadedStory.getValue().data != null)
-                        updateCurrentStoryHandler.updateStory(loadedStory.getValue().data.getFeedId(), loadedStory.getValue().data.getStoryId(), StoryStatus.reading);
+                    setStoryStatus(loadedStory.getValue().data, StoryStatus.reading);
 
                     return loadedStory;
                 }
@@ -98,10 +96,15 @@ public class StoryViewModel  extends ViewModel {
         if(selectedCurrentStory != null && selectedCurrentStory.getValue() != null && selectedCurrentStory.getValue() >= 0)
         {
             Story story = stories.getValue().get(selectedCurrentStory.getValue());
-            if (story != null)
-                updateCurrentStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), StoryStatus.read);
-
+            setStoryStatus(story, StoryStatus.read);
         }
+    }
+
+    private void setStoryStatus(Story story, StoryStatus status)
+    {
+        //Set status of the story
+        if (story != null)
+            updatePreviousStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), status);
     }
 
     public LiveData<PagedList<Story>> getStories() {
