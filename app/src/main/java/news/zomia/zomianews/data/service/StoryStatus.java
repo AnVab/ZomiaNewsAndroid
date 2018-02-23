@@ -1,5 +1,7 @@
 package news.zomia.zomianews.data.service;
 
+import android.util.Log;
+
 /**
  * Created by Andrey on 18.02.2018.
  */
@@ -9,29 +11,30 @@ public enum StoryStatus {
     reading(1),
     read(2);
 
-    private final int value;
+    private Integer value;
 
-    private StoryStatus(int value) {
+    StoryStatus(Integer value) {
         this.value = value;
     }
 
-    public int getStatus(){
-        return this.value;
-    }
-
-    public static StoryStatus GetValue(int id)
+    public static StoryStatus getValue(Integer id)
     {
         StoryStatus[] As = StoryStatus.values();
         for(int i = 0; i < As.length; i++)
         {
-            if(As[i].equals(id))
+            if(As[i].getValueInt().equals(id))
                 return As[i];
         }
         return StoryStatus.to_read;
     }
 
-    public static String GetValueName(int id)
+    public static String getValueName(Integer id)
     {
-        return GetValue(id).name();
+        return getValue(id.intValue()).name();
     }
+
+    public Integer getValueInt() {
+        return value;
+    }
+
 }

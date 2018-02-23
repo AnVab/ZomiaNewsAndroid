@@ -33,6 +33,7 @@ import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.NetworkState;
 import news.zomia.zomianews.data.service.Status;
+import news.zomia.zomianews.data.service.StoryStatus;
 import news.zomia.zomianews.data.util.ListItemClickListener;
 import news.zomia.zomianews.data.util.Objects;
 
@@ -224,7 +225,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 Timestamp tmp = new Timestamp(story.getDate() / 1000);
                 Date dateToStr = new Date(tmp.getTime());
                 String dateString = formatter.format(dateToStr);
-                storyDateTextView.setText(dateString + " id: " + story.getStoryId());
+                storyDateTextView.setText(dateString + " id: " + story.getStoryId() + " status: " +StoryStatus.getValueName(story.getStatus()));
             }
         }
 

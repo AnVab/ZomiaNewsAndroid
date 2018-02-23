@@ -2,6 +2,7 @@ package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -18,14 +19,14 @@ public class UpdateStoryStatusTask implements Runnable {
 
     private final MutableLiveData<Resource<Boolean>> resultState = new MutableLiveData<>();
 
-    private final int status;
-    private final int feedId;
-    private final int storyId;
+    private final StoryStatus status;
+    private final Integer feedId;
+    private final Integer storyId;
     private final ZomiaService zomiaService;
     private final FeedDao feedDao;
     private final ZomiaDb db;
 
-    UpdateStoryStatusTask(int feedId, int storyId, int status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
+    UpdateStoryStatusTask(Integer feedId, Integer storyId, StoryStatus status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
         this.status = status;
         this.feedId = feedId;
         this.storyId = storyId;
@@ -37,23 +38,34 @@ public class UpdateStoryStatusTask implements Runnable {
     @Override
     public void run() {
         try {
-            String statusString = StoryStatus.GetValueName(status);
+            String statusString = status.name();
+            Log.d("UpdateStoryStatusTask", "statusString: " + status + " " + statusString);
+
             //First: try to insert into remote server
             Response<Story> response = zomiaService.updateStoryStatus(feedId, storyId, statusString).execute();
+            Log.d("UpdateStoryStatusTask", "222feedDao.updateStory(storyId, status.getValueInt()): " + storyId + " status:  " + status.getValueInt());
 
             ApiResponse<Story> apiResponse = new ApiResponse<>(response);
+
             if (apiResponse.isSuccessful()) {
+                Log.d("UpdateStoryStatusTask", "feedDao.updateStory(storyId, status.getValueInt()): " + storyId + " status:  " + status.getValueInt());
+
                 //Insert new tag to DB
                 db.beginTransaction();
                 try {
-                    feedDao.updateStory(storyId, status);
+                    int updatedRows = feedDao.updateStory(storyId, status.getValueInt());
                     db.setTransactionSuccessful();
+                    Log.d("UpdateStoryStatusTask", "setTransactionSuccessful updatedRows:" + updatedRows);
+
                 } finally {
                     db.endTransaction();
+                    Log.d("UpdateStoryStatusTask", "endTransaction ");
                 }
+                Log.d("UpdateStoryStatusTask", "resultState.postValue(Resource.success(apiResponse.body != null)); ");
                 resultState.postValue(Resource.success(apiResponse.body != null));
             } else {
                 //Received error
+                Log.d("UpdateStoryStatusTask", "resultState.postValue(Resource.error(apiResponse.errorMessage, true)); ");
                 resultState.postValue(Resource.error(apiResponse.errorMessage, true));
             }
 

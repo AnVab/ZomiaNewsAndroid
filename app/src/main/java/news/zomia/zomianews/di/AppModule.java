@@ -17,6 +17,7 @@ import dagger.Provides;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
+import news.zomia.zomianews.data.service.NullOnEmptyConverterFactory;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
@@ -99,7 +100,7 @@ public class AppModule {
     OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
-                //.addInterceptor(loggingInterceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor);
 
@@ -111,6 +112,8 @@ public class AppModule {
 
         return new Retrofit.Builder()
                 .baseUrl("http://localhost/") // Dummy baseUrl is needed to create instance
+                //Add json converter for a response with an empty body
+                .addConverterFactory(new NullOnEmptyConverterFactory())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .client(okHttpClient)

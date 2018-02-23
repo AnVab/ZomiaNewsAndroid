@@ -72,6 +72,6 @@ public interface FeedDao {
     @Query("SELECT feed_id, COUNT(*) FROM Story GROUP BY feed_id")
     public abstract LiveData<List<FeedStoriesCount>> countFeedStoriesTotal();
 
-    @Query("UPDATE Story SET status = :status  WHERE story_id = :storyId")
-    public void updateStory(int storyId, int status);
+    @Query("UPDATE Story SET status = :status WHERE story_id = :storyId")
+    public abstract int updateStory(Integer storyId, Integer status);
 }
