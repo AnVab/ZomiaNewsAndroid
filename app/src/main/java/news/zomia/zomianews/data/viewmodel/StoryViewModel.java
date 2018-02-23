@@ -47,7 +47,6 @@ public class StoryViewModel  extends ViewModel {
     private final UpdateStoryHandler updateCurrentStoryHandler;
     private final UpdateStoryHandler updatePreviousStoryHandler;
 
-
     @Inject // DataRepository parameter is provided by Dagger 2
     public StoryViewModel(DataRepository dataRepo) {
         this.dataRepo = dataRepo;
@@ -92,6 +91,17 @@ public class StoryViewModel  extends ViewModel {
                     return AbsentLiveData.create();
             }
         });
+    }
+
+    public void setCurrentStoryAsRead()
+    {
+        if(selectedCurrentStory != null && selectedCurrentStory.getValue() != null && selectedCurrentStory.getValue() >= 0)
+        {
+            Story story = stories.getValue().get(selectedCurrentStory.getValue());
+            if (story != null)
+                updateCurrentStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), StoryStatus.read);
+
+        }
     }
 
     public LiveData<PagedList<Story>> getStories() {

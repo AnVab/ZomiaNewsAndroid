@@ -187,6 +187,20 @@ public class FeedStoriesFragment extends Fragment implements
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        //Set story as read when we return back from story viewer by the back button press
+        if(storyViewModel != null)
+            storyViewModel.setCurrentStoryAsRead();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
     }
