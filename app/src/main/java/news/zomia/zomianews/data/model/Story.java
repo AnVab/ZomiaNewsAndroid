@@ -29,11 +29,7 @@ public class Story {
     public static DiffCallback<Story> DIFF_CALLBACK = new DiffCallback<Story>() {
         @Override
         public boolean areItemsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
-            return oldItem.getFeedId() == newItem.getFeedId() &&
-                    oldItem.getStoryId() == newItem.getStoryId() &&
-                    oldItem.getTitle() == newItem.getTitle() &&
-                    oldItem.getCreated() == newItem.getCreated() &&
-                    oldItem.getDate() == newItem.getDate();
+            return oldItem.getStoryId() == newItem.getStoryId();
         }
 
         @Override

@@ -52,10 +52,6 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
-    // each time data is set, we update this variable so that if DiffUtil calculation returns
-    // after repetitive updates, we can ignore the old calculation
-    private int dataVersion = 0;
-
     private StoryViewHolder.ClickListener clickListener;
     private ListItemClickListener itemClickListener;
 
@@ -95,7 +91,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
     public Story getStory(int position)
     {
-        return getItem(position);
+        return getCurrentList().get(position);
     }
 
     @Override
@@ -145,7 +141,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return  getCurrentList().get(position).getStoryId();
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
