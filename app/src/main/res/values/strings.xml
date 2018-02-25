@@ -38,5 +38,9 @@
 
     <string name="enter_text">Enter text</string>
     <string name="tag_undecided">Undecided</string>
+    <string name="status">Status</string>
+    <string name="status_read">Read</string>
+    <string name="status_reading">Reading</string>
+    <string name="status_unread">Unread</string>
 
 </resources>

@@ -133,7 +133,7 @@ public class StoryViewModel  extends ViewModel {
 
     public void goToNextCurrentStoryPosition() {
 
-        Integer newValue = selectedCurrentStory.getValue() - 1;
+        Integer newValue = selectedCurrentStory.getValue() + 1;
         if(newValue < stories.getValue().size())
             selectedCurrentStory.setValue(newValue);
         else

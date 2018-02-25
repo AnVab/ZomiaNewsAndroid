@@ -98,9 +98,9 @@ public class FeedStoriesFragment extends Fragment implements
 
         //Stories list
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
-       // storiesListView.setItemAnimator(null);
+        storiesListView.setItemAnimator(null);
         //((DefaultItemAnimator) storiesListView.getItemAnimator()).setSupportsChangeAnimations(false);
-        storiesListView.setItemAnimator(new DefaultItemAnimator());
+        //storiesListView.setItemAnimator(new DefaultItemAnimator());
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         storiesListView.setLayoutManager(llm);

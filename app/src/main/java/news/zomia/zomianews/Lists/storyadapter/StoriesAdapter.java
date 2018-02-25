@@ -221,7 +221,25 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 Timestamp tmp = new Timestamp(story.getDate() / 1000);
                 Date dateToStr = new Date(tmp.getTime());
                 String dateString = formatter.format(dateToStr);
-                storyDateTextView.setText(dateString + " id: " + story.getStoryId() + " status: " +StoryStatus.getValueName(story.getStatus()));
+                String statusString = context.getString(R.string.status);
+                String statusValue = "";
+                switch(StoryStatus.getValue(story.getStatus()))
+                {
+                    case to_read:
+                        statusValue = context.getString(R.string.status_unread);
+                        break;
+                    case reading:
+                        statusValue = context.getString(R.string.status_reading);
+                        break;
+                    case read:
+                        statusValue = context.getString(R.string.status_read);
+                        break;
+                    default:
+                        statusValue = context.getString(R.string.status_unread);
+                        break;
+
+                }
+                storyDateTextView.setText(dateString + " " + statusString + ": " + statusValue);
             }
         }
 
