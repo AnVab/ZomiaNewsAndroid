@@ -296,6 +296,8 @@ public class MainActivity extends AppCompatActivity
             else if (fragment instanceof FeedStoriesFragment) {
                 getSupportFragmentManager().popBackStack("feedsListFragment", 0);
                 ShowToolbar();
+                //Add bottom padding if we returned back to the feeds list fragment
+                addBottomPadding();
             }
             else {
                 super.onBackPressed();
