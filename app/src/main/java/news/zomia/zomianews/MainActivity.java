@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
                 fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
-                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.addToBackStack("feedStoriesFragment");
                 fragmentTransaction.commit();
             }
        // }
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity
 
             NewFeedFragment newFeedFragment = new NewFeedFragment();
             fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack("newFeedFragment");
             fragmentTransaction.commit();
         }
     }
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
             fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
         }
     }
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
             fragmentTransaction.replace(R.id.fragment_container, loginFragment);
-            //fragmentTransaction.addToBackStack(null);
+            //fragmentTransaction.addToBackStack("loginFragment);
             fragmentTransaction.commit();
         }
     }
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity
             //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack("feedsListFragment");
             fragmentTransaction.commit();
         }
     }
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity
         //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
         SettingsFragment settingsFragment = new SettingsFragment();
         fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
-        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack("settingsFragment");
         fragmentTransaction.commit();
     }
 
@@ -283,13 +283,24 @@ public class MainActivity extends AppCompatActivity
             finish();
         }
         else {
-            super.onBackPressed();
-            ShowToolbar();
-
-            //Add bottom padding if we returned back to the feeds list fragment
-            Fragment feedsListFlag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (feedsListFlag instanceof FeedsListFragment)
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (fragment instanceof FeedsListFragment) {
+                super.onBackPressed();
+                ShowToolbar();
+                //Add bottom padding if we returned back to the feeds list fragment
                 addBottomPadding();
+            } else if (fragment instanceof StoryViewerFragment) {
+                getSupportFragmentManager().popBackStack("feedStoriesFragment", 0);
+                ShowToolbar();
+            }
+            else if (fragment instanceof FeedStoriesFragment) {
+                getSupportFragmentManager().popBackStack("feedsListFragment", 0);
+                ShowToolbar();
+            }
+            else {
+                super.onBackPressed();
+                ShowToolbar();
+            }
         }
     }
 
