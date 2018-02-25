@@ -133,6 +133,14 @@ public class StoryViewModel  extends ViewModel {
 
     public void goToNextCurrentStoryPosition() {
 
+        //Save id of previous Id
+        if(currentStory.getValue() != null && currentStory.getValue().data != null) {
+            previousStory = currentStory.getValue().data;
+            updateCurrentStoryHandler.reset();
+            updatePreviousStoryHandler.reset();
+        }
+
+        //Set new story id
         Integer newValue = selectedCurrentStory.getValue() + 1;
         if(newValue < stories.getValue().size())
             selectedCurrentStory.setValue(newValue);
