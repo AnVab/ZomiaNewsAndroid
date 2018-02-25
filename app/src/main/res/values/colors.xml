@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="selected_overlay">#FF4081</color>
+    <color name="story_status_unread">#ff0000</color>
+    <color name="story_status_reading">#008000</color>
+    <color name="story_status_read">#0000ff</color>
 </resources>

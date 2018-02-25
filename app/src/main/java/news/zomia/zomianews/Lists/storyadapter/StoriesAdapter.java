@@ -1,14 +1,8 @@
 package news.zomia.zomianews.Lists.storyadapter;
 
-import android.annotation.SuppressLint;
-import android.arch.paging.PagedList;
 import android.arch.paging.PagedListAdapter;
 import android.content.Context;
-import android.os.AsyncTask;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
-import android.support.v7.util.DiffUtil;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -227,15 +221,19 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 {
                     case to_read:
                         statusValue = context.getString(R.string.status_unread);
+                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
                         break;
                     case reading:
                         statusValue = context.getString(R.string.status_reading);
+                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_reading, null));
                         break;
                     case read:
                         statusValue = context.getString(R.string.status_read);
+                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_read, null));
                         break;
                     default:
                         statusValue = context.getString(R.string.status_unread);
+                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
                         break;
 
                 }
