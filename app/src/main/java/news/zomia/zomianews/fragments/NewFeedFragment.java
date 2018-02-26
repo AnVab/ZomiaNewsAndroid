@@ -70,6 +70,10 @@ public class NewFeedFragment extends Fragment implements
     private LiveData<Resource<Boolean>> tagInsertLiveData;
     private LiveData<Resource<Boolean>> feedInsertLiveData;
     TagListAdapter tagsListViewAdapter;
+
+    //0: new feed; 1: edit feed
+    private Integer mode;
+
     public NewFeedFragment() {
         // Required empty public constructor
     }
@@ -91,6 +95,9 @@ public class NewFeedFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Bundle arguments = getArguments();
+        mode = arguments.getInt("mode");
 
         feedSourcePathTextView = (TextView) view.findViewById(R.id.feedSourcePathTextView);
 
@@ -260,6 +267,14 @@ public class NewFeedFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
 
         feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
+
+        feedViewModel.getSelectedFeedId().observe(this, resource -> {
+            //If Edit mode then fill the data on the form
+            if (mode == 1){
+                // update UI
+                feedSourcePathTextView.setText(resource.getLink());
+            }
+        });
     }
 
     @Override

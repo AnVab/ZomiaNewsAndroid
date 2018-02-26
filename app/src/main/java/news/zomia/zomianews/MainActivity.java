@@ -138,11 +138,41 @@ public class MainActivity extends AppCompatActivity
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
+            Bundle data = new Bundle();
+            //mode = 0: add new feed
+            data.putInt("mode", 0);
+
             NewFeedFragment newFeedFragment = new NewFeedFragment();
+            newFeedFragment.setArguments(data);
             fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
             fragmentTransaction.addToBackStack("newFeedFragment");
             fragmentTransaction.commit();
         }
+    }
+
+    public void onFeedEdit()
+    {
+        if (findViewById(R.id.fragment_container) != null) {
+
+            addBottomPadding();
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+            Bundle data = new Bundle();
+            //mode = 1: edit a feed
+            data.putInt("mode", 1);
+
+            NewFeedFragment newFeedFragment = new NewFeedFragment();
+            newFeedFragment.setArguments(data);
+            fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
+            fragmentTransaction.addToBackStack("newFeedFragment");
+            fragmentTransaction.commit();
+        }
+    }
+
+    public void onTagEdit()
+    {
+
     }
 
     public void onStorySelected(Story story)

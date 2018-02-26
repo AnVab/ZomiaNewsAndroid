@@ -13,12 +13,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
@@ -114,6 +116,8 @@ public class FeedsListFragment extends Fragment implements
         expListAdapter = new ExpandableListAdapter(getActivity());
         expListView.setAdapter(expListAdapter);
         expListView.setOnChildClickListener(tagListClickListener);
+
+        registerForContextMenu(expListView);
     }
 
     ExpandableListView.OnChildClickListener tagListClickListener = new ExpandableListView.OnChildClickListener() {
@@ -169,6 +173,56 @@ public class FeedsListFragment extends Fragment implements
             return false;
         }
     };
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId()==R.id.feedsExpandableList) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.feeds_context_menu, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
+        int groupPos = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+        int childPos = ExpandableListView.getPackedPositionChild(info.packedPosition);
+
+        switch(item.getItemId()) {
+
+            case R.id.edit_feed:
+                if(childPos != -1) {
+                    //Edit feed
+                    Feed selectedFeed = (Feed) expListAdapter.getChild(groupPos, childPos);
+                    feedViewModel.setSelectedFeed(selectedFeed);
+                    onFeedsListListenerCallback.onFeedEdit();
+
+                    Log.d("ZOMIA", "Context menu Edit Title: " + selectedFeed.getTitle() + " GroupId: " + groupPos + " ItemId:" + childPos);
+                }
+                else{
+                    //Edit tag
+                    onFeedsListListenerCallback.onTagEdit();
+                }
+                return true;
+            case R.id.delete_feed:
+                if(childPos != -1) {
+                    //Delete feed
+                    Feed selectedFeed = (Feed) expListAdapter.getChild(groupPos, childPos);
+                    feedViewModel.setSelectedFeed(selectedFeed);
+
+
+                    Log.d("ZOMIA", "Context menu Delete Title: " + selectedFeed.getTitle() + " GroupId: " + groupPos + " ItemId:" + childPos);
+                }
+                else{
+                    //Delete tag
+
+                }
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -443,6 +497,8 @@ public class FeedsListFragment extends Fragment implements
     public interface OnFeedsListListener {
         public void onFeedSelected();
         public void onNewFeedAddAction();
+        public void onFeedEdit();
+        public void onTagEdit();
     }
 
     @Override
