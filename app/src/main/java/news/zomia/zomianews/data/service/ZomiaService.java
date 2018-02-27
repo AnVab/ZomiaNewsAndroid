@@ -16,6 +16,7 @@ import news.zomia.zomianews.data.model.Token;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -38,11 +39,11 @@ public interface ZomiaService {
     @POST ("api/feeds/")
     Call<Feed> addNewFeed(@Body Feed feedUrl);
 
+    @PATCH("api/feeds/{feed_id}/")
+    Call<Feed> updateFeed(@Path("feed_id") int feed_id, @Body Feed feed);
+
     @GET ("api/feeds/{id}/")
     Call<Feed> getFeedInfo(@Path("id") int id);
-
-    @PUT("api/feeds/{id}/")
-    Call<Feed> updateFeedInfo(@Path("id") int id, @Body Feed feed);
 
     @GET ("api/feeds/{id}/stories/")
     LiveData<ApiResponse<ListResponse<Story>>> getStories(@Path("id") int id);

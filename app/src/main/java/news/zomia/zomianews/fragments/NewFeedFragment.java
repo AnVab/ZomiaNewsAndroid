@@ -35,6 +35,7 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.Lists.TagListAdapter;
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
@@ -65,6 +66,7 @@ public class NewFeedFragment extends Fragment implements
     private ListView tagsListView;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
     private LiveData<Resource<Boolean>> feedInsertLiveData;
+    private LiveData<Resource<Boolean>> feedUpdateLiveData;
     TagListAdapter tagsListViewAdapter;
 
     //0: new feed; 1: edit feed
@@ -177,8 +179,20 @@ public class NewFeedFragment extends Fragment implements
         {
             if (feedSourcePathTextView != null) {
                 String feedUrl = feedSourcePathTextView.getText().toString();
-                if (!feedUrl.isEmpty())
-                    registerOnFeedInsertObserver(feedUrl, getSelectedTagNames());
+                if (!feedUrl.isEmpty()) {
+                    switch (mode) {
+                        case 0:
+                            registerOnFeedInsertObserver(feedUrl, getSelectedTagNames());
+                            break;
+                        case 1: {
+                            Feed updatedFeed = feedViewModel.getSelectedFeedId().getValue();
+                            updatedFeed.setUrl(feedUrl);
+                            updatedFeed.setTag(getSelectedTagNames());
+                            registerOnFeedUpdateObserver(updatedFeed);
+                        }
+                            break;
+                    }
+                }
             }
         }
     };
@@ -208,6 +222,19 @@ public class NewFeedFragment extends Fragment implements
     {
         if(feedInsertLiveData != null)
             feedInsertLiveData.removeObservers(this);
+    }
+
+    private void registerOnFeedUpdateObserver(Feed feed)
+    {
+        //Insert new tag name to db and send request to server
+        feedUpdateLiveData = feedViewModel.updateFeed(feed);
+        feedUpdateLiveData.observe(this, this::onFeedUpdated);
+    }
+
+    private void unregisterOnFeedUpdateObserver()
+    {
+        if(feedUpdateLiveData != null)
+            feedUpdateLiveData.removeObservers(this);
     }
 
     //On get tags list observer function
@@ -277,6 +304,25 @@ public class NewFeedFragment extends Fragment implements
         }
     }
 
+    private void onFeedUpdated(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.feed_insert_success), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedUpdateObserver();
+
+                    // Send the event to the host activity
+                    onFeedAddedListenerCallback.onFeedUpdated();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.feed_insert_error), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedUpdateObserver();
+                    break;
+            }
+        }
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -297,7 +343,9 @@ public class NewFeedFragment extends Fragment implements
         //Unsubscribe all livedata observers
         feedViewModel.getTags().removeObservers(this);
         unregisterOnTagInsertObserver();
+
         unregisterOnFeedInsertObserver();
+        unregisterOnFeedUpdateObserver();
 
         super.onStop();
     }
@@ -338,6 +386,7 @@ public class NewFeedFragment extends Fragment implements
     // Container Activity must implement this interface
     public interface OnFeedAddedListener {
         public void onFeedAdded();
+        public void onFeedUpdated();
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,

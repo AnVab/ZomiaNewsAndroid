@@ -121,6 +121,10 @@ public class FeedViewModel extends ViewModel {
         return dataRepo.insertNewFeed(feedUrl, tag);
     }
 
+    public LiveData<Resource<Boolean>> updateFeed(Feed feed) {
+        return dataRepo.updateFeed(feed);
+    }
+
     public void setSelectedFeed(@NonNull Feed feed) {
         selectedCurrentFeed.setValue(feed);
     }

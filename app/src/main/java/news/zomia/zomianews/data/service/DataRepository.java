@@ -320,11 +320,19 @@ public class DataRepository {
     }
 
     public LiveData<Resource<Boolean>> insertNewFeed(String feedUrl, String tag) {
-        InsertNewFeedTask insertNewTask = new InsertNewFeedTask(
+        InsertNewFeedTask insertNeweFeedTask = new InsertNewFeedTask(
                 feedUrl, tag, webService, feedDao, db);
 
-        appExecutors.networkIO().execute(insertNewTask);
-        return insertNewTask.getLiveData();
+        appExecutors.networkIO().execute(insertNeweFeedTask);
+        return insertNeweFeedTask.getLiveData();
+    }
+
+    public LiveData<Resource<Boolean>> updateFeed(Feed feed) {
+        UpdateFeedTask updateFeedTask = new UpdateFeedTask(
+                feed, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(updateFeedTask);
+        return updateFeedTask.getLiveData();
     }
 
     public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, StoryStatus status) {

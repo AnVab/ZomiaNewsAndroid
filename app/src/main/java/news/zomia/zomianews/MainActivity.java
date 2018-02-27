@@ -102,6 +102,11 @@ public class MainActivity extends AppCompatActivity
         LoadFeedsListFragment();
     }
 
+    public void onFeedUpdated()
+    {
+        LoadFeedsListFragment();
+    }
+
     public void onFeedSelected()
     {
       /*  FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
