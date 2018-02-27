@@ -35,16 +35,12 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.Lists.TagListAdapter;
 import news.zomia.zomianews.R;
-import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.viewmodel.FeedViewModel;
 import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -224,6 +220,25 @@ public class NewFeedFragment extends Fragment implements
             //Update list
             if(tagsListViewAdapter != null)
                 tagsListViewAdapter.notifyDataSetChanged();
+
+            //For edit mode: get tags for current feed and select them in the list
+            if (mode == 1) {
+                //set feed link
+                feedSourcePathTextView.setText(feedViewModel.getSelectedFeedId().getValue().getLink());
+                //get list of tags for the current feed
+                List<Tag> tagsOnFeed = feedViewModel.getTagsForCurrentFeed();
+                //select tags for the current feed in the list view
+                if(tagsListViewAdapter != null && tagsOnFeed != null) {
+                    for (int i = 0; i < tagsListViewAdapter.getCount(); i++) {
+                        Tag tagInTheList = tagsListViewAdapter.getTag(i);
+                        for (Tag tag : tagsOnFeed) {
+                            if (tag.getTagId() == tagInTheList.getTagId()) {
+                                tagsListView.setItemChecked(i, true);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -267,14 +282,6 @@ public class NewFeedFragment extends Fragment implements
         super.onActivityCreated(savedInstanceState);
 
         feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
-
-        feedViewModel.getSelectedFeedId().observe(this, resource -> {
-            //If Edit mode then fill the data on the form
-            if (mode == 1){
-                // update UI
-                feedSourcePathTextView.setText(resource.getLink());
-            }
-        });
     }
 
     @Override

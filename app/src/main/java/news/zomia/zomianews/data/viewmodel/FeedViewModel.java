@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,6 +33,8 @@ public class FeedViewModel extends ViewModel {
     private LiveData<Resource<List<Feed>>> feeds;
     private LiveData<Resource<List<FeedStoriesCount>>> feedStoriesCount;
     private LiveData<Resource<List<Tag>>> tags;
+    private LiveData<Resource<List<TagFeedPair>>> tagFeedPairs;
+    private LiveData<Resource<List<Feed>>> feedsWithNoTag;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
 
     private MutableLiveData<Feed> selectedCurrentFeed = new MutableLiveData<>();
@@ -63,6 +66,9 @@ public class FeedViewModel extends ViewModel {
                 return dataRepo.loadFeedStoriesCount();
             }
         });
+
+        tagFeedPairs = dataRepo.getFeedsWithTags();
+        feedsWithNoTag = dataRepo.getFeedsWithNoTag();
 
         //Set flags to receive new data
         refreshFeeds.setValue(true);
@@ -100,11 +106,11 @@ public class FeedViewModel extends ViewModel {
     }
 
     public LiveData<Resource<List<TagFeedPair>>> getFeedsWithTags() {
-        return dataRepo.getFeedsWithTags();
+        return tagFeedPairs;
     }
 
     public LiveData<Resource<List<Feed>>> getFeedsWithNoTag() {
-        return dataRepo.getFeedsWithNoTag();
+        return feedsWithNoTag;
     }
 
     public LiveData<Resource<Boolean>> insertNewTag(String tagName) {
@@ -121,5 +127,17 @@ public class FeedViewModel extends ViewModel {
 
     public LiveData<Feed> getSelectedFeedId() {
         return selectedCurrentFeed;
+    }
+
+    public List<Tag> getTagsForCurrentFeed()
+    {
+        List<Tag> listTags = new ArrayList<>();
+
+        for(TagFeedPair tagFeedPair: tagFeedPairs.getValue().data) {
+            if(selectedCurrentFeed != null && selectedCurrentFeed.getValue() != null && tagFeedPair.feed.getFeedId() == selectedCurrentFeed.getValue().getFeedId())
+                listTags.add(tagFeedPair.tag);
+        }
+
+        return listTags;
     }
 }
