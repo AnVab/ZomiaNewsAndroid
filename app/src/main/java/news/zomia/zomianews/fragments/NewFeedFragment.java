@@ -251,7 +251,7 @@ public class NewFeedFragment extends Fragment implements
             //For edit mode: get tags for current feed and select them in the list
             if (mode == 1) {
                 //set feed link
-                feedSourcePathTextView.setText(feedViewModel.getSelectedFeedId().getValue().getLink());
+                feedSourcePathTextView.setText(feedViewModel.getSelectedFeedId().getValue().getUrl());
                 //get list of tags for the current feed
                 List<Tag> tagsOnFeed = feedViewModel.getTagsForCurrentFeed();
                 //select tags for the current feed in the list view
