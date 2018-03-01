@@ -4,13 +4,16 @@ package news.zomia.zomianews.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -21,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
@@ -62,6 +66,7 @@ public class FeedsListFragment extends Fragment implements
     private Map<String, List<Feed>> feedsCollection;
     private ExpandableListView expListView;
     private ExpandableListAdapter expListAdapter;
+    private LiveData<Resource<Boolean>> tagEditLiveData;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -197,12 +202,11 @@ public class FeedsListFragment extends Fragment implements
                     Feed selectedFeed = (Feed) expListAdapter.getChild(groupPos, childPos);
                     feedViewModel.setSelectedFeed(selectedFeed);
                     onFeedsListListenerCallback.onFeedEdit();
-
-                    Log.d("ZOMIA", "Context menu Edit Title: " + selectedFeed.getTitle() + " GroupId: " + groupPos + " ItemId:" + childPos);
                 }
                 else{
                     //Edit tag
-                    onFeedsListListenerCallback.onTagEdit();
+                    String selectedTagName = (String) expListAdapter.getGroup(groupPos);
+                    showInputNewTagDialog(selectedTagName);
                 }
                 return true;
             case R.id.delete_feed:
@@ -210,9 +214,6 @@ public class FeedsListFragment extends Fragment implements
                     //Delete feed
                     Feed selectedFeed = (Feed) expListAdapter.getChild(groupPos, childPos);
                     feedViewModel.setSelectedFeed(selectedFeed);
-
-
-                    Log.d("ZOMIA", "Context menu Delete Title: " + selectedFeed.getTitle() + " GroupId: " + groupPos + " ItemId:" + childPos);
                 }
                 else{
                     //Delete tag
@@ -245,6 +246,68 @@ public class FeedsListFragment extends Fragment implements
 
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void showInputNewTagDialog(String tagNameToEdit) {
+
+        LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+        View promptView = layoutInflater.inflate(R.layout.layout_input_tag_name, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setView(promptView);
+
+
+        final EditText editText = (EditText) promptView.findViewById(R.id.edittext);
+        editText.setText(tagNameToEdit);
+        // setup a dialog window
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String tagNameNew = editText.getText().toString();
+
+                        if (!tagNameNew.isEmpty()) {
+                            registerOnTagEditObserver(tagNameToEdit, tagNameNew);
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create an alert dialog
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }
+
+    private void registerOnTagEditObserver(String oldTagName, String newTagName)
+    {
+        //Insert new tag name to db and send request to server
+        tagEditLiveData = feedViewModel.updateTag(oldTagName, newTagName);
+        tagEditLiveData.observe(this, this::onTagEdit);
+    }
+
+    private void unregisterOnTagEditObserver()
+    {
+        if(tagEditLiveData != null)
+            tagEditLiveData.removeObservers(this);
+    }
+
+    private void onTagEdit(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.tag_edit_success), Toast.LENGTH_LONG).show();
+                    unregisterOnTagEditObserver();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.tag_edit_error), Toast.LENGTH_LONG).show();
+                    unregisterOnTagEditObserver();
+                    break;
+            }
         }
     }
 
@@ -498,7 +561,6 @@ public class FeedsListFragment extends Fragment implements
         public void onFeedSelected();
         public void onNewFeedAddAction();
         public void onFeedEdit();
-        public void onTagEdit();
     }
 
     @Override

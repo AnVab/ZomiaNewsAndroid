@@ -117,6 +117,10 @@ public class FeedViewModel extends ViewModel {
         return dataRepo.insertNewTag(tagName);
     }
 
+    public LiveData<Resource<Boolean>> updateTag(String oldTagName, String newTagName) {
+        return dataRepo.updateTag(oldTagName, newTagName);
+    }
+
     public LiveData<Resource<Boolean>> insertNewFeed(String feedUrl, String tag) {
         return dataRepo.insertNewFeed(feedUrl, tag);
     }

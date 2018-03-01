@@ -175,11 +175,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void onTagEdit()
-    {
-
-    }
-
     public void onStorySelected(Story story)
     {
         if (findViewById(R.id.fragment_container) != null) {

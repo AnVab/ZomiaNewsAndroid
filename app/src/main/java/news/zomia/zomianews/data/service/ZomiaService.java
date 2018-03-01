@@ -60,6 +60,11 @@ public interface ZomiaService {
     @POST ("api/tags/")
     Call<TagJson> addNewTag(@Body TagJson tagName);
 
+    @PATCH("api/tags/{tag_id}/")
+    Call<TagJson> updateTag(@Path("tag_id") int tagId, @Body Tag tag);
+
     @POST ("api/feeds/{feed_id}/stories/{story_id}/{status}/")
     Call<Story> updateStoryStatus(@Path("feed_id") Integer feedId, @Path("story_id") Integer storyId, @Path("status") String status);
+
+
 }

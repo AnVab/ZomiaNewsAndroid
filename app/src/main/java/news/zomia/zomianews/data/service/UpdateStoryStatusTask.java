@@ -39,33 +39,26 @@ public class UpdateStoryStatusTask implements Runnable {
     public void run() {
         try {
             String statusString = status.name();
-            Log.d("UpdateStoryStatusTask", "statusString: " + status + " " + statusString);
 
             //First: try to insert into remote server
             Response<Story> response = zomiaService.updateStoryStatus(feedId, storyId, statusString).execute();
-            Log.d("UpdateStoryStatusTask", "222feedDao.updateStory(storyId, status.getValueInt()): " + storyId + " status:  " + status.getValueInt());
 
             ApiResponse<Story> apiResponse = new ApiResponse<>(response);
 
             if (apiResponse.isSuccessful()) {
-                Log.d("UpdateStoryStatusTask", "feedDao.updateStory(storyId, status.getValueInt()): " + storyId + " status:  " + status.getValueInt());
-
                 //Insert new tag to DB
                 db.beginTransaction();
                 try {
                     int updatedRows = feedDao.updateStory(storyId, status.getValueInt());
                     db.setTransactionSuccessful();
-                    Log.d("UpdateStoryStatusTask", "setTransactionSuccessful updatedRows:" + updatedRows);
 
                 } finally {
                     db.endTransaction();
-                    Log.d("UpdateStoryStatusTask", "endTransaction ");
                 }
-                Log.d("UpdateStoryStatusTask", "resultState.postValue(Resource.success(apiResponse.body != null)); ");
+
                 resultState.postValue(Resource.success(apiResponse.body != null));
             } else {
                 //Received error
-                Log.d("UpdateStoryStatusTask", "resultState.postValue(Resource.error(apiResponse.errorMessage, true)); ");
                 resultState.postValue(Resource.error(apiResponse.errorMessage, true));
             }
 

@@ -34,6 +34,12 @@ public interface FeedDao {
     @Query("SELECT * FROM tag  ORDER BY name ASC")
     public LiveData<List<Tag>> getTags();
 
+    @Query("SELECT * FROM tag WHERE name=:name ORDER BY name ASC")
+    public Tag getTagByName(String name);
+
+    @Query("UPDATE tag SET name = :name WHERE tag_id = :tagId")
+    public abstract int updateTagName(Integer tagId, String name);
+
     @Query("SELECT * FROM tag INNER JOIN TagFeedJoin ON tag.tag_id=TagFeedJoin.tag_id WHERE  TagFeedJoin.feed_id=:feedId")
     public LiveData<List<Tag>> getTagsForFeed(Integer feedId);
 

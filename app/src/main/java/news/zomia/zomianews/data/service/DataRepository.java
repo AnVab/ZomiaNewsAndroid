@@ -319,6 +319,14 @@ public class DataRepository {
         return insertNewTask.getLiveData();
     }
 
+    public LiveData<Resource<Boolean>> updateTag(String oldTagName, String newTagName) {
+        UpdateTagTask updateTagTask = new UpdateTagTask(
+                oldTagName, newTagName, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(updateTagTask);
+        return updateTagTask.getLiveData();
+    }
+
     public LiveData<Resource<Boolean>> insertNewFeed(String feedUrl, String tag) {
         InsertNewFeedTask insertNeweFeedTask = new InsertNewFeedTask(
                 feedUrl, tag, webService, feedDao, db);
