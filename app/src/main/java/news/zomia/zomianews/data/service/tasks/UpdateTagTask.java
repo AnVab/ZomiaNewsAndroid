@@ -1,4 +1,4 @@
-package news.zomia.zomianews.data.service;
+package news.zomia.zomianews.data.service.tasks;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -11,6 +11,9 @@ import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagJson;
+import news.zomia.zomianews.data.service.ApiResponse;
+import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Response;
 
 /**
@@ -27,7 +30,7 @@ public class UpdateTagTask implements Runnable {
     private final FeedDao feedDao;
     private final ZomiaDb db;
 
-    UpdateTagTask(String oldTagName, String newTagName, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
+    public UpdateTagTask(String oldTagName, String newTagName, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
         this.oldTagName = oldTagName;
         this.newTagName = newTagName;
         this.zomiaService = zomiaService;
@@ -70,7 +73,7 @@ public class UpdateTagTask implements Runnable {
         }
     }
 
-    LiveData<Resource<Boolean>> getLiveData() {
+    public LiveData<Resource<Boolean>> getLiveData() {
         return resultState;
     }
 }

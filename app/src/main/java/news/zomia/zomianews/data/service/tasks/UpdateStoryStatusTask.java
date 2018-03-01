@@ -1,4 +1,4 @@
-package news.zomia.zomianews.data.service;
+package news.zomia.zomianews.data.service.tasks;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -9,6 +9,10 @@ import java.io.IOException;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.service.ApiResponse;
+import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.service.StoryStatus;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Response;
 
 /**
@@ -26,7 +30,7 @@ public class UpdateStoryStatusTask implements Runnable {
     private final FeedDao feedDao;
     private final ZomiaDb db;
 
-    UpdateStoryStatusTask(Integer feedId, Integer storyId, StoryStatus status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
+    public UpdateStoryStatusTask(Integer feedId, Integer storyId, StoryStatus status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
         this.status = status;
         this.feedId = feedId;
         this.storyId = storyId;
@@ -67,7 +71,7 @@ public class UpdateStoryStatusTask implements Runnable {
         }
     }
 
-    LiveData<Resource<Boolean>> getLiveData() {
+    public LiveData<Resource<Boolean>> getLiveData() {
         return resultState;
     }
 }

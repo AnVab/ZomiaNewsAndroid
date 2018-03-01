@@ -21,6 +21,11 @@ import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.model.TagJson;
+import news.zomia.zomianews.data.service.tasks.InsertNewFeedTask;
+import news.zomia.zomianews.data.service.tasks.InsertNewTagTask;
+import news.zomia.zomianews.data.service.tasks.UpdateFeedTask;
+import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusTask;
+import news.zomia.zomianews.data.service.tasks.UpdateTagTask;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
 

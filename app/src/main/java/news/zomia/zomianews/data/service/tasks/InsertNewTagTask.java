@@ -1,33 +1,35 @@
-package news.zomia.zomianews.data.service;
+package news.zomia.zomianews.data.service.tasks;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
-import news.zomia.zomianews.data.model.Feed;
+import news.zomia.zomianews.data.model.Tag;
+import news.zomia.zomianews.data.model.TagJson;
+import news.zomia.zomianews.data.service.ApiResponse;
+import news.zomia.zomianews.data.service.Resource;
+import news.zomia.zomianews.data.service.ZomiaService;
 import retrofit2.Response;
 
 /**
- * Created by Andrey on 28.02.2018.
+ * Created by Andrey on 31.01.2018.
  */
 
-public class UpdateFeedTask implements Runnable {
+public class InsertNewTagTask implements Runnable {
     private final MutableLiveData<Resource<Boolean>> liveData = new MutableLiveData<>();
 
-    private final Feed feed;
-    //private final String feedUrl;
-    //private final String tag;
+    private final String tagName;
     private final ZomiaService zomiaService;
     private final FeedDao feedDao;
     private final ZomiaDb db;
 
-    UpdateFeedTask(Feed feed, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
-        //this.feedUrl = feedUrl;
-        //this.tag = tag;
-        this.feed = feed;
+    public InsertNewTagTask(String tagName, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
+        this.tagName = tagName;
         this.zomiaService = zomiaService;
         this.feedDao = feedDao;
         this.db = db;
@@ -36,18 +38,18 @@ public class UpdateFeedTask implements Runnable {
     @Override
     public void run() {
         try {
-            //Feed feed = new Feed();
-            //feed.setUrl(feedUrl);
-            //feed.setTag(tag);
-            //First: try to update into remote server
-            Response<Feed> response = zomiaService.updateFeed(feed.getFeedId(), feed).execute();
+            TagJson tag = new TagJson();
+            tag.setName(tagName);
 
-            ApiResponse<Feed> apiResponse = new ApiResponse<>(response);
+            //First: try to insert into remote server
+            Response<TagJson> response = zomiaService.addNewTag(tag).execute();
+
+            ApiResponse<TagJson> apiResponse = new ApiResponse<>(response);
             if (apiResponse.isSuccessful()) {
                 //Insert new tag to DB
                 db.beginTransaction();
                 try {
-                    feedDao.insertFeed(apiResponse.body);
+                    feedDao.insertTag(new Tag(apiResponse.body.getId(), apiResponse.body.getName()));
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -63,7 +65,7 @@ public class UpdateFeedTask implements Runnable {
         }
     }
 
-    LiveData<Resource<Boolean>> getLiveData() {
+    public LiveData<Resource<Boolean>> getLiveData() {
         return liveData;
     }
 }
