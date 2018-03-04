@@ -13,7 +13,9 @@ import android.arch.persistence.room.ForeignKey;
         foreignKeys = {
                 @ForeignKey(entity = Tag.class,
                         parentColumns = "tag_id",
-                        childColumns = "tag_id")/*,
+                        childColumns = "tag_id",
+                        onDelete = ForeignKey.CASCADE,
+                        onUpdate = ForeignKey.CASCADE)/*,
                 @ForeignKey(entity = Feed.class,
                         parentColumns = "feed_id",
                         childColumns = "feed_id")*/

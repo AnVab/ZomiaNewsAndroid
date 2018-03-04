@@ -3,6 +3,7 @@ package news.zomia.zomianews.data.db;
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -61,6 +62,12 @@ public interface FeedDao {
 
     @Query("SELECT * FROM feed")
     public LiveData<List<Feed>> loadAllFeeds();
+
+    @Query("DELETE FROM feed WHERE feed_id=:feedId")
+    public void  deleteFeed(Integer feedId);
+
+    @Query("DELETE FROM TagFeedJoin WHERE feed_id=:feedId")
+    public void  deleteTagFeedPairs(Integer feedId);
 
     //Stories
     @Insert(onConflict = OnConflictStrategy.IGNORE)

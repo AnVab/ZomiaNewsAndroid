@@ -21,6 +21,7 @@ import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
 import news.zomia.zomianews.data.model.TagJson;
+import news.zomia.zomianews.data.service.tasks.DeleteFeedTask;
 import news.zomia.zomianews.data.service.tasks.InsertNewFeedTask;
 import news.zomia.zomianews.data.service.tasks.InsertNewTagTask;
 import news.zomia.zomianews.data.service.tasks.UpdateFeedTask;
@@ -346,6 +347,14 @@ public class DataRepository {
 
         appExecutors.networkIO().execute(updateFeedTask);
         return updateFeedTask.getLiveData();
+    }
+
+    public LiveData<Resource<Boolean>> deleteFeed(Integer feedId) {
+        DeleteFeedTask task = new DeleteFeedTask(
+                feedId, webService, feedDao, db);
+
+        appExecutors.networkIO().execute(task);
+        return task.getResultState();
     }
 
     public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, StoryStatus status) {

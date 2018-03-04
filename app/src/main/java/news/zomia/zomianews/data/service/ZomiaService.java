@@ -15,6 +15,7 @@ import news.zomia.zomianews.data.model.UserInfo;
 import news.zomia.zomianews.data.model.Token;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -41,6 +42,9 @@ public interface ZomiaService {
 
     @PATCH("api/feeds/{feed_id}/")
     Call<Feed> updateFeed(@Path("feed_id") int feed_id, @Body Feed feed);
+
+    @DELETE("api/feeds/{feed_id}/")
+    Call<Feed> deleteFeed(@Path("feed_id") int feed_id);
 
     @GET ("api/feeds/{id}/")
     Call<Feed> getFeedInfo(@Path("id") int id);

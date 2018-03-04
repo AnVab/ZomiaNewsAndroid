@@ -40,6 +40,9 @@
     <string name="feed_insert_success">New feed added</string>
     <string name="feed_insert_error">New feed add error</string>
 
+    <string name="feed_delete_success">Feed deleted</string>
+    <string name="feed_delete_error">Feed delete error</string>
+
     <string name="enter_text">Enter text</string>
     <string name="tag_undecided">Undecided</string>
     <string name="status">Status</string>

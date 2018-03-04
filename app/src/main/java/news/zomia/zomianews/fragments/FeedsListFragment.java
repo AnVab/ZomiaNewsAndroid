@@ -67,6 +67,7 @@ public class FeedsListFragment extends Fragment implements
     private ExpandableListView expListView;
     private ExpandableListAdapter expListAdapter;
     private LiveData<Resource<Boolean>> tagEditLiveData;
+    private LiveData<Resource<Boolean>> feedDeleteResultStatus;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -213,7 +214,7 @@ public class FeedsListFragment extends Fragment implements
                 if(childPos != -1) {
                     //Delete feed
                     Feed selectedFeed = (Feed) expListAdapter.getChild(groupPos, childPos);
-                    feedViewModel.setSelectedFeed(selectedFeed);
+                    registerOnFeedDeleteObserver(selectedFeed.getFeedId());
                 }
                 else{
                     //Delete tag
@@ -306,6 +307,34 @@ public class FeedsListFragment extends Fragment implements
                 case ERROR:
                     Toast.makeText(getActivity(), getString(R.string.tag_edit_error), Toast.LENGTH_LONG).show();
                     unregisterOnTagEditObserver();
+                    break;
+            }
+        }
+    }
+
+    private void registerOnFeedDeleteObserver(Integer feedId)
+    {
+        feedDeleteResultStatus = feedViewModel.deleteFeed(feedId);
+        feedDeleteResultStatus.observe(this, this::onFeedDelete);
+    }
+
+    private void unregisterOnFeedDeleteObserver()
+    {
+        if(feedDeleteResultStatus != null)
+            feedDeleteResultStatus.removeObservers(this);
+    }
+
+    private void onFeedDelete(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.feed_delete_success), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedDeleteObserver();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.feed_delete_error), Toast.LENGTH_LONG).show();
+                    unregisterOnFeedDeleteObserver();
                     break;
             }
         }
