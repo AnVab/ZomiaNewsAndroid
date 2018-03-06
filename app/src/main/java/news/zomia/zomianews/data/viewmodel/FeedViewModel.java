@@ -133,6 +133,10 @@ public class FeedViewModel extends ViewModel {
         return dataRepo.deleteFeed(feedId);
     }
 
+    public LiveData<Resource<Boolean>> deleteTag(String tagName) {
+        return dataRepo.deleteTag(tagName);
+    }
+
     public void setSelectedFeed(@NonNull Feed feed) {
         selectedCurrentFeed.setValue(feed);
     }

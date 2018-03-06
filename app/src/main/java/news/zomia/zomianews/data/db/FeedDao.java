@@ -53,6 +53,9 @@ public interface FeedDao {
     @Query("SELECT * FROM feed, tag INNER JOIN TagFeedJoin ON feed.feed_id=TagFeedJoin.feed_id WHERE TagFeedJoin.tag_id=tag.tag_id AND TagFeedJoin.feed_id =feed.feed_id ORDER BY name, title ASC")
     public LiveData<List<TagFeedPair>> getFeedsWithTags();
 
+    @Query("DELETE FROM tag WHERE tag_id=:tagId")
+    public void  deleteTag(Integer tagId);
+
     //Feeds
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void  insertFeed(Feed feed);
@@ -67,7 +70,10 @@ public interface FeedDao {
     public void  deleteFeed(Integer feedId);
 
     @Query("DELETE FROM TagFeedJoin WHERE feed_id=:feedId")
-    public void  deleteTagFeedPairs(Integer feedId);
+    public void  deleteTagFeedPairsByFeedId(Integer feedId);
+
+    @Query("DELETE FROM TagFeedJoin WHERE tag_id=:tagId")
+    public void  deleteTagFeedPairsByTagId(Integer tagId);
 
     //Stories
     @Insert(onConflict = OnConflictStrategy.IGNORE)

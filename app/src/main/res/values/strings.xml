@@ -36,6 +36,8 @@
     <string name="tag_insert_error">New tag add error</string>
     <string name="tag_edit_success">Tag edit success</string>
     <string name="tag_edit_error">Tag edit error</string>
+    <string name="tag_delete_success">Tag deleted</string>
+    <string name="tag_delete_error">Tag delete error</string>
 
     <string name="feed_insert_success">New feed added</string>
     <string name="feed_insert_error">New feed add error</string>

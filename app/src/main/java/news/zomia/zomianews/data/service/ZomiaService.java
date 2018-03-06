@@ -67,6 +67,9 @@ public interface ZomiaService {
     @PATCH("api/tags/{tag_id}/")
     Call<TagJson> updateTag(@Path("tag_id") int tagId, @Body Tag tag);
 
+    @DELETE("api/tags/{tag_id}/")
+    Call<TagJson> deleteTag(@Path("tag_id") int tag_id);
+
     @POST ("api/feeds/{feed_id}/stories/{story_id}/{status}/")
     Call<Story> updateStoryStatus(@Path("feed_id") Integer feedId, @Path("story_id") Integer storyId, @Path("status") String status);
 

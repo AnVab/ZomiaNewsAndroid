@@ -68,6 +68,7 @@ public class FeedsListFragment extends Fragment implements
     private ExpandableListAdapter expListAdapter;
     private LiveData<Resource<Boolean>> tagEditLiveData;
     private LiveData<Resource<Boolean>> feedDeleteResultStatus;
+    private LiveData<Resource<Boolean>> tagDeleteResultStatus;
 
     OnFeedsListListener onFeedsListListenerCallback;
 
@@ -218,7 +219,8 @@ public class FeedsListFragment extends Fragment implements
                 }
                 else{
                     //Delete tag
-
+                    String selectedTagName = (String) expListAdapter.getGroup(groupPos);
+                    registerOnTagDeleteObserver(selectedTagName);
                 }
                 return true;
             default:
@@ -307,6 +309,34 @@ public class FeedsListFragment extends Fragment implements
                 case ERROR:
                     Toast.makeText(getActivity(), getString(R.string.tag_edit_error), Toast.LENGTH_LONG).show();
                     unregisterOnTagEditObserver();
+                    break;
+            }
+        }
+    }
+
+    private void registerOnTagDeleteObserver(String tagName)
+    {
+        tagDeleteResultStatus = feedViewModel.deleteTag(tagName);
+        tagDeleteResultStatus.observe(this, this::onTagDelete);
+    }
+
+    private void unregisterOnTagDeleteObserver()
+    {
+        if(tagDeleteResultStatus != null)
+            tagDeleteResultStatus.removeObservers(this);
+    }
+
+    private void onTagDelete(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.tag_delete_success), Toast.LENGTH_LONG).show();
+                    unregisterOnTagDeleteObserver();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.tag_delete_error), Toast.LENGTH_LONG).show();
+                    unregisterOnTagDeleteObserver();
                     break;
             }
         }
