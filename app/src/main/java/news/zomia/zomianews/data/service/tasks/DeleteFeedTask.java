@@ -43,6 +43,7 @@ public class DeleteFeedTask  implements Runnable {
                 db.beginTransaction();
                 try {
                     feedDao.deleteTagFeedPairsByFeedId(feedId);
+                    feedDao.deleteStoriesByFeedId(feedId);
                     feedDao.deleteFeed(feedId);
 
                     db.setTransactionSuccessful();

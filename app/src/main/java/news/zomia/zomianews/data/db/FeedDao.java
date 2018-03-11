@@ -93,4 +93,7 @@ public interface FeedDao {
 
     @Query("UPDATE Story SET status = :status WHERE story_id = :storyId")
     public abstract int updateStory(Integer storyId, Integer status);
+
+    @Query("DELETE FROM Story WHERE feed_id=:feedId")
+    public void deleteStoriesByFeedId(Integer feedId);
 }

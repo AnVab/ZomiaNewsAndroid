@@ -21,9 +21,7 @@ import java.util.Date;
 
 @Entity(foreignKeys = @ForeignKey(entity = Feed.class,
         parentColumns = "feed_id",
-        childColumns = "feed_id",
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE),
+        childColumns = "feed_id"),
         indices = {@Index(value = {"story_id"},
                 unique = true)})
 public class Story {
