@@ -60,7 +60,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
 
     @Override
     public void onZeroItemsLoaded() {
-        fetchFromNetwork(null);
+        fetchFromNetwork(null, true);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
 
     @Override
     public void onItemAtEndLoaded(@NonNull Story itemAtEnd) {
-        fetchFromNetwork(itemAtEnd);
+        fetchFromNetwork(itemAtEnd, false);
     }
 
     public void setSelectedFeedId(Integer feedId)
@@ -78,7 +78,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
         this.feedId = feedId;
     }
 
-    public void fetchFromNetwork(Story story) {
+    public void fetchFromNetwork(Story story, boolean clearCache) {
 
         Integer _feedId;
         Long date;
@@ -107,6 +107,10 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
                         //Save stories to the database
                         db.beginTransaction();
                         try {
+                            //Clear cache
+                            if(clearCache)
+                                feedDao.deleteStoriesByFeedId(_feedId);
+                            //Insert new stories
                             feedDao.insertStories(response.body().getResults());
                             db.setTransactionSuccessful();
                         } finally {
@@ -134,7 +138,7 @@ public class StoryBoundaryCallback extends PagedList.BoundaryCallback<Story>  {
 
     public void refresh()
     {
-        fetchFromNetwork(null);
+        fetchFromNetwork(null,true);
     }
     //Convert story date to a cursor string for a next page data
     private String getCursor(Long dateTimestamp)
