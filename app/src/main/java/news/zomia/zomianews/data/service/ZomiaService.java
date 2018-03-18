@@ -13,13 +13,18 @@ import news.zomia.zomianews.data.model.TagJson;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.UserInfo;
 import news.zomia.zomianews.data.model.Token;
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -73,5 +78,7 @@ public interface ZomiaService {
     @POST ("api/feeds/{feed_id}/stories/{story_id}/{status}/")
     Call<Story> updateStoryStatus(@Path("feed_id") Integer feedId, @Path("story_id") Integer storyId, @Path("status") String status);
 
-
+    @Multipart
+    @POST ("api/opml/")
+    Call<ResponseBody> importOpml(@Part MultipartBody.Part file);
 }

@@ -1,13 +1,24 @@
 package news.zomia.zomianews.fragments;
 
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -16,19 +27,20 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -43,6 +55,8 @@ import news.zomia.zomianews.data.viewmodel.FeedViewModel;
 import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -52,7 +66,8 @@ public class NewFeedFragment extends Fragment implements
         Injectable {
 
     private View rootView;
-    TextView feedSourcePathTextView;
+    private TextView feedSourcePathTextView;
+    private ProgressBar opmlmportProgressBar;
 
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
@@ -67,15 +82,17 @@ public class NewFeedFragment extends Fragment implements
     private LiveData<Resource<Boolean>> tagInsertLiveData;
     private LiveData<Resource<Boolean>> feedInsertLiveData;
     private LiveData<Resource<Boolean>> feedUpdateLiveData;
+    private LiveData<Resource<Boolean>> opmlImportLiveData;
     TagListAdapter tagsListViewAdapter;
 
     //0: new feed; 1: edit feed
     private Integer mode;
 
+    private static final int OPML_READ_REQUEST_CODE = 716;
+
     public NewFeedFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -93,6 +110,9 @@ public class NewFeedFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Indicate that this fragment has appbar menu
+        setHasOptionsMenu(true);
 
         Bundle arguments = getArguments();
         mode = arguments.getInt("mode");
@@ -120,6 +140,8 @@ public class NewFeedFragment extends Fragment implements
         feedTypeListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         feedTypeList.setAdapter(feedTypeListAdapter);
         feedTypeList.setOnItemSelectedListener(this);
+
+        opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);
     }
 
     //Click listener for adding new feed
@@ -346,6 +368,7 @@ public class NewFeedFragment extends Fragment implements
 
         unregisterOnFeedInsertObserver();
         unregisterOnFeedUpdateObserver();
+        unregisterOnImportOpmlObserver();
 
         super.onStop();
     }
@@ -398,5 +421,120 @@ public class NewFeedFragment extends Fragment implements
 
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (menu.findItem(R.id.menu_import_opml) != null)
+            menu.findItem(R.id.menu_import_opml).setVisible(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_import_opml:
+            {
+                openOPMLFile();
+            }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void openOPMLFile()
+    {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_opml_file)), OPML_READ_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == OPML_READ_REQUEST_CODE && resultCode == RESULT_OK) {
+            //The uri with the location of the file
+            Uri selectedfile = null;
+            if (data != null) {
+                selectedfile = data.getData();
+                try {
+                    registerOnImportOpmlObserver(selectedfile);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void registerOnImportOpmlObserver(Uri selectedfile) throws FileNotFoundException {
+        verifyStoragePermissions(getActivity());
+
+        //Show importing progressbar
+        opmlmportProgressBar.setVisibility(View.VISIBLE);
+        Toast.makeText(getActivity(), getString(R.string.opml_file_importing), Toast.LENGTH_LONG).show();
+
+        String selectedFilePath = "";
+
+        //Insert new tag name to db and send request to server
+        opmlImportLiveData = feedViewModel.importOpml(getActivity().getContentResolver(), selectedfile);
+        opmlImportLiveData.observe(this, this::onOpmlImported);
+    }
+
+    private void unregisterOnImportOpmlObserver()
+    {
+        opmlmportProgressBar.setVisibility(View.INVISIBLE);
+
+        if(opmlImportLiveData != null)
+            opmlImportLiveData.removeObservers(this);
+    }
+
+    private void onOpmlImported(@Nullable Resource<Boolean> resource) {
+        // update UI
+        if (resource != null && resource.data != null) {
+            switch (resource.status) {
+                case SUCCESS:
+                    Toast.makeText(getActivity(), getString(R.string.opml_import_success), Toast.LENGTH_LONG).show();
+                    unregisterOnImportOpmlObserver();
+                    break;
+                case ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.opml_import_error) + " " + resource.message, Toast.LENGTH_LONG).show();
+                    unregisterOnImportOpmlObserver();
+                    break;
+            }
+        }
+    }
+
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 }

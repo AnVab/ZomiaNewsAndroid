@@ -5,11 +5,10 @@ import android.arch.persistence.room.Room;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -52,8 +51,8 @@ public class AppModule {
         return new UserSessionInfo();
     }
 
-    @Provides
     @Singleton
+    @Provides
     Interceptor provideHeaderInterceptor(Application application, SharedPreferences prefs, UserSessionInfo userSessionInfo)
     {
         String token = prefs.getString(application.getString(R.string.preferences_token), "");
@@ -95,20 +94,50 @@ public class AppModule {
         return new HostSelectionInterceptor();
     }
 
-    @Provides
+    @Provides @Named("content_json")
     @Singleton
     OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
-                //.addInterceptor(loggingInterceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor);
 
         return defaultHttpClient.build();
     }
 
-    @Singleton @Provides
-    ZomiaService provideZomiaService(Application application, SharedPreferences prefs, OkHttpClient okHttpClient) {
+    @Provides @Named("content_multipart")
+    @Singleton
+    OkHttpClient provideOkhttpClient2(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
+
+        OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
+                //.addInterceptor(loggingInterceptor)
+                .addInterceptor(headerInterceptor)
+                .addInterceptor(urlInterceptor)
+                .connectTimeout(300, TimeUnit.SECONDS)
+                .readTimeout(0, TimeUnit.SECONDS)
+                .writeTimeout(0, TimeUnit.SECONDS)
+                ;
+
+        return defaultHttpClient.build();
+    }
+
+    @Singleton @Provides @Named("content_json")
+    ZomiaService provideZomiaService(Application application, SharedPreferences prefs, @Named("content_json") OkHttpClient okHttpClient) {
+
+        return new Retrofit.Builder()
+                .baseUrl("http://localhost/") // Dummy baseUrl is needed to create instance
+                //Add json converter for a response with an empty body
+                .addConverterFactory(new NullOnEmptyConverterFactory())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(new LiveDataCallAdapterFactory())
+                .client(okHttpClient)
+                .build()
+                .create(ZomiaService.class);
+    }
+
+    @Singleton @Provides @Named("content_multipart")
+    ZomiaService provideZomiaService2(Application application, SharedPreferences prefs, @Named("content_multipart") OkHttpClient okHttpClient) {
 
         return new Retrofit.Builder()
                 .baseUrl("http://localhost/") // Dummy baseUrl is needed to create instance

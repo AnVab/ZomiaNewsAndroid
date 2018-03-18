@@ -4,8 +4,9 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,5 +156,9 @@ public class FeedViewModel extends ViewModel {
         }
 
         return listTags;
+    }
+
+    public LiveData<Resource<Boolean>> importOpml(ContentResolver contentResolver, Uri fileUri) {
+        return dataRepo.importOpml(contentResolver, fileUri);
     }
 }

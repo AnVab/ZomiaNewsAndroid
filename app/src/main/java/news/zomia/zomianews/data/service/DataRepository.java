@@ -1,14 +1,18 @@
 package news.zomia.zomianews.data.service;
 
 import android.arch.lifecycle.LiveData;
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import news.zomia.zomianews.data.db.FeedDao;
@@ -28,6 +32,7 @@ import news.zomia.zomianews.data.service.tasks.InsertNewTagTask;
 import news.zomia.zomianews.data.service.tasks.UpdateFeedTask;
 import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusTask;
 import news.zomia.zomianews.data.service.tasks.UpdateTagTask;
+import news.zomia.zomianews.data.service.tasks.UploadFileTask;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
 
@@ -40,16 +45,18 @@ public class DataRepository {
     private static final String TAG = StoryBoundaryCallback.class.getSimpleName();
 
     private final ZomiaDb db;
-    private final ZomiaService webService;
+    private final @Named("content_json") ZomiaService webService;
+    private final @Named("content_multipart") ZomiaService webServiceUploadMultipart;
     private final FeedDao feedDao;
     private final AppExecutors appExecutors;
 
     private RateLimiter<String> rateLimiter = new RateLimiter<>(10, TimeUnit.MINUTES);
 
     @Inject
-    public DataRepository(ZomiaService webService, ZomiaDb db, FeedDao feedDao, AppExecutors appExecutors) {
+    public DataRepository(@Named("content_json")ZomiaService webService, @Named("content_multipart")ZomiaService webServiceUploadMultipart, ZomiaDb db, FeedDao feedDao, AppExecutors appExecutors) {
         this.db = db;
         this.webService = webService;
+        this.webServiceUploadMultipart = webServiceUploadMultipart;
         this.feedDao = feedDao;
         this.appExecutors = appExecutors;
     }
@@ -57,6 +64,10 @@ public class DataRepository {
     public ZomiaService getZomiaService()
     {
         return webService;
+    }
+    public ZomiaService getZomiaServiceUploadMultipart()
+    {
+        return webServiceUploadMultipart;
     }
     public ZomiaDb getDb()
     {
@@ -372,5 +383,13 @@ public class DataRepository {
 
         appExecutors.networkIO().execute(updateStoryTask);
         return updateStoryTask.getLiveData();
+    }
+
+    public LiveData<Resource<Boolean>> importOpml(ContentResolver contentResolver, Uri fileUri) {
+        UploadFileTask uploadOpmlFile = new UploadFileTask(
+                contentResolver, fileUri, webServiceUploadMultipart);
+
+        appExecutors.networkIO().execute(uploadOpmlFile);
+        return uploadOpmlFile.getLiveData();
     }
 }
