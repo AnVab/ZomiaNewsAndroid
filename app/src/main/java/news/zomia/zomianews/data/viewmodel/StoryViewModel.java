@@ -93,7 +93,12 @@ public class StoryViewModel  extends ViewModel {
 
     public void setCurrentStoryAsRead()
     {
-        if(selectedCurrentStory != null && selectedCurrentStory.getValue() != null && selectedCurrentStory.getValue() >= 0)
+        if(selectedCurrentStory != null &&
+                selectedCurrentStory.getValue() != null &&
+                selectedCurrentStory.getValue() >= 0 &&
+                stories != null &&
+                stories.getValue() != null &&
+                stories.getValue().size() > 0)
         {
             Story story = stories.getValue().get(selectedCurrentStory.getValue());
             setStoryStatus(story, StoryStatus.read);
