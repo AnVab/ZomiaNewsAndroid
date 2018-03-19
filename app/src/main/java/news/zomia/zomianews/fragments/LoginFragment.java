@@ -70,6 +70,15 @@ public class LoginFragment extends Fragment implements
                 onSignInButtonClicked(view);
             }
         });
+
+        Button signUpBtn = (Button) view.findViewById(R.id.registerButton);
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onSignUpButtonClicked(view);
+            }
+        });
     }
 
     @Override
@@ -143,6 +152,63 @@ public class LoginFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<Token> call, Throwable t) {
+                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                loadingProgressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    public void onSignUpButtonClicked(View view)
+    {
+        EditText emailText = (EditText)rootView.findViewById(R.id.emailText);
+        EditText passwordText = (EditText)rootView.findViewById(R.id.passwordText);
+
+        String layout_login = emailText.getText().toString();
+        String password = passwordText.getText().toString();
+
+        if(!TextUtils.isEmpty(layout_login) && !TextUtils.isEmpty(password)) {
+            registerPostRequest(layout_login, password);
+        }
+    }
+
+    public void registerPostRequest(String login, String password) {
+        User user = new User();
+        user.setEmail(login);
+        user.setPassword(password);
+
+        loadingProgressBar.setVisibility(View.VISIBLE);
+
+        dataRepo.getZomiaService().registerUser(user).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                //To get the status code
+                if(response.isSuccessful())
+                {
+                    switch(response.code())
+                    {
+                        case 201:
+                            //No errors
+                            Toast.makeText(getActivity(), getString(R.string.new_user_registered), Toast.LENGTH_LONG).show();
+                            loadingProgressBar.setVisibility(View.INVISIBLE);
+
+                            //Authorize with the new registered user
+                            authorizePostRequest(user.getEmail(), user.getPassword());
+                            break;
+                        default:
+                            loadingProgressBar.setVisibility(View.INVISIBLE);
+                            break;
+                    }
+                }
+                else
+                {
+                    //Connection problem
+                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
+                    loadingProgressBar.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
                 Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
                 loadingProgressBar.setVisibility(View.INVISIBLE);
             }

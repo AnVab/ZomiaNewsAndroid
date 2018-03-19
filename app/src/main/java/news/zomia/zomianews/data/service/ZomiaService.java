@@ -33,8 +33,8 @@ import retrofit2.http.Query;
  */
 
 public interface ZomiaService {
-    @POST("registration/")
-    Call<User> registerUser(@Query("email") String email, @Query("password") String password);
+    @POST("api/registration/")
+    Call<User> registerUser(@Body User user);
 
     @POST("auth/")
     Call<Token> authenticateUser(@Body User user);

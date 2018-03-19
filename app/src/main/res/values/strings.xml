@@ -29,6 +29,7 @@
     <string name="success">Success</string>
     <string name="invalid_token">Unauthorized access error</string>
     <string name="network_unavailable">Network unavailable</string>
+    <string name="new_user_registered">New user registered</string>
 
     <string name="pref_server_address_title">Server address</string>
     <string name="pref_server_address_dialog">Server address</string>
