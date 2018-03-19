@@ -14,9 +14,11 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.ZomiaApp;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.service.NullOnEmptyConverterFactory;
+import news.zomia.zomianews.data.service.UnauthorizedInterceptor;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.data.service.ZomiaService;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
@@ -94,12 +96,34 @@ public class AppModule {
         return new HostSelectionInterceptor();
     }
 
+    @Provides
+    @Singleton
+    UnauthorizedInterceptor provideUnauthorizedInterceptor(Application application, UserSessionInfo userSessionInfo)
+    {
+        return new UnauthorizedInterceptor() {
+            @Override
+            public void onUnauthorizedEvent() {
+                //Empty token
+                userSessionInfo.clear();
+                //Pass signal to the activity/fragment
+                if (((ZomiaApp)application).unauthorizedInterceptorListener != null) {
+                    ((ZomiaApp)application).unauthorizedInterceptorListener.onUnauthorizedEvent();
+                }
+            }
+        };
+    }
+
     @Provides @Named("content_json")
     @Singleton
-    OkHttpClient provideOkhttpClient(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
+    OkHttpClient provideOkhttpClient(
+            Interceptor headerInterceptor,
+            HostSelectionInterceptor urlInterceptor,
+            HttpLoggingInterceptor loggingInterceptor,
+            UnauthorizedInterceptor unauthorizedInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
                 //.addInterceptor(loggingInterceptor)
+                .addInterceptor(unauthorizedInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor);
 
@@ -108,10 +132,15 @@ public class AppModule {
 
     @Provides @Named("content_multipart")
     @Singleton
-    OkHttpClient provideOkhttpClient2(Interceptor headerInterceptor, HostSelectionInterceptor urlInterceptor, HttpLoggingInterceptor loggingInterceptor) {
+    OkHttpClient provideOkhttpClient2(
+            Interceptor headerInterceptor,
+            HostSelectionInterceptor urlInterceptor,
+            HttpLoggingInterceptor loggingInterceptor,
+            UnauthorizedInterceptor unauthorizedInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
                 //.addInterceptor(loggingInterceptor)
+                .addInterceptor(unauthorizedInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor)
                 .connectTimeout(30, TimeUnit.SECONDS)

@@ -33,4 +33,9 @@ public class UserSessionInfo {
 
         return token.isEmpty();
     }
+
+    public void clear()
+    {
+        token = "";
+    }
 }

@@ -1,9 +1,9 @@
 package news.zomia.zomianews;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
-import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
+import news.zomia.zomianews.data.service.UnauthorizedInterceptorListener;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity
         NewFeedFragment.OnFeedAddedListener,
         SettingsFragment.OnSettingsChangedListener,
         StoryViewerFragment.OnStoryViewerListener,
+        UnauthorizedInterceptorListener,
         HasSupportFragmentInjector
 {
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
@@ -68,6 +70,8 @@ public class MainActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         storyViewerFragment = new StoryViewerFragment();
+
+        ((ZomiaApp) getApplication()).setUnauthorizedInterceptorListener(this);
 
         //Read saved session token
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
@@ -351,7 +355,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
-
+        ((ZomiaApp) getApplication()).removeUnauthorizedInterceptorListener();
         super.onPause();
     }
 
@@ -382,5 +386,22 @@ public class MainActivity extends AppCompatActivity
             return 0;
         }
         return 0;
+    }
+
+    @Override
+    public void onUnauthorizedEvent() {
+
+        LoadLoginFragment();
+
+        //Show error message. We ru it on ui thread because we call this event from another thread,
+        // otherwise we get exception
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                Toast.makeText(getApplicationContext(), getString(R.string.invalid_token), Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
 }
