@@ -17,6 +17,7 @@ import news.zomia.zomianews.R;
 import news.zomia.zomianews.ZomiaApp;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
+import news.zomia.zomianews.data.service.NetworkConnectionInterceptor;
 import news.zomia.zomianews.data.service.NullOnEmptyConverterFactory;
 import news.zomia.zomianews.data.service.UnauthorizedInterceptor;
 import news.zomia.zomianews.data.service.UserSessionInfo;
@@ -113,17 +114,38 @@ public class AppModule {
         };
     }
 
+    @Provides
+    @Singleton
+    NetworkConnectionInterceptor provideNetworkConnectionInterceptor(Application application)
+    {
+        return new NetworkConnectionInterceptor() {
+            @Override
+            public boolean isNetworkAvailable() {
+                return ((ZomiaApp)application).isNetworkAvailable();
+            }
+
+            @Override
+            public void onNetworkUnavailable() {
+                if (((ZomiaApp)application).networkConnectionInterceptorListener != null) {
+                    ((ZomiaApp)application).networkConnectionInterceptorListener.onNetworkUnavailable();
+                }
+            }
+        };
+    }
+
     @Provides @Named("content_json")
     @Singleton
     OkHttpClient provideOkhttpClient(
             Interceptor headerInterceptor,
             HostSelectionInterceptor urlInterceptor,
             HttpLoggingInterceptor loggingInterceptor,
-            UnauthorizedInterceptor unauthorizedInterceptor) {
+            UnauthorizedInterceptor unauthorizedInterceptor,
+            NetworkConnectionInterceptor networkConnectionInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
                 //.addInterceptor(loggingInterceptor)
                 .addInterceptor(unauthorizedInterceptor)
+                .addInterceptor(networkConnectionInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor);
 
@@ -136,11 +158,13 @@ public class AppModule {
             Interceptor headerInterceptor,
             HostSelectionInterceptor urlInterceptor,
             HttpLoggingInterceptor loggingInterceptor,
-            UnauthorizedInterceptor unauthorizedInterceptor) {
+            UnauthorizedInterceptor unauthorizedInterceptor,
+            NetworkConnectionInterceptor networkConnectionInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
                 //.addInterceptor(loggingInterceptor)
                 .addInterceptor(unauthorizedInterceptor)
+                .addInterceptor(networkConnectionInterceptor)
                 .addInterceptor(headerInterceptor)
                 .addInterceptor(urlInterceptor)
                 .connectTimeout(30, TimeUnit.SECONDS)

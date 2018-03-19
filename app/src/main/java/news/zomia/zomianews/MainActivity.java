@@ -3,6 +3,7 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
+import news.zomia.zomianews.data.service.NetworkConnectionInterceptorListener;
 import news.zomia.zomianews.data.service.UnauthorizedInterceptorListener;
 import news.zomia.zomianews.data.service.UserSessionInfo;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity
         SettingsFragment.OnSettingsChangedListener,
         StoryViewerFragment.OnStoryViewerListener,
         UnauthorizedInterceptorListener,
+        NetworkConnectionInterceptorListener,
         HasSupportFragmentInjector
 {
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity
         storyViewerFragment = new StoryViewerFragment();
 
         ((ZomiaApp) getApplication()).setUnauthorizedInterceptorListener(this);
+        ((ZomiaApp) getApplication()).setNetworkConnectionInterceptorListener(this);
 
         //Read saved session token
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
@@ -356,6 +359,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         ((ZomiaApp) getApplication()).removeUnauthorizedInterceptorListener();
+        ((ZomiaApp) getApplication()).removeNetworkConnectionInterceptorListener();
         super.onPause();
     }
 
@@ -403,5 +407,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    @Override
+    public void onNetworkUnavailable() {
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                Toast.makeText(getApplicationContext(), getString(R.string.network_unavailable), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
