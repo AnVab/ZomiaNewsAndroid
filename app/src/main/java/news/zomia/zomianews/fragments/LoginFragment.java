@@ -10,12 +10,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -57,8 +60,19 @@ public class LoginFragment extends Fragment implements
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (menu.findItem(R.id.logout) != null)
+            menu.findItem(R.id.logout).setVisible(false);
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Indicate that this fragment has appbar menu
+        setHasOptionsMenu(true);
 
         loadingProgressBar = (ProgressBar) view.findViewById(R.id.loadingProgressBar);
 
@@ -202,14 +216,18 @@ public class LoginFragment extends Fragment implements
                 else
                 {
                     //Connection problem
-                    Toast.makeText(getActivity(), getString(R.string.connection_problem), Toast.LENGTH_LONG).show();
+                    try {
+                        Toast.makeText(getActivity(), response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     loadingProgressBar.setVisibility(View.INVISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(getActivity(), getString(R.string.no_server_connection), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                 loadingProgressBar.setVisibility(View.INVISIBLE);
             }
         });

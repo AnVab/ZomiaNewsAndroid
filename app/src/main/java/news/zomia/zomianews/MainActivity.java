@@ -285,9 +285,22 @@ public class MainActivity extends AppCompatActivity
                 ShowSettingsFragment();
                 return true;
 
-            case R.id.menu_search:
-                // User chose the "Favorite" action, mark the current item
-                // as a favorite...
+            case R.id.logout:
+
+                //Reset token in the preferences
+                String token = "";
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(getString(R.string.preferences_token), token);
+                editor.commit();
+
+                //Load token from preferences
+                token = sharedPref.getString(getString(R.string.preferences_token), "");
+
+                //Set current session token
+                userSessionInfo.setToken(token);
+
+                //Show login form
+                LoadLoginFragment();
                 return true;
 
             case android.R.id.home:

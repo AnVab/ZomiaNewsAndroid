@@ -4,6 +4,7 @@
     <string name="password_text">Password</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_up">Sign up</string>
+    <string name="logout">Log out</string>
     <string name="recover_password">Recover password</string>
     <string name="new_custom_newsfeed_path">New feed</string>
     <string name="subscriptions_list">Subscriptions list</string>
