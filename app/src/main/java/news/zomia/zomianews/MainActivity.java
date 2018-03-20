@@ -2,6 +2,7 @@ package news.zomia.zomianews;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.service.NetworkConnectionInterceptorListener;
 import news.zomia.zomianews.data.service.UnauthorizedInterceptorListener;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     @Inject HostSelectionInterceptor urlChangeInterceptor;
     @Inject UserSessionInfo userSessionInfo;
     @Inject SharedPreferences sharedPref;
+    @Inject DataRepository dataRepo;
 
     private TextView mResponse;
     //private APIService apiService;
@@ -286,21 +288,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.logout:
-
-                //Reset token in the preferences
-                String token = "";
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(getString(R.string.preferences_token), token);
-                editor.commit();
-
-                //Load token from preferences
-                token = sharedPref.getString(getString(R.string.preferences_token), "");
-
-                //Set current session token
-                userSessionInfo.setToken(token);
-
-                //Show login form
-                LoadLoginFragment();
+                logOut();
                 return true;
 
             case android.R.id.home:
@@ -313,6 +301,27 @@ public class MainActivity extends AppCompatActivity
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    private void logOut()
+    {
+        //Reset token in the preferences
+        String token = "";
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.preferences_token), token);
+        editor.commit();
+
+        //Load token from preferences
+        token = sharedPref.getString(getString(R.string.preferences_token), "");
+
+        //Set current session token
+        userSessionInfo.setToken(token);
+
+        //Delete all data in the database
+        dataRepo.deleteAllData();
+
+        //Show login form
+        LoadLoginFragment();
     }
 
     private void updateZomiaUrl()

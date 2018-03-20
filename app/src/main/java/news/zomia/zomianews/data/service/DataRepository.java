@@ -392,4 +392,23 @@ public class DataRepository {
         appExecutors.networkIO().execute(uploadOpmlFile);
         return uploadOpmlFile.getLiveData();
     }
+
+    public void deleteAllData()
+    {
+        appExecutors.diskIO().execute(new Runnable(){
+            @Override
+            public void run() {
+                db.beginTransaction();
+                try {
+                    feedDao.deleteTableStories();
+                    feedDao.deleteTableTagFeedJoin();
+                    feedDao.deleteTableTag();
+                    feedDao.deleteTableFeed();
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+            }
+        });
+    }
 }

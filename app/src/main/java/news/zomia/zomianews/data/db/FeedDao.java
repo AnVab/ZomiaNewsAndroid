@@ -7,6 +7,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
@@ -96,4 +97,16 @@ public interface FeedDao {
 
     @Query("DELETE FROM Story WHERE feed_id=:feedId")
     public void deleteStoriesByFeedId(Integer feedId);
+
+    @Query("DELETE FROM Story")
+    public void deleteTableStories();
+
+    @Query("DELETE FROM TagFeedJoin")
+    public void deleteTableTagFeedJoin();
+
+    @Query("DELETE FROM Feed")
+    public void deleteTableFeed();
+
+    @Query("DELETE FROM Tag")
+    public void deleteTableTag();
 }
