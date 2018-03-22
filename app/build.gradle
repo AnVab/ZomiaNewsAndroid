@@ -61,4 +61,7 @@ dependencies {
 
     //Paging
     implementation "android.arch.paging:runtime:1.0.0-alpha5"
+
+    //HTML
+    compile 'org.jsoup:jsoup:1.11.2'
 }
