@@ -46,6 +46,10 @@ public class Feed {
     @SerializedName("tag")
     private String tag;
 
+    @Expose
+    @SerializedName("image")
+    private String image;
+
     public Integer getFId() {
         return fId;
     }
@@ -100,5 +104,13 @@ public class Feed {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

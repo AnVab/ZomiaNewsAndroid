@@ -189,10 +189,10 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
             String storyUrl = "";
             if(story != null) {
-                storyUrl = GetStoryUrl(story.getContent());
+                storyUrl = story.getImage();
 
                 //Load img from a story. If image not loaded, show default icon.
-                if (!storyUrl.isEmpty()) {
+                if (storyUrl != null && !storyUrl.isEmpty()) {
                     final int radius = 25;
                     final int margin = 0;
                     final Transformation transformation = new RoundedCornersTransformation(radius, margin);

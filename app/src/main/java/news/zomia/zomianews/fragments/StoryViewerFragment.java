@@ -68,6 +68,7 @@ public class StoryViewerFragment extends Fragment
     WebView storyPageViewer;
     private Long dateTimestamp;
     private String title;
+    private String link;
     private String content;
     private String storyDateText;
     public StoryViewerFragment() {
@@ -172,6 +173,7 @@ public class StoryViewerFragment extends Fragment
 
                     dateTimestamp = resource.data.getDate();
                     title = resource.data.getTitle();
+                    link = resource.data.getLink();
                     content = resource.data.getContent();
 
                     loadContent();
@@ -260,9 +262,10 @@ public class StoryViewerFragment extends Fragment
         }
     }
 
-    public static String getStyledFont(String title, String date, String content) {
+    public static String getStyledFont(String title,String link, String date, String content) {
         boolean addBodyTagStart = !content.toLowerCase().contains("<body>");
         boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
+        boolean linkEnd = !link.isEmpty();
 
         return "<style type=\"text/css\">" +
                 "@font-face {" +
@@ -282,7 +285,11 @@ public class StoryViewerFragment extends Fragment
                 "}" +
                 "</style>" +
                 (addBodyTagStart ? "<body>" : "") +
-                "<h2>" + title + "</h2>" +
+                "<h2>" +
+                (linkEnd ? "<a href=" + link + ">" : "")+
+                title +
+                (linkEnd ? "</a>" : "") +
+                "</h2>" +
                 "<h6>" + date + "</h6>" +
                 content +
                 (addBodyTagEnd ? "</body>" : "");
@@ -330,7 +337,7 @@ public class StoryViewerFragment extends Fragment
         protected Void doInBackground(Void... params) {
             try {
                 // Connect to the web site
-                Document document = Jsoup.parse(new URL(url).openStream(), "CP1251", url);
+                Document document = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
                 dataBody = document.body().toString();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -341,7 +348,7 @@ public class StoryViewerFragment extends Fragment
         @Override
         protected void onPostExecute(Void result) {
             //Set data
-            storyPageViewer.loadDataWithBaseURL("", getStyledFont(title, storyDateText, dataBody), "text/html", "UTF-8", "");
+            storyPageViewer.loadDataWithBaseURL("", getStyledFont(title, link, storyDateText, dataBody), "text/html", "UTF-8", "");
             swipeRefreshLayout.setRefreshing(false);
         }
     }

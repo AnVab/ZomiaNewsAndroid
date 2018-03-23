@@ -86,6 +86,14 @@ public class Story {
     @Expose
     private Integer status;
 
+    @SerializedName("image")
+    @Expose
+    private String image;
+
+    @SerializedName("link")
+    @Expose
+    private String link;
+
     //Non serializable field. Used only for Database storage.
     @Expose
     @ColumnInfo(name = "feed_id")
@@ -153,5 +161,21 @@ public class Story {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
