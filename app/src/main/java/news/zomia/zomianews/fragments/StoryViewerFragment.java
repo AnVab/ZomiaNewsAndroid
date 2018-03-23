@@ -37,6 +37,8 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
+import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
@@ -166,25 +168,38 @@ public class StoryViewerFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         storyViewModel = ViewModelProviders.of(getActivity()).get(StoryViewModel.class);
-
-        storyViewModel.getCurrentStory().observe(getActivity(), resource -> {
-                // Update the UI.
-                if (resource != null && resource.data != null) {
-
-                    dateTimestamp = resource.data.getDate();
-                    title = resource.data.getTitle();
-                    link = resource.data.getLink();
-                    content = resource.data.getContent();
-
-                    loadContent();
-                }
-                else
-                {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-        });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        storyViewModel.getCurrentStory().observe(this, this::ongetCurrentStory);
+    }
+
+    @Override
+    public void onStop() {
+        //Unsubscribe all livedata observers
+        storyViewModel.getCurrentStory().removeObservers(this);
+
+        super.onStop();
+    }
+
+    private void ongetCurrentStory(Resource<Story> resource) {
+        // Update the UI.
+        if (resource != null && resource.data != null) {
+
+            dateTimestamp = resource.data.getDate();
+            title = resource.data.getTitle();
+            link = resource.data.getLink();
+            content = resource.data.getContent();
+
+            loadContent();
+        }
+        else
+        {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
     @Override
     public LifecycleRegistry getLifecycle() {
         return lifecycleRegistry;
