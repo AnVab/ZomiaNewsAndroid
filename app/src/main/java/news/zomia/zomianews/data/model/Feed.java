@@ -113,4 +113,16 @@ public class Feed {
     public void setImage(String image) {
         this.image = image;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        } else
+        if (!(obj instanceof Feed)) {
+            return false;
+        }
+        Feed obj2 = (Feed)obj;
+        return obj2.getFeedId().equals(getFeedId());
+    }
 }

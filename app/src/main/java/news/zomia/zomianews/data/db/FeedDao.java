@@ -67,8 +67,14 @@ public interface FeedDao {
     @Query("SELECT * FROM feed")
     public LiveData<List<Feed>> loadAllFeeds();
 
+    @Query("SELECT * FROM feed")
+    public List<Feed> getFeedsList();
+
     @Query("DELETE FROM feed WHERE feed_id=:feedId")
     public void  deleteFeed(Integer feedId);
+
+    @Delete
+    public abstract int deleteFeeds(List<Feed> feeds);
 
     @Query("DELETE FROM TagFeedJoin WHERE feed_id=:feedId")
     public void  deleteTagFeedPairsByFeedId(Integer feedId);

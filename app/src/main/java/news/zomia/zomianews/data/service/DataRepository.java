@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -89,9 +90,29 @@ public class DataRepository {
         return new NetworkBoundResource<List<Feed>,ListResponse<Feed>>(appExecutors) {
             @Override
             protected void saveCallResult(@NonNull ListResponse<Feed> item) {
+                //Get list of current feeds in the DB
+                List<Feed> feedsInDb = feedDao.getFeedsList();
+
+                //Get list of feeds on the remoteserver
+                List<Feed> feedsInRemoteServer = item.getResults();
+
+                //Get feeds to remove
+                List<Feed> feedsToRemove = new ArrayList<Feed>(feedsInDb);
+                feedsToRemove.removeAll(feedsInRemoteServer);
+
                 db.beginTransaction();
                 try {
+                    //Delete feed-tags and stories for feeds that are not presented in the remote server
+                    for(Feed feed: feedsToRemove) {
+                        feedDao.deleteTagFeedPairsByFeedId(feed.getFeedId());
+                        feedDao.deleteStoriesByFeedId(feed.getFeedId());
+                    }
+                    //Delete feeds that are not presented in the remote server
+                    int i = feedDao.deleteFeeds(feedsToRemove);
+
+                    //Insert feeds from server
                     feedDao.insertFeeds(item.getResults());
+
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
