@@ -35,9 +35,13 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import dagger.internal.GwtIncompatible;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
+import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.model.StoryCache;
+import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
@@ -65,13 +69,12 @@ public class StoryViewerFragment extends Fragment
     private StoryViewModel storyViewModel;
     @Inject
     SharedPreferences sharedPref;
+    @Inject
+    DataRepository dataRepo;
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-    private Long dateTimestamp;
-    private String title;
-    private String link;
-    private String content;
+    private Story currentStory;
     private String storyDateText;
     public StoryViewerFragment() {
         // Required empty public constructor
@@ -187,11 +190,7 @@ public class StoryViewerFragment extends Fragment
     private void ongetCurrentStory(Resource<Story> resource) {
         // Update the UI.
         if (resource != null && resource.data != null) {
-
-            dateTimestamp = resource.data.getDate();
-            title = resource.data.getTitle();
-            link = resource.data.getLink();
-            content = resource.data.getContent();
+            currentStory = resource.data;
 
             loadContent();
         }
@@ -207,73 +206,27 @@ public class StoryViewerFragment extends Fragment
 
     public void loadContent()
     {
-        if(storyPageViewer != null) {
+        if(storyPageViewer != null && currentStory != null) {
 
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
             //Convert timestamp to milliseconds format
-            Timestamp tmp = new Timestamp(dateTimestamp / 1000);
+            Timestamp tmp = new Timestamp(currentStory.getDate() / 1000);
             Date dateToStr = new Date(tmp.getTime());
             storyDateText = formatter.format(dateToStr);
-            String targetUrl = "";
+
+            String serverUrl = "";
             String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
             String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 
-            targetUrl = "http://" + serverAddress + ":" + serverPort + "/storage/" + content;
-            Log.d("ZOMIA", "baseurl: " + targetUrl);
-            new GetPage(targetUrl).execute();
+            serverUrl = "http://" + serverAddress + ":" + serverPort;
+            new GetPage(serverUrl, currentStory, dataRepo.getFeedDao()).execute();
         }
     }
 
     @Override
     public void onRefresh() {
         if(storyPageViewer != null) {
-            storyPageViewer.reload();
-        }
-    }
-
-    private void injectCSS() {
-        try {
-            InputStream inputStream = getActivity().getAssets().open("pagestyles.css");
-            byte[] buffer = new byte[inputStream.available()];
-            inputStream.read(buffer);
-            inputStream.close();
-
-            String en = "" +
-                    "@font-face {\n" +
-                    "font-family: OpenSans-Bold;\n" +
-                    "src: url('file:///android_asset/fonts/OpenSans-Bold.ttf')\n" +
-                    "}\n" +
-                    "\n" +
-                    "body {\n" +
-                    "font-family: OpenSans-Bold;\n" +
-                    "font-size: medium;\n" +
-                    "text-align: justify;\n" +
-                    "}\n" +
-                    "\n" +
-                    "img{\n" +
-                    "display: inline;\n" +
-                    "height: auto;\n" +
-                    "max-width: 100%;\n" +
-                    "}\n" +
-                    "\n" +
-                    "h2 {\n" +
-                    "text-align: justify;\n" +
-                    "}\n" +
-                    "\n" +
-                    "h6 {\n" +
-                    "text-align: left;\n" +
-                    "}\n";
-            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
-            storyPageViewer.loadUrl("javascript:(function() {" +
-                    "var parent = document.getElementsByTagName('head').item(0);" +
-                    "var style = document.createElement('style');" +
-                    "style.type = 'text/css';" +
-                    // Tell the browser to BASE64-decode the string into your script !!!
-                    "style.innerHTML = window.atob('" + encoded + "');" +
-                    "parent.appendChild(style)" +
-                    "})()");
-        } catch (Exception e) {
-            e.printStackTrace();
+            loadContent();
         }
     }
 
@@ -334,13 +287,18 @@ public class StoryViewerFragment extends Fragment
         public void goBackToStoriesList();
     }
 
-    private class GetPage extends AsyncTask<Void, Void, Void> {
-        private String url;
+    public class GetPage extends AsyncTask<Void, Void, Void> {
+        private String serverUrl;
+        private Story currentStory;
         private String dataBody;
-        public GetPage(String url)
+        private FeedDao feedDao;
+
+        public GetPage(String serverUrl, Story currentStory, FeedDao feedDao)
         {
-            this.url = url;
+            this.serverUrl = serverUrl;
+            this.currentStory = currentStory;
             this.dataBody = "";
+            this.feedDao = feedDao;
         }
 
         @Override
@@ -351,11 +309,25 @@ public class StoryViewerFragment extends Fragment
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                // Connect to the web site
-                Document document = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
-                dataBody = document.body().toString();
+                String contentUrl = "/storage/" + currentStory.getContent();
+
+                //Check if we have a story in cache already. If not, send request to the remote server
+                StoryCache storyCache = feedDao.findStoryInCacheByLink(contentUrl);
+                if(storyCache != null)
+                    dataBody = storyCache.getContent();
+                else{
+                    // Connect to the web site
+                    //Document document = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
+                    Document document = Jsoup.connect(serverUrl + contentUrl)
+                            .timeout(5000)
+                            .get();
+                    dataBody = document.body().toString();
+
+                    //Insert page to the cache
+                    feedDao.insertStoryToCache(new StoryCache(contentUrl,dataBody, currentStory.getFeedId(), currentStory.getDate()));
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+               dataBody = e.getMessage();
             }
             return null;
         }
@@ -363,7 +335,11 @@ public class StoryViewerFragment extends Fragment
         @Override
         protected void onPostExecute(Void result) {
             //Set data
-            storyPageViewer.loadDataWithBaseURL("", getStyledFont(title, link, storyDateText, dataBody), "text/html", "UTF-8", "");
+            storyPageViewer.loadDataWithBaseURL("", getStyledFont(
+                    currentStory.getTitle(),
+                    currentStory.getLink(),
+                    storyDateText,
+                    dataBody), "text/html", "UTF-8", "");
             swipeRefreshLayout.setRefreshing(false);
         }
     }

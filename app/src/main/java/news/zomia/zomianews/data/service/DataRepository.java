@@ -105,6 +105,7 @@ public class DataRepository {
                     //Delete feed-tags and stories for feeds that are not presented in the remote server
                     for(Feed feed: feedsToRemove) {
                         feedDao.deleteTagFeedPairsByFeedId(feed.getFeedId());
+                        feedDao.deleteStoriesInCacheByFeedId(feed.getFeedId());
                         feedDao.deleteStoriesByFeedId(feed.getFeedId());
                     }
                     //Delete feeds that are not presented in the remote server

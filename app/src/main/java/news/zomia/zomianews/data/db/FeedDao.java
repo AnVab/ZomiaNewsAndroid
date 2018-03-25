@@ -14,6 +14,7 @@ import java.util.List;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
 import news.zomia.zomianews.data.model.Story;
+import news.zomia.zomianews.data.model.StoryCache;
 import news.zomia.zomianews.data.model.Tag;
 import news.zomia.zomianews.data.model.TagFeedJoin;
 import news.zomia.zomianews.data.model.TagFeedPair;
@@ -43,7 +44,7 @@ public interface FeedDao {
     public Tag getTagByName(String name);
 
     @Query("UPDATE tag SET name = :name WHERE tag_id = :tagId")
-    public abstract int updateTagName(Integer tagId, String name);
+    public int updateTagName(Integer tagId, String name);
 
     @Query("SELECT * FROM tag INNER JOIN TagFeedJoin ON tag.tag_id=TagFeedJoin.tag_id WHERE  TagFeedJoin.feed_id=:feedId")
     public LiveData<List<Tag>> getTagsForFeed(Integer feedId);
@@ -61,7 +62,7 @@ public interface FeedDao {
     public void  deleteTag(Integer tagId);
 
     @Delete
-    public abstract int deleteTags(List<Tag> tags);
+    public int deleteTags(List<Tag> tags);
 
     //Feeds
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -80,7 +81,7 @@ public interface FeedDao {
     public void  deleteFeed(Integer feedId);
 
     @Delete
-    public abstract int deleteFeeds(List<Feed> feeds);
+    public int deleteFeeds(List<Feed> feeds);
 
     @Query("DELETE FROM TagFeedJoin WHERE feed_id=:feedId")
     public void  deleteTagFeedPairsByFeedId(Integer feedId);
@@ -96,16 +97,16 @@ public interface FeedDao {
     public LiveData<List<Story>> loadAllStories(Integer feedId);
 
     @Query("SELECT * FROM Story WHERE feed_id = :feedId ORDER BY date DESC")
-    public abstract DataSource.Factory<Integer, Story> loadAllStories2(Integer feedId);
+    public DataSource.Factory<Integer, Story> loadAllStories2(Integer feedId);
 
     @Query("SELECT * FROM Story WHERE story_id = :storyId")
     public LiveData<Story> findStoryById(Integer storyId);
 
     @Query("SELECT feed_id, COUNT(*) FROM Story GROUP BY feed_id")
-    public abstract LiveData<List<FeedStoriesCount>> countFeedStoriesTotal();
+    public LiveData<List<FeedStoriesCount>> countFeedStoriesTotal();
 
     @Query("UPDATE Story SET status = :status WHERE story_id = :storyId")
-    public abstract int updateStory(Integer storyId, Integer status);
+    public int updateStory(Integer storyId, Integer status);
 
     @Query("DELETE FROM Story WHERE feed_id=:feedId")
     public void deleteStoriesByFeedId(Integer feedId);
@@ -121,4 +122,17 @@ public interface FeedDao {
 
     @Query("DELETE FROM Tag")
     public void deleteTableTag();
+
+    //Cache
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insertStoryToCache(StoryCache storyCache);
+
+    @Query("DELETE FROM StoryCache WHERE link=:link")
+    public void deleteStoryInCacheByLink(String link);
+
+    @Query("DELETE FROM StoryCache WHERE feed_id=:feedId")
+    public void deleteStoriesInCacheByFeedId(Integer feedId);
+
+    @Query("SELECT * FROM StoryCache WHERE link = :link")
+    public StoryCache findStoryInCacheByLink(String link);
 }
