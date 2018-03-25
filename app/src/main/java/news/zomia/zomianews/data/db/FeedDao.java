@@ -36,6 +36,9 @@ public interface FeedDao {
     @Query("SELECT * FROM tag  ORDER BY name ASC")
     public LiveData<List<Tag>> getTags();
 
+    @Query("SELECT * FROM tag  ORDER BY name ASC")
+    public List<Tag> getTagsList();
+
     @Query("SELECT * FROM tag WHERE name=:name ORDER BY name ASC")
     public Tag getTagByName(String name);
 
@@ -56,6 +59,9 @@ public interface FeedDao {
 
     @Query("DELETE FROM tag WHERE tag_id=:tagId")
     public void  deleteTag(Integer tagId);
+
+    @Delete
+    public abstract int deleteTags(List<Tag> tags);
 
     //Feeds
     @Insert(onConflict = OnConflictStrategy.REPLACE)

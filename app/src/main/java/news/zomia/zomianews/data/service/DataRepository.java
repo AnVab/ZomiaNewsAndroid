@@ -254,22 +254,39 @@ public class DataRepository {
             @Override
             protected void saveCallResult(@NonNull ListResponse<TagJson> item) {
 
-                //Save tags
+                //Get list of current tags in the DB
+                List<Tag> tagsInDb = feedDao.getTagsList();
+
+                //Get list of getTagsList on the remoteserver
+                List<Tag> tagsInRemoteServer = new ArrayList<>();
                 for(TagJson tagFeed: item.getResults())
-                {
-                    db.beginTransaction();
-                    try {
-                        //Save tag to db
-                        feedDao.insertTag(new Tag(tagFeed.getId(), tagFeed.getName()));
+                    tagsInRemoteServer.add(new Tag(tagFeed.getId(), tagFeed.getName()));
 
+                //Get tags to remove
+                List<Tag> tagsToRemove = new ArrayList<Tag>(tagsInDb);
+                tagsToRemove.removeAll(tagsInRemoteServer);
+
+                db.beginTransaction();
+                try {
+                    //Delete tag-feed pairs for removed tags
+                    for(Tag tag: tagsToRemove)
+                        feedDao.deleteTagFeedPairsByTagId(tag.getTagId());
+
+                    //Delete removed tags
+                    feedDao.deleteTags(tagsToRemove);
+
+                    //Save tags from remote server to db
+                    feedDao.insertTags(tagsInRemoteServer);
+
+                    //Save tags and feeds join data
+                    for(TagJson tagFeed: item.getResults()) {
                         //Save tags and feeds join data
-                        for(int i = 0; i < tagFeed.getFeedsId().size(); i++)
+                        for (int i = 0; i < tagFeed.getFeedsId().size(); i++)
                             feedDao.insertTagFeedJoin(new TagFeedJoin(tagFeed.getId(), tagFeed.getFeedsId().get(i)));
-
-                        db.setTransactionSuccessful();
-                    } finally {
-                        db.endTransaction();
                     }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
                 }
             }
 
