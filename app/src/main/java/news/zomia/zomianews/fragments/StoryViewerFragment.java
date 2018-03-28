@@ -12,12 +12,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -26,8 +25,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +32,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import dagger.internal.GwtIncompatible;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 import news.zomia.zomianews.data.db.FeedDao;
@@ -127,7 +123,7 @@ public class StoryViewerFragment extends Fragment
         {
             @Override
             public void onSwipeLeft() {
-                storyViewModel.goToNextCurrentStoryPosition();
+                goToNextNews();
             }
 
             @Override
@@ -151,6 +147,8 @@ public class StoryViewerFragment extends Fragment
                 Toast.makeText(getActivity(), getString(R.string.page_loading_error) + ": " + description, Toast.LENGTH_SHORT).show();
             }
         });
+
+        storyPageViewer.addJavascriptInterface(this, "Android");
 
         swipeRefreshLayout.post(new Runnable() {
 
@@ -186,7 +184,11 @@ public class StoryViewerFragment extends Fragment
 
         super.onStop();
     }
-
+    @JavascriptInterface
+    public void goToNextNews()
+    {
+        storyViewModel.goToNextCurrentStoryPosition();
+    }
     private void ongetCurrentStory(Resource<Story> resource) {
         // Update the UI.
         if (resource != null && resource.data != null) {
@@ -230,7 +232,7 @@ public class StoryViewerFragment extends Fragment
         }
     }
 
-    public static String getStyledFont(String title,String link, String date, String content) {
+    public String getStyledFont(String title,String link, String date, String content) {
         boolean addBodyTagStart = !content.toLowerCase().contains("<body>");
         boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
         boolean linkEnd = (link != null && !link.isEmpty());
@@ -260,7 +262,11 @@ public class StoryViewerFragment extends Fragment
                 "</h2>" +
                 "<h6>" + date + "</h6>" +
                 content +
-                (addBodyTagEnd ? "</body>" : "");
+                (addBodyTagEnd ? "</body>" : "") +
+                "<br />" +
+                "<div style=\"text-align: center;\">" +
+                "<button onclick=\"Android.goToNextNews();\">" + getString(R.string.go_to_next_story) + "</button>" +
+                "</div>";
     }
 
     @Override

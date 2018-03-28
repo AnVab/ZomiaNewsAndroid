@@ -148,9 +148,9 @@ public class StoryViewModel  extends ViewModel {
         //Set new story id
         Integer newValue = selectedCurrentStory.getValue() + 1;
         if(newValue < stories.getValue().size())
-            selectedCurrentStory.setValue(newValue);
+            selectedCurrentStory.postValue(newValue);
         else
-            selectedCurrentStory.setValue(0);
+            selectedCurrentStory.postValue(0);
     }
 
     public LiveData<Resource<Story>> getCurrentStory() {
