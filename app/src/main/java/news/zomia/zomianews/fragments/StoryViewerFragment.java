@@ -264,7 +264,7 @@ public class StoryViewerFragment extends Fragment
                 content +
                 (addBodyTagEnd ? "</body>" : "") +
                 "<br />" +
-                "<div style=\"text-align: center;\">" +
+                "<div style=\"text-align: center; padding-top: 30px;\">" +
                 "<button onclick=\"Android.goToNextNews();\">" + getString(R.string.go_to_next_story) + "</button>" +
                 "</div>";
     }
