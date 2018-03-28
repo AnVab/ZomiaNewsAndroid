@@ -116,7 +116,7 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.getSettings().setAllowFileAccess(true);
         storyPageViewer.getSettings().setAllowFileAccessFromFileURLs(true);
         storyPageViewer.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        storyPageViewer.getSettings().setLayoutAlgorithm(TEXT_AUTOSIZING);
+        //storyPageViewer.getSettings().setLayoutAlgorithm(TEXT_AUTOSIZING);
 
         storyPageViewer.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         storyPageViewer.setScrollbarFadingEnabled(true);
@@ -192,7 +192,7 @@ public class StoryViewerFragment extends Fragment
         if (resource != null && resource.data != null) {
             currentStory = resource.data;
 
-            loadContent();
+            loadContent(false);
         }
         else
         {
@@ -204,7 +204,7 @@ public class StoryViewerFragment extends Fragment
         return lifecycleRegistry;
     }
 
-    public void loadContent()
+    public void loadContent(boolean forceUpdate)
     {
         if(storyPageViewer != null && currentStory != null) {
 
@@ -219,21 +219,21 @@ public class StoryViewerFragment extends Fragment
             String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 
             serverUrl = "http://" + serverAddress + ":" + serverPort;
-            new GetPage(serverUrl, currentStory, dataRepo.getFeedDao()).execute();
+            new GetPage(serverUrl, currentStory, dataRepo.getFeedDao(), forceUpdate).execute();
         }
     }
 
     @Override
     public void onRefresh() {
         if(storyPageViewer != null) {
-            loadContent();
+            loadContent(true);
         }
     }
 
     public static String getStyledFont(String title,String link, String date, String content) {
         boolean addBodyTagStart = !content.toLowerCase().contains("<body>");
         boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
-        boolean linkEnd = !link.isEmpty();
+        boolean linkEnd = (link != null && !link.isEmpty());
 
         return "<style type=\"text/css\">" +
                 "@font-face {" +
@@ -292,13 +292,15 @@ public class StoryViewerFragment extends Fragment
         private Story currentStory;
         private String dataBody;
         private FeedDao feedDao;
+        private boolean forceUpdate;
 
-        public GetPage(String serverUrl, Story currentStory, FeedDao feedDao)
+        public GetPage(String serverUrl, Story currentStory, FeedDao feedDao, boolean forceUpdate)
         {
             this.serverUrl = serverUrl;
             this.currentStory = currentStory;
             this.dataBody = "";
             this.feedDao = feedDao;
+            this.forceUpdate = forceUpdate;
         }
 
         @Override
@@ -313,8 +315,10 @@ public class StoryViewerFragment extends Fragment
 
                 //Check if we have a story in cache already. If not, send request to the remote server
                 StoryCache storyCache = feedDao.findStoryInCacheByLink(contentUrl);
-                if(storyCache != null)
+                if(!forceUpdate && storyCache != null) {
                     dataBody = storyCache.getContent();
+                    Log.d("Zomia", "WebView load content from cache");
+                }
                 else{
                     // Connect to the web site
                     //Document document = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
@@ -322,7 +326,7 @@ public class StoryViewerFragment extends Fragment
                             .timeout(5000)
                             .get();
                     dataBody = document.body().toString();
-
+                    Log.d("Zomia", "WebView load content from web");
                     //Insert page to the cache
                     feedDao.insertStoryToCache(new StoryCache(contentUrl,dataBody, currentStory.getFeedId(), currentStory.getDate()));
                 }
