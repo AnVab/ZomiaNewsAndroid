@@ -118,6 +118,11 @@ public class MainActivity extends AppCompatActivity
 
     public void onFeedSelected()
     {
+        showFeedStoriesFragment(true);
+    }
+
+    public void showFeedStoriesFragment(boolean slideInRightSlideOutLeft)
+    {
       /*  FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
                 getSupportFragmentManager().findFragmentById(R.id.feed_stories_fragment);
 
@@ -136,7 +141,11 @@ public class MainActivity extends AppCompatActivity
                 feedStoriesFragment = new FeedStoriesFragment();
                 // Create fragment
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
+                if(slideInRightSlideOutLeft)
+                    fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+                else
+                    fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
                 fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
                 fragmentTransaction.addToBackStack("feedStoriesFragment");
                 fragmentTransaction.commit();
@@ -158,6 +167,7 @@ public class MainActivity extends AppCompatActivity
 
             NewFeedFragment newFeedFragment = new NewFeedFragment();
             newFeedFragment.setArguments(data);
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
             fragmentTransaction.addToBackStack("newFeedFragment");
             fragmentTransaction.commit();
@@ -178,6 +188,7 @@ public class MainActivity extends AppCompatActivity
 
             NewFeedFragment newFeedFragment = new NewFeedFragment();
             newFeedFragment.setArguments(data);
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             fragmentTransaction.replace(R.id.fragment_container, newFeedFragment);
             fragmentTransaction.addToBackStack("newFeedFragment");
             fragmentTransaction.commit();
@@ -201,7 +212,7 @@ public class MainActivity extends AppCompatActivity
             storyViewerFragment.setArguments(args);
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
             fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
@@ -224,7 +235,7 @@ public class MainActivity extends AppCompatActivity
 
     public void goBackToStoriesList()
     {
-        onFeedSelected();
+        showFeedStoriesFragment(false);
     }
 
     public void LoadLoginFragment()
@@ -237,7 +248,7 @@ public class MainActivity extends AppCompatActivity
             loginFragment = new LoginFragment();
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
+            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
             fragmentTransaction.replace(R.id.fragment_container, loginFragment);
             //fragmentTransaction.addToBackStack("loginFragment);
             fragmentTransaction.commit();
@@ -253,7 +264,7 @@ public class MainActivity extends AppCompatActivity
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
 
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
             fragmentTransaction.addToBackStack("feedsListFragment");
@@ -266,7 +277,7 @@ public class MainActivity extends AppCompatActivity
         removeBottomPadding();
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        //fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right, 0, 0);
+        fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
         SettingsFragment settingsFragment = new SettingsFragment();
         fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
         fragmentTransaction.addToBackStack("settingsFragment");
