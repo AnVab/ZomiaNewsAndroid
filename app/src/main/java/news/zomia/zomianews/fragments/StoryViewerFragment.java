@@ -187,6 +187,7 @@ public class StoryViewerFragment extends Fragment
     @JavascriptInterface
     public void goToNextNews()
     {
+        onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
     }
     private void ongetCurrentStory(Resource<Story> resource) {
@@ -289,7 +290,7 @@ public class StoryViewerFragment extends Fragment
 
     // Container Activity must implement this interface
     public interface OnStoryViewerListener {
-        public void nextStoryRequest(Integer currentStoryId);
+        public void showNextStoryFragment();
         public void goBackToStoriesList();
     }
 

@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
 
-    StoryViewerFragment storyViewerFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +72,6 @@ public class MainActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         // Enable the Up button
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        storyViewerFragment = new StoryViewerFragment();
 
         ((ZomiaApp) getApplication()).setUnauthorizedInterceptorListener(this);
         ((ZomiaApp) getApplication()).setNetworkConnectionInterceptorListener(this);
@@ -197,22 +195,25 @@ public class MainActivity extends AppCompatActivity
 
     public void onStorySelected(Story story)
     {
+        loadStoryFragment(false);
+    }
+
+    public void loadStoryFragment(boolean animationBottom)
+    {
         if (findViewById(R.id.fragment_container) != null) {
 
             ShowToolbar();
 
             removeBottomPadding();
 
-            // Create fragment and give it an argument for the selected article
-            Bundle args = new Bundle();
-            args.putString("date", story.getDate().toString());
-            args.putString("title", story.getTitle());
-            args.putString("content", story.getContent());
-
-            storyViewerFragment.setArguments(args);
+            StoryViewerFragment storyViewerFragment;
+            storyViewerFragment = new StoryViewerFragment();
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            if(!animationBottom)
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            else
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_bottom, R.animator.slide_out_up);
             fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
             fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
@@ -228,8 +229,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void nextStoryRequest(Integer currentStoryId)
-    {
+    @Override
+    public void showNextStoryFragment() {
+
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                loadStoryFragment(true);
+            }
+        });
 
     }
 
