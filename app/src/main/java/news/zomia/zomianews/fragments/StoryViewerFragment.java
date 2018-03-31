@@ -11,11 +11,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -33,6 +36,7 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.customcontrols.NestedScrollViewTouched;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.model.Story;
@@ -42,8 +46,6 @@ import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.viewmodel.StoryViewModel;
 import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
-
-import static android.webkit.WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,6 +58,7 @@ public class StoryViewerFragment extends Fragment
     private static final String TAG = "StoryViewerFragment";
 
     OnStoryViewerListener onStoryViewerListenerCallback;
+    OnSwipeTouchListener onSwipeTouchListener;
 
     private View rootView;
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
@@ -70,8 +73,15 @@ public class StoryViewerFragment extends Fragment
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
+
+    //Web view scrolling states
+    public static final int WEBVIEW_SCROLLING = 0;
+    public static final int WEBVIEW_AT_BOTTOM = 1;
+    public int WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
+
     private Story currentStory;
     private String storyDateText;
+
     public StoryViewerFragment() {
         // Required empty public constructor
     }
@@ -119,18 +129,24 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
 
 
-        storyPageViewer.setOnTouchListener(new OnSwipeTouchListener(getActivity())
-        {
+        onSwipeTouchListener = new OnSwipeTouchListener(getActivity()) {
             @Override
             public void onSwipeLeft() {
-                goToNextNews();
+                goToNextNewsAnimationRight();
             }
 
             @Override
             public void onSwipeRight() {
                 onStoryViewerListenerCallback.goBackToStoriesList();
             }
-        });
+
+            @Override
+            public void onSwipeUp() {
+                if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
+                    goToNextNews();
+                }
+            }
+        };
 
         storyPageViewer.setWebViewClient(new WebViewClient() {
             @Override
@@ -147,11 +163,35 @@ public class StoryViewerFragment extends Fragment
                 Toast.makeText(getActivity(), getString(R.string.page_loading_error) + ": " + description, Toast.LENGTH_SHORT).show();
             }
         });
+        storyPageViewer.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+
+        //Get scroll view to detect when we reach end of the webview
+        NestedScrollViewTouched nestedScrollView =  (NestedScrollViewTouched) view.findViewById(R.id.nestedScrollView );
+        nestedScrollView.setOnTouchListener(onSwipeTouchListener);
+
+        nestedScrollView.setOnScrollChangeListener((NestedScrollViewTouched.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if(v.getChildAt(v.getChildCount() - 1) != null) {
+
+                if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
+                        scrollY > oldScrollY) {
+                    switch(WEBVIEW_SCROLLING_STATE)
+                    {
+                        case WEBVIEW_SCROLLING:
+                            WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
+                            break;
+                        default:
+                            WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
+                            break;
+                    }
+                }
+                else
+                    WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
+            }
+        });
 
         storyPageViewer.addJavascriptInterface(this, "Android");
 
         swipeRefreshLayout.post(new Runnable() {
-
             @Override
             public void run() {
 
@@ -184,6 +224,13 @@ public class StoryViewerFragment extends Fragment
 
         super.onStop();
     }
+
+    public void goToNextNewsAnimationRight()
+    {
+        onStoryViewerListenerCallback.showNextStoryFragmentAnimationRight();
+        storyViewModel.goToNextCurrentStoryPosition();
+    }
+
     @JavascriptInterface
     public void goToNextNews()
     {
@@ -291,6 +338,7 @@ public class StoryViewerFragment extends Fragment
     // Container Activity must implement this interface
     public interface OnStoryViewerListener {
         public void showNextStoryFragment();
+        public void showNextStoryFragmentAnimationRight();
         public void goBackToStoriesList();
     }
 

@@ -239,7 +239,17 @@ public class MainActivity extends AppCompatActivity
                 loadStoryFragment(true);
             }
         });
+    }
 
+    @Override
+    public void showNextStoryFragmentAnimationRight() {
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                loadStoryFragment(false);
+            }
+        });
     }
 
     public void goBackToStoriesList()
