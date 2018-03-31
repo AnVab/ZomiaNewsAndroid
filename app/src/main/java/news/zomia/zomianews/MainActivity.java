@@ -58,8 +58,10 @@ public class MainActivity extends AppCompatActivity
     public User user;
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
-
-
+    //Two StoryViewerFragment to decrease memory usage. We change between them when loading content
+    StoryViewerFragment storyViewerFragment;
+    StoryViewerFragment storyViewerFragment2;
+    private boolean showStoryFragmentPair;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,10 @@ public class MainActivity extends AppCompatActivity
         userSessionInfo.setToken(token);
 
         updateZomiaUrl();
+
+        storyViewerFragment = new StoryViewerFragment();
+        storyViewerFragment2 = new StoryViewerFragment();
+        showStoryFragmentPair = false;
 
         if(token.isEmpty())
             LoadLoginFragment();
@@ -206,15 +212,18 @@ public class MainActivity extends AppCompatActivity
 
             removeBottomPadding();
 
-            StoryViewerFragment storyViewerFragment;
-            storyViewerFragment = new StoryViewerFragment();
-
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             if(!animationBottom)
                 fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             else
                 fragmentTransaction.setCustomAnimations(R.animator.slide_in_bottom, R.animator.slide_out_up);
-            fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
+
+            if(showStoryFragmentPair)
+                fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
+            else
+                fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment2);
+            showStoryFragmentPair = !showStoryFragmentPair;
+
             fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
         }

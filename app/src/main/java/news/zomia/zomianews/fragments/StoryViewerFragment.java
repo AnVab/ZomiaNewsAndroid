@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.Animation;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -242,7 +243,7 @@ public class StoryViewerFragment extends Fragment
         if (resource != null && resource.data != null) {
             currentStory = resource.data;
 
-            loadContent(false);
+            //loadContent(false);
         }
         else
         {
@@ -333,6 +334,28 @@ public class StoryViewerFragment extends Fragment
                         + " must implement OnStoryViewerListener");
             }
         }
+    }
+
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (nextAnim == 0) {
+            return super.onCreateAnimation(transit, enter, nextAnim);
+        }
+
+        Animation anim = android.view.animation.AnimationUtils.loadAnimation(getContext(), nextAnim);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                //Load content after animation is played
+                loadContent(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        return anim;
     }
 
     // Container Activity must implement this interface
