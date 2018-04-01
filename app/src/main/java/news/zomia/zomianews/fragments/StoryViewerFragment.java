@@ -28,6 +28,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -287,6 +289,25 @@ public class StoryViewerFragment extends Fragment
         boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
         boolean linkEnd = (link != null && !link.isEmpty());
 
+        String videoFrame = "";
+        if(!link.isEmpty()) {
+            String youtube = "youtube";
+            boolean hasYoutubeLink = link.toLowerCase().contains(youtube.toLowerCase());
+            //manage youtube link for embedding
+            if(hasYoutubeLink) {
+                String pattern = "watch\\?v=([^&]*)";
+                Pattern r = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+                Matcher m = r.matcher(link);
+                String youtubeId = "";
+                if(m.find() && m.group(1) != null) {
+                    youtubeId = m.group(1);
+                }
+                videoFrame = "<iframe width=\"100%\" height=\"315\"" +
+                                "src=\"https://www.youtube.com/embed/" + youtubeId + "\"?autoplay=1>" +
+                                "</iframe>";
+            }
+        }
+
         return "<style type=\"text/css\">" +
                 "@font-face {" +
                 "font-family: CustomFont;" +
@@ -314,6 +335,9 @@ public class StoryViewerFragment extends Fragment
                 (linkEnd ? "</a>" : "") +
                 "</h2>" +
                 "<h6>" + date + "</h6>" +
+                (!videoFrame.isEmpty() ? "<div style=\"text-align: center;\">" : "") +
+                videoFrame +
+                (!videoFrame.isEmpty() ? "</div>" : "") +
                 content +
                 (addBodyTagEnd ? "</body>" : "");/* +
                 "<br />" +
