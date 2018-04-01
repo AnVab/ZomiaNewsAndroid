@@ -1,6 +1,5 @@
 package news.zomia.zomianews.fragments;
 
-
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
@@ -11,15 +10,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.animation.Animation;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -133,7 +128,7 @@ public class StoryViewerFragment extends Fragment
         onSwipeTouchListener = new OnSwipeTouchListener(getActivity()) {
             @Override
             public void onSwipeLeft() {
-                goToNextNewsAnimationRight();
+                goToNextNews();
             }
 
             @Override
@@ -149,6 +144,10 @@ public class StoryViewerFragment extends Fragment
             }
         };
 
+        //Get scroll view to detect when we reach end of the webview
+        NestedScrollViewTouched nestedScrollView =  (NestedScrollViewTouched) view.findViewById(R.id.nestedScrollView );
+        nestedScrollView.setOnTouchListener(onSwipeTouchListener);
+
         storyPageViewer.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -157,6 +156,12 @@ public class StoryViewerFragment extends Fragment
                 if(swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
+
+                //Scroll to the top
+                nestedScrollView.scrollTo(0, 0);
+
+                //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
+                nestedScrollView.smoothScrollBy(0,0);
             }
 
             @Override
@@ -165,10 +170,6 @@ public class StoryViewerFragment extends Fragment
             }
         });
         storyPageViewer.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-
-        //Get scroll view to detect when we reach end of the webview
-        NestedScrollViewTouched nestedScrollView =  (NestedScrollViewTouched) view.findViewById(R.id.nestedScrollView );
-        nestedScrollView.setOnTouchListener(onSwipeTouchListener);
 
         nestedScrollView.setOnScrollChangeListener((NestedScrollViewTouched.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             if(v.getChildAt(v.getChildCount() - 1) != null) {
@@ -226,16 +227,10 @@ public class StoryViewerFragment extends Fragment
         super.onStop();
     }
 
-    public void goToNextNewsAnimationRight()
-    {
-        onStoryViewerListenerCallback.showNextStoryFragmentAnimationRight();
-        storyViewModel.goToNextCurrentStoryPosition();
-    }
-
     @JavascriptInterface
     public void goToNextNews()
     {
-        onStoryViewerListenerCallback.showNextStoryFragment();
+        //onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
     }
     private void ongetCurrentStory(Resource<Story> resource) {
@@ -243,7 +238,7 @@ public class StoryViewerFragment extends Fragment
         if (resource != null && resource.data != null) {
             currentStory = resource.data;
 
-            //loadContent(false);
+            loadContent(false);
         }
         else
         {
@@ -259,6 +254,7 @@ public class StoryViewerFragment extends Fragment
     {
         if(storyPageViewer != null && currentStory != null) {
 
+            //storyPageViewer.startAnimation(slideLeftAnimation);
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
             //Convert timestamp to milliseconds format
             Timestamp tmp = new Timestamp(currentStory.getDate() / 1000);
@@ -311,11 +307,11 @@ public class StoryViewerFragment extends Fragment
                 "</h2>" +
                 "<h6>" + date + "</h6>" +
                 content +
-                (addBodyTagEnd ? "</body>" : "") +
+                (addBodyTagEnd ? "</body>" : "");/* +
                 "<br />" +
                 "<div style=\"text-align: center; padding-top: 30px;\">" +
                 "<button onclick=\"Android.goToNextNews();\">" + getString(R.string.go_to_next_story) + "</button>" +
-                "</div>";
+                "</div>";*/
     }
 
     @Override
@@ -336,32 +332,10 @@ public class StoryViewerFragment extends Fragment
         }
     }
 
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        if (nextAnim == 0) {
-            return super.onCreateAnimation(transit, enter, nextAnim);
-        }
-
-        Animation anim = android.view.animation.AnimationUtils.loadAnimation(getContext(), nextAnim);
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                //Load content after animation is played
-                loadContent(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        return anim;
-    }
-
     // Container Activity must implement this interface
     public interface OnStoryViewerListener {
-        public void showNextStoryFragment();
-        public void showNextStoryFragmentAnimationRight();
+        //public void showNextStoryFragment();
+        //public void showNextStoryFragmentAnimationRight();
         public void goBackToStoriesList();
     }
 

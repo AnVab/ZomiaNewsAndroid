@@ -58,10 +58,6 @@ public class MainActivity extends AppCompatActivity
     public User user;
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
-    //Two StoryViewerFragment to decrease memory usage. We change between them when loading content
-    StoryViewerFragment storyViewerFragment;
-    StoryViewerFragment storyViewerFragment2;
-    private boolean showStoryFragmentPair;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,14 +81,13 @@ public class MainActivity extends AppCompatActivity
 
         updateZomiaUrl();
 
-        storyViewerFragment = new StoryViewerFragment();
-        storyViewerFragment2 = new StoryViewerFragment();
-        showStoryFragmentPair = false;
+        if(savedInstanceState == null) {
 
-        if(token.isEmpty())
-            LoadLoginFragment();
-        else
-            LoadFeedsListFragment();
+            if (token.isEmpty())
+                LoadLoginFragment();
+            else
+                LoadFeedsListFragment();
+        }
     }
 
     @Override
@@ -141,8 +136,6 @@ public class MainActivity extends AppCompatActivity
 
                 removeBottomPadding();
 
-                FeedStoriesFragment feedStoriesFragment;
-                feedStoriesFragment = new FeedStoriesFragment();
                 // Create fragment
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 if(slideInRightSlideOutLeft)
@@ -150,6 +143,7 @@ public class MainActivity extends AppCompatActivity
                 else
                     fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
+                FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
                 fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
                 fragmentTransaction.addToBackStack("feedStoriesFragment");
                 fragmentTransaction.commit();
@@ -201,10 +195,10 @@ public class MainActivity extends AppCompatActivity
 
     public void onStorySelected(Story story)
     {
-        loadStoryFragment(false);
+        loadStoryFragment();
     }
 
-    public void loadStoryFragment(boolean animationBottom)
+    public void loadStoryFragment()
     {
         if (findViewById(R.id.fragment_container) != null) {
 
@@ -213,16 +207,9 @@ public class MainActivity extends AppCompatActivity
             removeBottomPadding();
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            if(!animationBottom)
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            else
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_bottom, R.animator.slide_out_up);
-
-            if(showStoryFragmentPair)
-                fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
-            else
-                fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment2);
-            showStoryFragmentPair = !showStoryFragmentPair;
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            StoryViewerFragment storyViewerFragment = new StoryViewerFragment();
+            fragmentTransaction.replace(R.id.fragment_container, storyViewerFragment);
 
             fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
@@ -236,29 +223,6 @@ public class MainActivity extends AppCompatActivity
         {
             updateZomiaUrl();
         }
-    }
-
-    @Override
-    public void showNextStoryFragment() {
-
-        runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                loadStoryFragment(true);
-            }
-        });
-    }
-
-    @Override
-    public void showNextStoryFragmentAnimationRight() {
-        runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                loadStoryFragment(false);
-            }
-        });
     }
 
     public void goBackToStoriesList()
@@ -291,9 +255,7 @@ public class MainActivity extends AppCompatActivity
 
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
             fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
             fragmentTransaction.addToBackStack("feedsListFragment");
             fragmentTransaction.commit();
