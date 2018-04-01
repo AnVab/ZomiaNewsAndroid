@@ -123,6 +123,9 @@ public interface FeedDao {
     @Query("DELETE FROM Tag")
     public void deleteTableTag();
 
+    @Query("DELETE FROM StoryCache")
+    public void deleteTableStoryCache();
+
     //Cache
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertStoryToCache(StoryCache storyCache);

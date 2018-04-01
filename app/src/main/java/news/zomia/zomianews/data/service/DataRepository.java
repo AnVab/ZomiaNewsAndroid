@@ -439,6 +439,7 @@ public class DataRepository {
             public void run() {
                 db.beginTransaction();
                 try {
+                    feedDao.deleteTableStoryCache();
                     feedDao.deleteTableStories();
                     feedDao.deleteTableTagFeedJoin();
                     feedDao.deleteTableTag();
