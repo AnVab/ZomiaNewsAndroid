@@ -17,6 +17,9 @@ import news.zomia.zomianews.fragments.StoryViewerFragment;
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.Token;
 
+import android.content.res.Configuration;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.Guideline;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.content.SharedPreferences;
@@ -31,6 +34,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,11 +63,18 @@ public class MainActivity extends AppCompatActivity
     public User user;
     public Token userToken;
     private static final String TAG = "ZomiaMainActivity";
-
+    private boolean twoPaneMode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_activity_main);
+
+        //Search layout for a two pane frame for feeds container
+        if (findViewById(R.id.feeds_container) != null)
+            twoPaneMode = true;
+        else
+            twoPaneMode = false;
+
         Toolbar myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
         setSupportActionBar(myToolbar);
 
@@ -82,11 +94,27 @@ public class MainActivity extends AppCompatActivity
         updateZomiaUrl();
 
         if(savedInstanceState == null) {
-
             if (token.isEmpty())
                 LoadLoginFragment();
             else
                 LoadFeedsListFragment();
+        }
+        else
+        {
+            //Delete a feeds list fragment that was created in the portrait mode. We see that fragment in the landscape mode
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if(fragment instanceof FeedsListFragment) {
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.remove(fragment);
+                fragmentTransaction.commit();
+            }
+
+            //Check if we returned from portrtait mode to landscape and don't have feeds list in the left side, then create it
+            if(twoPaneMode) {
+                fragment = getSupportFragmentManager().findFragmentById(R.id.feeds_container);
+                if(fragment == null)
+                    LoadFeedsListFragment();
+            }
         }
     }
 
@@ -102,6 +130,16 @@ public class MainActivity extends AppCompatActivity
         //Set current session token
         userSessionInfo.setToken(token);
 
+        //remove login dragment
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if(fragment instanceof LoginFragment) {
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.remove(fragment);
+            fragmentTransaction.commit();
+        }
+
+        //Load feeds list
         LoadFeedsListFragment();
     }
 
@@ -122,33 +160,21 @@ public class MainActivity extends AppCompatActivity
 
     public void showFeedStoriesFragment(boolean slideInRightSlideOutLeft)
     {
-      /*  FeedStoriesFragment fStoriesFrag = (FeedStoriesFragment)
-                getSupportFragmentManager().findFragmentById(R.id.feed_stories_fragment);
+        if (findViewById(R.id.fragment_container) != null) {
+            removeBottomPadding();
 
-        if (fStoriesFrag != null) {
-            // If article frag is available, we're in two-pane layout
-            // Call a method in the FeedStoriesFragment to update its content
-            fStoriesFrag.updateStoriesView(feed.getFeedId());
-        } else {
-            // Otherwise, we're in the one-pane layout and must swap frags
-*/
-            if (findViewById(R.id.fragment_container) != null) {
+            // Create fragment
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            if(slideInRightSlideOutLeft)
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            else
+                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-                removeBottomPadding();
-
-                // Create fragment
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                if(slideInRightSlideOutLeft)
-                    fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-                else
-                    fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
-                FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
-                fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
-                fragmentTransaction.addToBackStack("feedStoriesFragment");
-                fragmentTransaction.commit();
-            }
-       // }
+            FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
+            fragmentTransaction.replace(R.id.fragment_container, feedStoriesFragment);
+            fragmentTransaction.addToBackStack("feedStoriesFragment");
+            fragmentTransaction.commit();
+        }
     }
 
     public void onNewFeedAddAction()
@@ -234,6 +260,14 @@ public class MainActivity extends AppCompatActivity
     {
         if (findViewById(R.id.fragment_container) != null) {
 
+            //Collapse left framelayout when landscape mode
+            /*Guideline guideLine = (Guideline) findViewById(R.id.guideline);
+            if(guideLine != null) {
+                ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) guideLine.getLayoutParams();
+                lp.guidePercent = 0;
+                guideLine.setLayoutParams(lp);
+            }*/
+
             removeBottomPadding();
 
             LoginFragment loginFragment;
@@ -249,14 +283,28 @@ public class MainActivity extends AppCompatActivity
 
     public void LoadFeedsListFragment()
     {
-        if (findViewById(R.id.fragment_container) != null) {
+        /*Guideline guideLine = (Guideline) findViewById(R.id.guideline);
+        ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) guideLine.getLayoutParams();
+        lp.guidePercent = 30;
+        guideLine.setLayoutParams(lp);*/
 
+        if (!twoPaneMode && findViewById(R.id.fragment_container) != null) {
             addBottomPadding();
 
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             fragmentTransaction.replace(R.id.fragment_container, feedsListFragment);
+            fragmentTransaction.addToBackStack("feedsListFragment");
+            fragmentTransaction.commit();
+        }
+
+        if (twoPaneMode) {
+            addBottomPadding();
+            FeedsListFragment feedsListFragment = new FeedsListFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            fragmentTransaction.replace(R.id.feeds_container, feedsListFragment);
             fragmentTransaction.addToBackStack("feedsListFragment");
             fragmentTransaction.commit();
         }
@@ -354,10 +402,14 @@ public class MainActivity extends AppCompatActivity
                 ShowToolbar();
             }
             else if (fragment instanceof FeedStoriesFragment) {
-                getSupportFragmentManager().popBackStack("feedsListFragment", 0);
-                ShowToolbar();
-                //Add bottom padding if we returned back to the feeds list fragment
-                addBottomPadding();
+                if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    //Create a feeds list when we press back in the portratit mode after changin orientation from the landscape mode
+                    if(!twoPaneMode)
+                        LoadFeedsListFragment();
+                    ShowToolbar();
+                    //Add bottom padding if we returned back to the feeds list fragment
+                    addBottomPadding();
+                }
             }
             else {
                 super.onBackPressed();
@@ -371,7 +423,6 @@ public class MainActivity extends AppCompatActivity
         AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
         appBar.setExpanded(true, true);
     }
-
 
     @Override
     protected void onResume() {
