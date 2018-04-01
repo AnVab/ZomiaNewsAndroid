@@ -73,7 +73,7 @@ public class StoryViewerFragment extends Fragment
     //Web view scrolling states
     public static final int WEBVIEW_SCROLLING = 0;
     public static final int WEBVIEW_AT_BOTTOM = 1;
-    public int WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
+    public int WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
 
     private Story currentStory;
     private String storyDateText;
@@ -162,6 +162,8 @@ public class StoryViewerFragment extends Fragment
 
                 //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
                 nestedScrollView.smoothScrollBy(0,0);
+
+                WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
             }
 
             @Override
@@ -180,6 +182,9 @@ public class StoryViewerFragment extends Fragment
                     {
                         case WEBVIEW_SCROLLING:
                             WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
+                            break;
+                        case WEBVIEW_AT_BOTTOM:
+                            //Do nothing
                             break;
                         default:
                             WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
