@@ -296,9 +296,12 @@ public class StoryViewerFragment extends Fragment
                 "font-size: medium;" +
                 "text-align: justify;" +
                 "}" +
+                "a:hover, a:visited, a:link, a:active {" +
+                "text-decoration: none;" +
+                "}" +
                 "img{display: inline;height: auto;max-width: 100%;}"+
                 "h2 {" +
-                "text-align: justify;" +
+                "text-align: left;" +
                 "}" +
                 "h6 {" +
                 "text-align: left;" +
