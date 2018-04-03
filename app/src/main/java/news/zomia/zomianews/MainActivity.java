@@ -67,12 +67,12 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "ZomiaMainActivity";
 
     private int PANEL_MODE_STATE;
-    private final int PANEL_MODE_ONE_PANE_LEFT = 0;
-    private final int PANEL_MODE_ONE_PANE_CENTRAL = 1;
-    private final int PANEL_MODE_ONE_PANE_CENTRAL_SERVICE = 2;
-    private final int PANEL_MODE_ONE_PANE_RIGHT = 3;
-    private final int PANEL_MODE_TWO_PANE_LEFT = 4;
-    private final int PANEL_MODE_TWO_PANE_RIGHT = 5;
+    private final int PANEL_MODE_ONE_PANE_LEFT = 0; //For feeds list in portratit mode
+    private final int PANEL_MODE_ONE_PANE_CENTRAL = 1;  //For stories list in portrait mode
+    private final int PANEL_MODE_ONE_PANE_CENTRAL_SERVICE = 2;  //For service windows in central frame for both portrait and landscape modes
+    private final int PANEL_MODE_ONE_PANE_RIGHT = 3;    //For the story viewer in landscape mode
+    private final int PANEL_MODE_TWO_PANE_LEFT = 4;     //For feeds and stories list in landscape mode
+    private final int PANEL_MODE_TWO_PANE_RIGHT = 5;    //For stories and story viewer in landscape mode
     private int SERVICE_PANEL_MODE_STATE_PREVIOUS;
 
     private Guideline guidelineLeft;
@@ -163,8 +163,15 @@ public class MainActivity extends AppCompatActivity
                     case PANEL_MODE_ONE_PANE_CENTRAL:
                         setOnePaneCentralMode();
                         break;
-                    case PANEL_MODE_TWO_PANE_LEFT:
-                        setOnePaneCentralMode();
+                    case PANEL_MODE_TWO_PANE_LEFT: {
+                        //Check the central framelayout contains any fragment. If yes, then set
+                        //the central mode. If not, then set left mode - show feeds list
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
+                        if(fragment != null)
+                            setOnePaneCentralMode();
+                        else
+                            setOnePaneLeftMode();
+                    }
                         break;
                     case PANEL_MODE_TWO_PANE_RIGHT:
                         setOnePaneRightMode();
