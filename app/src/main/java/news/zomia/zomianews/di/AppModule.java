@@ -147,7 +147,11 @@ public class AppModule {
                 .addInterceptor(unauthorizedInterceptor)
                 .addInterceptor(networkConnectionInterceptor)
                 .addInterceptor(headerInterceptor)
-                .addInterceptor(urlInterceptor);
+                .addInterceptor(urlInterceptor)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                ;
 
         return defaultHttpClient.build();
     }

@@ -69,9 +69,10 @@ public class MainActivity extends AppCompatActivity
     private int PANEL_MODE_STATE;
     private final int PANEL_MODE_ONE_PANE_LEFT = 0;
     private final int PANEL_MODE_ONE_PANE_CENTRAL = 1;
-    private final int PANEL_MODE_ONE_PANE_RIGHT = 2;
-    private final int PANEL_MODE_TWO_PANE_LEFT = 3;
-    private final int PANEL_MODE_TWO_PANE_RIGHT = 4;
+    private final int PANEL_MODE_ONE_PANE_CENTRAL_SERVICE = 2;
+    private final int PANEL_MODE_ONE_PANE_RIGHT = 3;
+    private final int PANEL_MODE_TWO_PANE_LEFT = 4;
+    private final int PANEL_MODE_TWO_PANE_RIGHT = 5;
     private int SERVICE_PANEL_MODE_STATE_PREVIOUS;
 
     private Guideline guidelineLeft;
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity
         {
             //Get the previous state panel mode
             int PANEL_MODE_STATE_PREVIOUS = savedInstanceState.getInt("PANEL_MODE_STATE");
+            //Get the previous service panel mode if we have settings fragment or other service frame displayed on the screen
+            //SERVICE_PANEL_MODE_STATE_PREVIOUS = savedInstanceState.getInt("SERVICE_PANEL_MODE_STATE_PREVIOUS");
+            Log.d(TAG, "PANEL_MODE_STATE_PREVIOUS: " + PANEL_MODE_STATE_PREVIOUS);
             //If currently we a in the landscape mode
             if(getLandscapeOrientation())
             {
@@ -144,6 +148,9 @@ public class MainActivity extends AppCompatActivity
                         break;
                     case PANEL_MODE_ONE_PANE_RIGHT:
                         setTwoPaneRightMode();
+                        break;
+                    case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
+                        setOnePaneCentralServiceMode();
                         break;
                     default:
                         break;
@@ -162,6 +169,9 @@ public class MainActivity extends AppCompatActivity
                     case PANEL_MODE_TWO_PANE_RIGHT:
                         setOnePaneRightMode();
                         break;
+                    case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
+                        setOnePaneCentralServiceMode();
+                        break;
                     default:
                         break;
                 }
@@ -176,6 +186,7 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("PANEL_MODE_STATE", PANEL_MODE_STATE);
+        savedInstanceState.putInt("SERVICE_PANEL_MODE_STATE_PREVIOUS", SERVICE_PANEL_MODE_STATE_PREVIOUS);
     }
 
     private void setOnePaneLeftMode()
@@ -198,6 +209,13 @@ public class MainActivity extends AppCompatActivity
         rightLayout.setVisibility(View.GONE);
 
         PANEL_MODE_STATE = PANEL_MODE_ONE_PANE_LEFT;
+    }
+
+    private void setOnePaneCentralServiceMode()
+    {
+        setOnePaneCentralMode();
+
+        PANEL_MODE_STATE = PANEL_MODE_ONE_PANE_CENTRAL_SERVICE;
     }
 
     private void setOnePaneCentralMode()
@@ -463,7 +481,7 @@ public class MainActivity extends AppCompatActivity
 
     public void LoadLoginFragment()
     {
-        setOnePaneCentralMode();
+        setOnePaneCentralServiceMode();
 
         removeBottomPadding();
 
@@ -507,7 +525,7 @@ public class MainActivity extends AppCompatActivity
     public void ShowSettingsFragment()
     {
         SERVICE_PANEL_MODE_STATE_PREVIOUS = PANEL_MODE_STATE;
-        setOnePaneCentralMode();
+        setOnePaneCentralServiceMode();
 
         removeBottomPadding();
 

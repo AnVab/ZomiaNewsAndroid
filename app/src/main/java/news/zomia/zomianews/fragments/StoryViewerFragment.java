@@ -285,12 +285,12 @@ public class StoryViewerFragment extends Fragment
     }
 
     public String getStyledFont(String title,String link, String date, String content) {
-        boolean addBodyTagStart = !content.toLowerCase().contains("<body>");
-        boolean addBodyTagEnd = !content.toLowerCase().contains("</body");
+        boolean addBodyTagStart = (content != null && !content.toLowerCase().contains("<body>"));
+        boolean addBodyTagEnd = (content != null && !content.toLowerCase().contains("</body"));
         boolean linkEnd = (link != null && !link.isEmpty());
 
         String videoFrame = "";
-        if(!link.isEmpty()) {
+        if(link != null && !link.isEmpty()) {
             String youtube = "youtube";
             boolean hasYoutubeLink = link.toLowerCase().contains(youtube.toLowerCase());
             //manage youtube link for embedding
