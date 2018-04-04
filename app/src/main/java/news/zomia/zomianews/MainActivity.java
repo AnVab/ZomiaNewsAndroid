@@ -271,9 +271,9 @@ public class MainActivity extends AppCompatActivity
 
     private boolean getLandscapeOrientation()
     {
-        boolean is600dp = getResources().getBoolean(R.bool.isTablet);
+        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
 
-        return ((getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) && is600dp);
+        return ((getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) && isTablet);
     }
 
     private void setTwoPaneLeftMode()
@@ -375,23 +375,27 @@ public class MainActivity extends AppCompatActivity
 
     private void placeStoriesListToFragment(boolean slideInRightSlideOutLeft)
     {
-        removeBottomPadding();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
+        if (!(fragment instanceof FeedStoriesFragment)){
 
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+            removeBottomPadding();
 
-        // Create fragment
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if(slideInRightSlideOutLeft)
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-        else
-            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            //Clear view
+            FrameLayout fl = (FrameLayout) findViewById(containercentralId);
+            fl.removeAllViews();
 
-        FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
-        fragmentTransaction.replace(containercentralId, feedStoriesFragment);
-        fragmentTransaction.addToBackStack("feedStoriesFragment");
-        fragmentTransaction.commit();
+            // Create fragment
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            if(slideInRightSlideOutLeft)
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            else
+                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+            FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
+            fragmentTransaction.replace(containercentralId, feedStoriesFragment);
+            fragmentTransaction.addToBackStack("feedStoriesFragment");
+            fragmentTransaction.commit();
+        }
     }
     public void onNewFeedAddAction()
     {
@@ -515,18 +519,21 @@ public class MainActivity extends AppCompatActivity
             setOnePaneLeftMode();
         }
 
-        addBottomPadding(containerLeftId);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(containerLeftId);
+        if (!(fragment instanceof FeedsListFragment)) {
+            addBottomPadding(containerLeftId);
 
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containerLeftId);
-        fl.removeAllViews();
+            //Clear view
+            FrameLayout fl = (FrameLayout) findViewById(containerLeftId);
+            fl.removeAllViews();
 
-        FeedsListFragment feedsListFragment = new FeedsListFragment();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-        fragmentTransaction.replace(containerLeftId, feedsListFragment);
-        fragmentTransaction.addToBackStack("feedsListFragment");
-        fragmentTransaction.commit();
+            FeedsListFragment feedsListFragment = new FeedsListFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            fragmentTransaction.replace(containerLeftId, feedsListFragment);
+            fragmentTransaction.addToBackStack("feedsListFragment");
+            fragmentTransaction.commit();
+        }
     }
 
     public void ShowSettingsFragment()
@@ -701,6 +708,9 @@ public class MainActivity extends AppCompatActivity
     //Padding for a floating buttons
     private void addBottomPadding(int containerId)
     {
+        if(getLandscapeOrientation())
+            return;
+
         int navHeight = getNavHeight();
         if (navHeight > 0) {
             (findViewById(containerId)).setPadding(0, 0, 0, navHeight);
