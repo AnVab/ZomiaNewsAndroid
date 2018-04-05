@@ -69,11 +69,19 @@ public class MainActivity extends AppCompatActivity
     private int PANEL_MODE_STATE;
     private final int PANEL_MODE_ONE_PANE_LEFT = 0; //For feeds list in portratit mode
     private final int PANEL_MODE_ONE_PANE_CENTRAL = 1;  //For stories list in portrait mode
-    private final int PANEL_MODE_ONE_PANE_CENTRAL_SERVICE = 2;  //For service windows in central frame for both portrait and landscape modes
+    private final int PANEL_MODE_ONE_PANE_CENTRAL_SERVICE = 2;  //For service windows in central frame for both portrait and landscape modes. For example for the Login window
     private final int PANEL_MODE_ONE_PANE_RIGHT = 3;    //For the story viewer in landscape mode
     private final int PANEL_MODE_TWO_PANE_LEFT = 4;     //For feeds and stories list in landscape mode
     private final int PANEL_MODE_TWO_PANE_RIGHT = 5;    //For stories and story viewer in landscape mode
-    private int SERVICE_PANEL_MODE_STATE_PREVIOUS;
+
+    private final int ON_ROTATION_FRAMELAYOUT_VISIBLE_DATA = 0; //When open settings fragment
+    private final int ON_ROTATION_FRAMELAYOUT_VISIBLE_SETTINGS = 1; //When open settings fragment
+    private int ON_ROTATION_FRAMELAYOUT_VISIBLE = ON_ROTATION_FRAMELAYOUT_VISIBLE_DATA;
+
+    private final int ON_ROTATION_FRAGMENTS_STATE_FEED_LIST = 1; //When show stories list
+    private final int ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST = 2; //When show stories list
+    private final int ON_ROTATION_FRAGMENTS_STATE_STORY_VIEWER = 3; //When show story
+    private int ON_ROTATION_ACTIVE_FEED_FRAME;
 
     private Guideline guidelineLeft;
     private Guideline guidelineRight;
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(myToolbar);
 
         //Disable appbar scroll flags for tablets in the landscape mode
-        if(getLandscapeOrientation()) {
+        if(getLandscapeOrientationTablet()) {
             AppBarLayout.LayoutParams params =
                     (AppBarLayout.LayoutParams) myToolbar.getLayoutParams();
             params.setScrollFlags(0);
@@ -131,69 +139,76 @@ public class MainActivity extends AppCompatActivity
         {
             //Get the previous state panel mode
             int PANEL_MODE_STATE_PREVIOUS = savedInstanceState.getInt("PANEL_MODE_STATE");
-            //Get the previous service panel mode if we have settings fragment or other service frame displayed on the screen
-            //SERVICE_PANEL_MODE_STATE_PREVIOUS = savedInstanceState.getInt("SERVICE_PANEL_MODE_STATE_PREVIOUS");
-            Log.d(TAG, "PANEL_MODE_STATE_PREVIOUS: " + PANEL_MODE_STATE_PREVIOUS);
+            ON_ROTATION_FRAMELAYOUT_VISIBLE = savedInstanceState.getInt("ON_ROTATION_FRAMELAYOUT_VISIBLE");
+            ON_ROTATION_ACTIVE_FEED_FRAME = savedInstanceState.getInt("ON_ROTATION_ACTIVE_FEED_FRAME");
+
+            //Check if we changed orientation on the settings frame layout
+            //If TRUE then VISIBLE settings frame. If FALSE then VISIBLE data frame.
+            if(ON_ROTATION_FRAMELAYOUT_VISIBLE == ON_ROTATION_FRAMELAYOUT_VISIBLE_SETTINGS)
+                changeDataContainerVisibility(true);
+            else
+                changeDataContainerVisibility(false);
             //If currently we a in the landscape mode
-            if(getLandscapeOrientation())
-            {
-                //Previous orientation was portrait
-                switch(PANEL_MODE_STATE_PREVIOUS)
-                {
-                    case PANEL_MODE_ONE_PANE_LEFT:
-                        setTwoPaneLeftMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_CENTRAL:
-                        setTwoPaneRightMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_RIGHT:
-                        setTwoPaneRightMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
-                        setOnePaneCentralServiceMode();
-                        break;
-                    default:
-                        break;
-                }
-            }else {
-                //If currently we a in the portrait mode
-                //Previous orientation was landscape
-                switch(PANEL_MODE_STATE_PREVIOUS)
-                {
-                    case PANEL_MODE_ONE_PANE_CENTRAL:
-                        setOnePaneCentralMode();
-                        break;
-                    case PANEL_MODE_TWO_PANE_LEFT: {
-                        //Check the central framelayout contains any fragment. If yes, then set
-                        //the central mode. If not, then set left mode - show feeds list
-                        Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
-                        if(fragment != null)
-                            setOnePaneCentralMode();
-                        else
-                            setOnePaneLeftMode();
+            if (getLandscapeOrientationTablet()) {
+                    //Previous orientation was portrait
+                    switch (PANEL_MODE_STATE_PREVIOUS) {
+                        case PANEL_MODE_ONE_PANE_LEFT:
+                            setTwoPaneLeftMode();
+                            break;
+                        case PANEL_MODE_ONE_PANE_CENTRAL:
+                            //Check if we selected story then load two pane mode where we can see that story
+                            //Else load feeds and stories lists two pane mode
+                            if (ON_ROTATION_ACTIVE_FEED_FRAME == ON_ROTATION_FRAGMENTS_STATE_STORY_VIEWER)
+                                setTwoPaneRightMode();
+                            else
+                                setTwoPaneLeftMode();
+                            break;
+                        case PANEL_MODE_ONE_PANE_RIGHT:
+                            setTwoPaneRightMode();
+                            break;
+                        case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
+                            setOnePaneCentralServiceMode();
+                            break;
+                        default:
+                            break;
                     }
+                } else {
+                    //If currently we a in the portrait mode
+                    //Previous orientation was landscape
+                    switch (PANEL_MODE_STATE_PREVIOUS) {
+                        case PANEL_MODE_ONE_PANE_CENTRAL:
+                            setOnePaneCentralMode();
+                            break;
+                        case PANEL_MODE_TWO_PANE_LEFT: {
+                            //Check what pane to load
+                            if (ON_ROTATION_ACTIVE_FEED_FRAME == ON_ROTATION_FRAGMENTS_STATE_FEED_LIST)
+                                setOnePaneLeftMode();
+                            else
+                                setOnePaneCentralMode();
+                        }
                         break;
-                    case PANEL_MODE_TWO_PANE_RIGHT:
-                        setOnePaneRightMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
-                        setOnePaneCentralServiceMode();
-                        break;
-                    default:
-                        break;
+                        case PANEL_MODE_TWO_PANE_RIGHT:
+                            setOnePaneRightMode();
+                            break;
+                        case PANEL_MODE_ONE_PANE_CENTRAL_SERVICE:
+                            setOnePaneCentralServiceMode();
+                            break;
+                        default:
+                            break;
+                    }
+                    //Add padding for left frame. If we don't do that, then after we change orientation,
+                    // floating button would be below screen edge
+                    addBottomPadding(containerLeftId);
                 }
 
-                //Add padding for left frame. If we don't do that, then after we change orientation,
-                // floating button would be below screen edge
-                addBottomPadding(containerLeftId);
-            }
         }
     }
 
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("PANEL_MODE_STATE", PANEL_MODE_STATE);
-        savedInstanceState.putInt("SERVICE_PANEL_MODE_STATE_PREVIOUS", SERVICE_PANEL_MODE_STATE_PREVIOUS);
+        savedInstanceState.putInt("ON_ROTATION_FRAMELAYOUT_VISIBLE", ON_ROTATION_FRAMELAYOUT_VISIBLE);
+        savedInstanceState.putInt("ON_ROTATION_ACTIVE_FEED_FRAME", ON_ROTATION_ACTIVE_FEED_FRAME);
     }
 
     private void setOnePaneLeftMode()
@@ -269,7 +284,7 @@ public class MainActivity extends AppCompatActivity
         PANEL_MODE_STATE = PANEL_MODE_ONE_PANE_RIGHT;
     }
 
-    private boolean getLandscapeOrientation()
+    private boolean getLandscapeOrientationTablet()
     {
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
 
@@ -326,15 +341,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onSuccessAuthorization() {
-
         //Read saved session token
         String token = sharedPref.getString(getString(R.string.preferences_token), "");
         //Set current session token
         userSessionInfo.setToken(token);
 
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+        clearFrameLayoutView(containercentralId);
 
         //remove login dragment
         Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
@@ -366,7 +378,9 @@ public class MainActivity extends AppCompatActivity
 
     public void showFeedStoriesFragment(boolean slideInRightSlideOutLeft)
     {
-        if(!getLandscapeOrientation()) {
+        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST;
+
+        if(!getLandscapeOrientationTablet()) {
             setOnePaneCentralMode();
         }
 
@@ -375,38 +389,28 @@ public class MainActivity extends AppCompatActivity
 
     private void placeStoriesListToFragment(boolean slideInRightSlideOutLeft)
     {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
-        if (!(fragment instanceof FeedStoriesFragment)){
+        removeBottomPadding();
 
-            removeBottomPadding();
+        clearFrameLayoutView(containercentralId);
 
-            //Clear view
-            FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-            fl.removeAllViews();
+        // Create fragment
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if(slideInRightSlideOutLeft)
+            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+        else
+            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-            // Create fragment
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            if(slideInRightSlideOutLeft)
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            else
-                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
-            FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
-            fragmentTransaction.replace(containercentralId, feedStoriesFragment);
-            fragmentTransaction.addToBackStack("feedStoriesFragment");
-            fragmentTransaction.commit();
-        }
+        FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
+        fragmentTransaction.replace(containercentralId, feedStoriesFragment);
+        fragmentTransaction.addToBackStack("feedStoriesFragment");
+        fragmentTransaction.commit();
     }
+
     public void onNewFeedAddAction()
     {
-        SERVICE_PANEL_MODE_STATE_PREVIOUS = PANEL_MODE_STATE;
-        setOnePaneCentralMode();
-
         addBottomPadding(containercentralId);
 
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+        clearFrameLayoutView(containercentralId);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Bundle data = new Bundle();
@@ -419,19 +423,13 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(containercentralId, newFeedFragment);
         fragmentTransaction.addToBackStack("newFeedFragment");
         fragmentTransaction.commit();
-
     }
 
     public void onFeedEdit()
     {
-        SERVICE_PANEL_MODE_STATE_PREVIOUS = PANEL_MODE_STATE;
-        setOnePaneCentralMode();
-
         addBottomPadding(containercentralId);
 
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+        clearFrameLayoutView(containercentralId);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Bundle data = new Bundle();
@@ -453,7 +451,9 @@ public class MainActivity extends AppCompatActivity
 
     public void loadStoryFragment()
     {
-        if(getLandscapeOrientation()) {
+        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_STORY_VIEWER;
+
+        if(getLandscapeOrientationTablet()) {
             setTwoPaneRightMode();
         }
         else {
@@ -461,12 +461,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         ShowToolbar();
-
         removeBottomPadding();
-
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containerRightId);
-        fl.removeAllViews();
+        clearFrameLayoutView(containerRightId);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
@@ -487,7 +483,16 @@ public class MainActivity extends AppCompatActivity
 
     public void goBackToStoriesList()
     {
-        showFeedStoriesFragment(false);
+        //If we are not in landscape mode and this is not a tablet
+        if(!getLandscapeOrientationTablet())
+            showFeedStoriesFragment(false);
+    }
+
+    public void clearFrameLayoutView(int viewId)
+    {
+        //Clear view
+        FrameLayout fl = (FrameLayout) findViewById(viewId);
+        fl.removeAllViews();
     }
 
     public void LoadLoginFragment()
@@ -500,57 +505,71 @@ public class MainActivity extends AppCompatActivity
         loginFragment = new LoginFragment();
 
         //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+        clearFrameLayoutView(containercentralId);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         fragmentTransaction.replace(containercentralId, loginFragment);
-        //fragmentTransaction.addToBackStack("loginFragment);
         fragmentTransaction.commit();
     }
 
     public void LoadFeedsListFragment()
     {
-        if(getLandscapeOrientation()) {
+        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_FEED_LIST;
+
+        if(getLandscapeOrientationTablet()) {
             setTwoPaneLeftMode();
         }
         else {
             setOnePaneLeftMode();
         }
 
-        Fragment fragment = getSupportFragmentManager().findFragmentById(containerLeftId);
-        if (!(fragment instanceof FeedsListFragment)) {
-            addBottomPadding(containerLeftId);
+        addBottomPadding(containerLeftId);
+        clearFrameLayoutView(containerLeftId);
 
-            //Clear view
-            FrameLayout fl = (FrameLayout) findViewById(containerLeftId);
-            fl.removeAllViews();
+        FeedsListFragment feedsListFragment = new FeedsListFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+        fragmentTransaction.replace(containerLeftId, feedsListFragment);
+        fragmentTransaction.addToBackStack("feedsListFragment");
+        fragmentTransaction.commit();
+    }
 
-            FeedsListFragment feedsListFragment = new FeedsListFragment();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            fragmentTransaction.replace(containerLeftId, feedsListFragment);
-            fragmentTransaction.addToBackStack("feedsListFragment");
-            fragmentTransaction.commit();
+    private void setFrameLayoutVisibility(int viewId, int visibilityState)
+    {
+        FrameLayout fl = (FrameLayout) findViewById(viewId);
+        fl.setVisibility(visibilityState);
+    }
+
+    public void changeDataContainerVisibility(boolean hideDataContainer)
+    {
+        if(hideDataContainer) {
+            setFrameLayoutVisibility(R.id.data_container, View.INVISIBLE);
+            setFrameLayoutVisibility(R.id.settings_container, View.VISIBLE);
+            ON_ROTATION_FRAMELAYOUT_VISIBLE = ON_ROTATION_FRAMELAYOUT_VISIBLE_SETTINGS;
         }
+        else {
+            setFrameLayoutVisibility(R.id.data_container, View.VISIBLE);
+            setFrameLayoutVisibility(R.id.settings_container, View.GONE);
+            ON_ROTATION_FRAMELAYOUT_VISIBLE = ON_ROTATION_FRAMELAYOUT_VISIBLE_DATA;
+        }
+    }
+
+    public int getSettingsFrameVisibility()
+    {
+        FrameLayout fl2 = (FrameLayout) findViewById(R.id.settings_container);
+        return fl2.getVisibility();
     }
 
     public void ShowSettingsFragment()
     {
-        SERVICE_PANEL_MODE_STATE_PREVIOUS = PANEL_MODE_STATE;
-        setOnePaneCentralServiceMode();
-
-        removeBottomPadding();
-
-        //Clear view
-        FrameLayout fl = (FrameLayout) findViewById(containercentralId);
-        fl.removeAllViews();
+        changeDataContainerVisibility(true);
+        clearFrameLayoutView(R.id.settings_container);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
         SettingsFragment settingsFragment = new SettingsFragment();
-        fragmentTransaction.replace(containercentralId, settingsFragment);
+        fragmentTransaction.replace(R.id.settings_container, settingsFragment);
         fragmentTransaction.addToBackStack("settingsFragment");
         fragmentTransaction.commit();
     }
@@ -624,50 +643,32 @@ public class MainActivity extends AppCompatActivity
             finish();
         }
         else {
-
             //First check if we get back from service windows
-            Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
-            if (fragment instanceof SettingsFragment){
-                switch (SERVICE_PANEL_MODE_STATE_PREVIOUS) {
-                    case PANEL_MODE_ONE_PANE_LEFT:
-                        setOnePaneLeftMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_CENTRAL:
-                        setOnePaneCentralMode();
-                        break;
-                    case PANEL_MODE_ONE_PANE_RIGHT:
-                        setOnePaneRightMode();
-                        break;
-                    case PANEL_MODE_TWO_PANE_LEFT:
-                        setTwoPaneLeftMode();
-                        break;
-                    case PANEL_MODE_TWO_PANE_RIGHT:
-                        setTwoPaneRightMode();
-                        break;
-                    default:
-                        super.onBackPressed();
-                        ShowToolbar();
-                        break;
-                }
-                //Return back content for the central fragment
-                placeStoriesListToFragment(true);
+            if (getSettingsFrameVisibility() == View.VISIBLE){
+                changeDataContainerVisibility(false);
+
                 return;
             } else {
-
                 switch (PANEL_MODE_STATE) {
                     case PANEL_MODE_ONE_PANE_LEFT:
                         finish();
                         break;
                     case PANEL_MODE_ONE_PANE_CENTRAL:
+                        //Indicator that we returned to a feeds list
+                        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_FEED_LIST;
                         setOnePaneLeftMode();
                         break;
                     case PANEL_MODE_ONE_PANE_RIGHT:
+                        //Indicator that we returned to a stories list
+                        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST;
                         setOnePaneCentralMode();
                         break;
                     case PANEL_MODE_TWO_PANE_LEFT:
                         finish();
                         break;
                     case PANEL_MODE_TWO_PANE_RIGHT:
+                        //Indicator that we returned to a stories list
+                        ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST;
                         setTwoPaneLeftMode();
                         break;
                     default:
@@ -676,13 +677,6 @@ public class MainActivity extends AppCompatActivity
                         break;
                 }
             }
-
-           /* Fragment fragment = getSupportFragmentManager().findFragmentById(containercentralId);
-            if (fragment instanceof FeedsListFragment) {
-                super.onBackPressed();
-                ShowToolbar();
-                //Add bottom padding if we returned back to the feeds list fragment
-                addBottomPadding();*/
         }
     }
 
@@ -708,7 +702,7 @@ public class MainActivity extends AppCompatActivity
     //Padding for a floating buttons
     private void addBottomPadding(int containerId)
     {
-        if(getLandscapeOrientation())
+        if(getLandscapeOrientationTablet())
             return;
 
         int navHeight = getNavHeight();
@@ -740,19 +734,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onUnauthorizedEvent() {
-
-        LoadLoginFragment();
-
-        //Show error message. We ru it on ui thread because we call this event from another thread,
+        //Show error message. We run it on the ui thread because we call this event from another thread,
         // otherwise we get exception
         runOnUiThread(new Runnable()
         {
             public void run()
             {
+                LoadLoginFragment();
                 Toast.makeText(getApplicationContext(), getString(R.string.invalid_token), Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
     @Override

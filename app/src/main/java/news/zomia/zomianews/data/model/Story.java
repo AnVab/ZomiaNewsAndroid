@@ -45,7 +45,7 @@ public class Story {
 
         Story story = (Story) obj;
 
-        return story != null && story.getFeedId() == this.getFeedId() &&
+        return story.getFeedId() == this.getFeedId() &&
                 story.getStoryId() == this.getStoryId() &&
                 story.getTitle() == this.getTitle() &&
                 story.getDate() == this.getDate() &&
