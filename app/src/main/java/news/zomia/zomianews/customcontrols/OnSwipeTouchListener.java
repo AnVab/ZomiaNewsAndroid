@@ -35,6 +35,9 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
     public void onSwipeDown() {
     }
 
+    public void onScrollValue(float yValue) {
+    }
+
     public boolean onTouch(View v, MotionEvent event) {
         gestureDetector.onTouchEvent(event);
 
@@ -51,6 +54,12 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
         @Override
         public boolean onDown(MotionEvent event) {
             return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY){
+            onScrollValue(distanceY);
+            return super.onScroll(e1, e2, distanceX, distanceY);
         }
 
         @Override

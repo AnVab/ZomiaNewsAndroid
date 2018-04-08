@@ -707,7 +707,7 @@ public class MainActivity extends AppCompatActivity
 
         int navHeight = getNavHeight();
         if (navHeight > 0) {
-            (findViewById(containerId)).setPadding(0, 0, 0, (int)(navHeight * 1.3));
+            (findViewById(containerId)).setPadding(0, 0, 0, (int)(navHeight * 1.2));
         }
     }
 

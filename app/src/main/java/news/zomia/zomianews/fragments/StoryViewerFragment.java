@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.Guideline;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
@@ -71,7 +74,9 @@ public class StoryViewerFragment extends Fragment
 
     SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-
+    Guideline loadNextGuideline;
+    ProgressBar nextStoryLoadProgressBar;
+    private float loadNextGuidelineDefaultPercentage = 1.15f;
     //Web view scrolling states
     public static final int WEBVIEW_SCROLLING = 0;
     public static final int WEBVIEW_AT_BOTTOM = 1;
@@ -79,7 +84,7 @@ public class StoryViewerFragment extends Fragment
 
     private Story currentStory;
     private String storyDateText;
-
+    private float bottomRefreshLayoutValue = 0;
     public StoryViewerFragment() {
         // Required empty public constructor
     }
@@ -126,6 +131,8 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.setScrollbarFadingEnabled(true);
         storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
 
+        loadNextGuideline = (Guideline) view.findViewById(R.id.loadNextGuideline );
+        nextStoryLoadProgressBar = (ProgressBar)  view.findViewById(R.id.nextStoryLoadProgressBar);
 
         onSwipeTouchListener = new OnSwipeTouchListener(getActivity()) {
             @Override
@@ -140,8 +147,35 @@ public class StoryViewerFragment extends Fragment
 
             @Override
             public void onSwipeUp() {
-                if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
+                /*if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
                     goToNextNews();
+                }*/
+            }
+
+            @Override
+            public void onScrollValue(float yValue) {
+                if(yValue < 0)
+                    collapseNextPageBottomProgress();
+
+                if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM)
+                {
+                    if(nextStoryLoadProgressBar.getVisibility() == View.GONE)
+                        nextStoryLoadProgressBar.setVisibility(View.VISIBLE);
+
+                    if(yValue < 0)
+                        bottomRefreshLayoutValue -= 1;
+                    else
+                        bottomRefreshLayoutValue += 1;
+
+                    float value = loadNextGuidelineDefaultPercentage - bottomRefreshLayoutValue * 100 / 200/ 30;
+                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) loadNextGuideline.getLayoutParams();
+                    params.guidePercent = value;
+
+                    //Log.d(TAG, "onSwipeUpValue: " + yValue + " " + value);
+                    loadNextGuideline.setLayoutParams(params);
+
+                    if(value < 0.8f)
+                        goToNextNews();
                 }
             }
         };
@@ -193,8 +227,12 @@ public class StoryViewerFragment extends Fragment
                             break;
                     }
                 }
-                else
+                else {
                     WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
+
+                    //Hide the next page loading indicator
+                    collapseNextPageBottomProgress();
+                }
             }
         });
 
@@ -211,6 +249,14 @@ public class StoryViewerFragment extends Fragment
                 }
             }
         });
+    }
+
+    private void collapseNextPageBottomProgress()
+    {
+        bottomRefreshLayoutValue = 0.0f;
+        nextStoryLoadProgressBar.setVisibility(View.GONE);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) loadNextGuideline.getLayoutParams();
+        params.guidePercent = loadNextGuidelineDefaultPercentage;
     }
 
     @Override
@@ -239,7 +285,10 @@ public class StoryViewerFragment extends Fragment
     {
         //onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
+
+        collapseNextPageBottomProgress();
     }
+
     private void ongetCurrentStory(Resource<Story> resource) {
         // Update the UI.
         if (resource != null && resource.data != null) {
