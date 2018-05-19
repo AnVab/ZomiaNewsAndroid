@@ -15,4 +15,10 @@
         parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="SignInButton" parent="@style/Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/login_button_color_normal</item>
+        <item name="android:textColor">@color/login_button_text_normal</item>
+    </style>
+
 </resources>
