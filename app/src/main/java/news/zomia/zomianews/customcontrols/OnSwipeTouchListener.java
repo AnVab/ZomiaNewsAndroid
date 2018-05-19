@@ -35,11 +35,25 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
     public void onSwipeDown() {
     }
 
+    public void onTouchEnd() {
+    }
+
     public void onScrollValue(float yValue) {
     }
 
     public boolean onTouch(View v, MotionEvent event) {
         gestureDetector.onTouchEvent(event);
+
+        switch (event.getAction()) {
+            //case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                onTouchEnd();
+
+                break;
+        }
+
+
 
         //stop default scroll action
         if(event.getAction()== MotionEvent.ACTION_MOVE) {

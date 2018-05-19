@@ -408,6 +408,8 @@ public class MainActivity extends AppCompatActivity
 
     public void onNewFeedAddAction()
     {
+        setOnePaneCentralMode();
+
         addBottomPadding(containercentralId);
 
         clearFrameLayoutView(containercentralId);
@@ -427,6 +429,7 @@ public class MainActivity extends AppCompatActivity
 
     public void onFeedEdit()
     {
+        setOnePaneCentralMode();
         addBottomPadding(containercentralId);
 
         clearFrameLayoutView(containercentralId);

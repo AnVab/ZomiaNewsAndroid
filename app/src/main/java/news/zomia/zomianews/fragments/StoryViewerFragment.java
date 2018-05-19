@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Guideline;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -52,7 +54,8 @@ import news.zomia.zomianews.di.Injectable;
  * A simple {@link Fragment} subclass.
  */
 public class StoryViewerFragment extends Fragment
-        implements SwipeRefreshLayout.OnRefreshListener,
+        implements
+
         LifecycleRegistryOwner,
         Injectable {
 
@@ -72,10 +75,10 @@ public class StoryViewerFragment extends Fragment
     @Inject
     DataRepository dataRepo;
 
-    SwipeRefreshLayout swipeRefreshLayout;
+    SwipyRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-    Guideline loadNextGuideline;
-    ProgressBar nextStoryLoadProgressBar;
+    //Guideline loadNextGuideline;
+    //ProgressBar nextStoryLoadProgressBar;
     private float loadNextGuidelineDefaultPercentage = 1.15f;
     //Web view scrolling states
     public static final int WEBVIEW_SCROLLING = 0;
@@ -112,14 +115,32 @@ public class StoryViewerFragment extends Fragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
+        storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
+        swipeRefreshLayout = (SwipyRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh(SwipyRefreshLayoutDirection direction) {
+                if(direction == SwipyRefreshLayoutDirection.TOP)
+                {
+                    if(storyPageViewer != null) {
+                        loadContent(true);
+                    }
+                }
+                else
+                {
+                    //if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
+                        goToNextNews();
+                    //}
+                }
+            }
+        });
+
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
+
         storyPageViewer.getSettings().setJavaScriptEnabled(true);
         storyPageViewer.getSettings().setDomStorageEnabled(true);
         storyPageViewer.getSettings().setAllowFileAccess(true);
@@ -131,8 +152,8 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.setScrollbarFadingEnabled(true);
         storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
 
-        loadNextGuideline = (Guideline) view.findViewById(R.id.loadNextGuideline );
-        nextStoryLoadProgressBar = (ProgressBar)  view.findViewById(R.id.nextStoryLoadProgressBar);
+        //loadNextGuideline = (Guideline) view.findViewById(R.id.loadNextGuideline );
+        //nextStoryLoadProgressBar = (ProgressBar)  view.findViewById(R.id.nextStoryLoadProgressBar);
 
         onSwipeTouchListener = new OnSwipeTouchListener(getActivity()) {
             @Override
@@ -152,7 +173,7 @@ public class StoryViewerFragment extends Fragment
                 }*/
             }
 
-            @Override
+            /*@Override
             public void onScrollValue(float yValue) {
                 if(yValue < 0)
                     collapseNextPageBottomProgress();
@@ -177,7 +198,7 @@ public class StoryViewerFragment extends Fragment
                     if(value < 0.8f)
                         goToNextNews();
                 }
-            }
+            }*/
         };
 
         //Get scroll view to detect when we reach end of the webview
@@ -231,7 +252,7 @@ public class StoryViewerFragment extends Fragment
                     WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
 
                     //Hide the next page loading indicator
-                    collapseNextPageBottomProgress();
+                    //collapseNextPageBottomProgress();
                 }
             }
         });
@@ -251,13 +272,13 @@ public class StoryViewerFragment extends Fragment
         });
     }
 
-    private void collapseNextPageBottomProgress()
+    /*private void collapseNextPageBottomProgress()
     {
         bottomRefreshLayoutValue = 0.0f;
         nextStoryLoadProgressBar.setVisibility(View.GONE);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) loadNextGuideline.getLayoutParams();
         params.guidePercent = loadNextGuidelineDefaultPercentage;
-    }
+    }*/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -286,7 +307,7 @@ public class StoryViewerFragment extends Fragment
         //onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
 
-        collapseNextPageBottomProgress();
+       // collapseNextPageBottomProgress();
     }
 
     private void ongetCurrentStory(Resource<Story> resource) {
@@ -323,13 +344,6 @@ public class StoryViewerFragment extends Fragment
 
             serverUrl = "http://" + serverAddress + ":" + serverPort;
             new GetPage(serverUrl, currentStory, dataRepo.getFeedDao(), forceUpdate).execute();
-        }
-    }
-
-    @Override
-    public void onRefresh() {
-        if(storyPageViewer != null) {
-            loadContent(true);
         }
     }
 

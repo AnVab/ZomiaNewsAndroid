@@ -64,4 +64,7 @@ dependencies {
 
     //HTML
     compile 'org.jsoup:jsoup:1.10.3'
+
+    //SwipeRefreshBottom
+    compile 'com.github.orangegangsters:swipy:1.2.3@aar'
 }
