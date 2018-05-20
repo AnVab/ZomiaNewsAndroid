@@ -8,13 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.FeedStoriesCount;
@@ -109,6 +114,23 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         else
             storiesCountTextView.setText("0");
 
+        ImageView faviconImageView = (ImageView)  view.findViewById(R.id.faviconImageView);
+
+        //Load feed favicon. If image not loaded, show default icon.
+        String faviconUrl = feed.getIcon();
+        if (faviconUrl != null && !faviconUrl.isEmpty()) {
+            //final int radius = 50;
+            //final int margin = 0;
+            //final Transformation transformation = new RoundedCornersTransformation(radius, margin);
+            Picasso.with(viewGroup.getContext())
+                    .load(faviconUrl)
+                    .fit()
+                    .centerCrop()
+                    .placeholder(R.drawable.progress_animation)
+                    .error(R.drawable.error_image)
+                    //.transform(transformation)
+                    .into(faviconImageView);
+        }
         return view;
     }
 

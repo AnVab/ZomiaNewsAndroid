@@ -50,6 +50,14 @@ public class Feed {
     @SerializedName("image")
     private String image;
 
+    @Expose
+    @SerializedName("broken")
+    private Boolean broken;
+
+    @Expose
+    @SerializedName("icon")
+    private String icon;
+
     public Integer getFId() {
         return fId;
     }
@@ -112,6 +120,22 @@ public class Feed {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Boolean getBroken() {
+        return broken;
+    }
+
+    public void setBroken(Boolean broken) {
+        this.broken = broken;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     @Override
