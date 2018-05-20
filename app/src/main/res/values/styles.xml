@@ -9,6 +9,9 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
+
+        <item name="android:textViewStyle">@style/customfontstyle</item>
+        <item name="android:expandableListViewStyle">@style/customfontstyle</item>
     </style>
 
     <style name="AppAlertDialog"
@@ -21,4 +24,7 @@
         <item name="android:textColor">@color/login_button_text_normal</item>
     </style>
 
+    <style name="customfontstyle">
+        <item name="android:fontFamily">@font/firasans</item>
+    </style>
 </resources>
