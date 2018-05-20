@@ -11,4 +11,6 @@
     <color name="login_button_text_normal">#2d4aa1</color>
     <color name="signup_button_text_normal">#ffffff</color>
     <color name="login_password_color">@android:color/white</color>
+    <color name="feeds_list_group">@android:color/white</color>
+    <color name="feeds_list_item">#efefef</color>
 </resources>
