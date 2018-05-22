@@ -4,9 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="selected_overlay">#FF4081</color>
-    <color name="story_status_unread">#ff0000</color>
-    <color name="story_status_reading">#008000</color>
-    <color name="story_status_read">#0000ff</color>
+    <color name="story_status_unread">#aeea00</color>
+    <color name="story_status_reading">#ffe030</color>
+    <color name="story_status_read">#ffffff</color>
     <color name="login_button_color_normal">#ffe030</color>
     <color name="login_button_text_normal">#2d4aa1</color>
     <color name="signup_button_text_normal">#ffffff</color>

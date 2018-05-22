@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -144,7 +146,8 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         ImageView storyImageView;
         TextView storyTitleTextView;
         TextView storyDateTextView;
-        View selectedOverlay;
+        TextView statusTextView;
+        TextView storyFirstSentenceTextView;
 
         private ClickListener listener;
 
@@ -154,7 +157,8 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             storyImageView = (ImageView)itemView.findViewById(R.id.storyImageView);
             storyTitleTextView = (TextView)itemView.findViewById(R.id.storyTitleTextView);
             storyDateTextView = (TextView)itemView.findViewById(R.id.storyDateTextView);
-            selectedOverlay = itemView.findViewById(R.id.selected_overlay);
+            statusTextView = (TextView)itemView.findViewById(R.id.statusTextView);
+            storyFirstSentenceTextView = (TextView)itemView.findViewById(R.id.storyFirstSentenceTextView);
 
             this.listener = listener;
 
@@ -193,19 +197,20 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
                 //Load img from a story. If image not loaded, show default icon.
                 if (storyUrl != null && !storyUrl.isEmpty()) {
-                    final int radius = 25;
-                    final int margin = 0;
-                    final Transformation transformation = new RoundedCornersTransformation(radius, margin);
+                    //final int radius = 25;
+                    //final int margin = 0;
+                    //final Transformation transformation = new RoundedCornersTransformation(radius, margin);
                     Picasso.with(context)
                             .load(storyUrl)
                             .fit()
                             .centerCrop()
                             .placeholder(R.drawable.progress_animation)
                             .error(R.drawable.error_image)
-                            .transform(transformation)
+                            //.transform(transformation)
                             .into(storyImageView);
                 } else {
-                    storyImageView.setImageResource(R.drawable.image_icon);
+                    //storyImageView.setImageResource(R.drawable.image_icon);
+                    storyImageView.setVisibility(View.GONE);
                 }
 
                 storyTitleTextView.setText(story.getTitle());
@@ -215,29 +220,33 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 Timestamp tmp = new Timestamp(story.getDate() / 1000);
                 Date dateToStr = new Date(tmp.getTime());
                 String dateString = formatter.format(dateToStr);
+                storyDateTextView.setText(dateString);
+
                 String statusString = context.getString(R.string.status);
                 String statusValue = "";
                 switch(StoryStatus.getValue(story.getStatus()))
                 {
                     case to_read:
                         statusValue = context.getString(R.string.status_unread);
-                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
+                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
                         break;
                     case reading:
                         statusValue = context.getString(R.string.status_reading);
-                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_reading, null));
+                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_reading, null));
                         break;
                     case read:
                         statusValue = context.getString(R.string.status_read);
-                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_read, null));
+                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_read, null));
                         break;
                     default:
                         statusValue = context.getString(R.string.status_unread);
-                        selectedOverlay.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
+                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
                         break;
-
                 }
-                storyDateTextView.setText(dateString + " " + statusString + ": " + statusValue);
+                statusTextView.setText(statusValue);
+
+                //get first sentences from the story text
+                storyFirstSentenceTextView.setText(StringUtils.left(story.getContent(), 200));
             }
         }
 
