@@ -82,6 +82,10 @@ public class Story {
     @Expose
     private String content;
 
+    @SerializedName("short_text")
+    @Expose
+    private String shortText;
+
     @SerializedName("status")
     @Expose
     private Integer status;
@@ -177,5 +181,13 @@ public class Story {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getShortText() {
+        return shortText;
+    }
+
+    public void setShortText(String shortText) {
+        this.shortText = shortText;
     }
 }

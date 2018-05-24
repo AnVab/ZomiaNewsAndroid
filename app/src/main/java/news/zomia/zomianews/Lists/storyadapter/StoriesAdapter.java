@@ -2,6 +2,8 @@ package news.zomia.zomianews.Lists.storyadapter;
 
 import android.arch.paging.PagedListAdapter;
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -148,6 +150,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         TextView storyDateTextView;
         TextView statusTextView;
         TextView storyFirstSentenceTextView;
+        ConstraintLayout constraintLayout;
 
         private ClickListener listener;
 
@@ -159,7 +162,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             storyDateTextView = (TextView)itemView.findViewById(R.id.storyDateTextView);
             statusTextView = (TextView)itemView.findViewById(R.id.statusTextView);
             storyFirstSentenceTextView = (TextView)itemView.findViewById(R.id.storyFirstSentenceTextView);
-
+            constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraintLayout);
             this.listener = listener;
 
             itemView.setOnClickListener(this);
@@ -211,6 +214,19 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 } else {
                     //storyImageView.setImageResource(R.drawable.image_icon);
                     storyImageView.setVisibility(View.GONE);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(constraintLayout);
+
+                    constraintSet.clear(R.id.statusTextView, ConstraintSet.TOP);
+                    constraintSet.connect(R.id.statusTextView, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 8);
+                    constraintSet.connect(R.id.statusTextView, ConstraintSet.BOTTOM, R.id.storyTitleTextView, ConstraintSet.TOP, 8);
+
+                    constraintSet.connect(R.id.storyDateTextView,ConstraintSet.START,R.id.statusTextView,ConstraintSet.END,8);
+                    constraintSet.connect(R.id.storyDateTextView,ConstraintSet.TOP,R.id.statusTextView,ConstraintSet.TOP,8);
+
+                    constraintSet.connect(R.id.storyFirstSentenceTextView,ConstraintSet.TOP,R.id.storyTitleTextView,ConstraintSet.BOTTOM,8);
+                    constraintSet.applyTo(constraintLayout);
                 }
 
                 storyTitleTextView.setText(story.getTitle());
@@ -246,7 +262,9 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 statusTextView.setText(statusValue);
 
                 //get first sentences from the story text
-                storyFirstSentenceTextView.setText(StringUtils.left(story.getContent(), 200));
+                String shortText = story.getShortText();
+                if(shortText != null)
+                    storyFirstSentenceTextView.setText(shortText);
             }
         }
 

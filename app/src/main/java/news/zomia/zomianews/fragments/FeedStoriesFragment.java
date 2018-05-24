@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -104,6 +105,8 @@ public class FeedStoriesFragment extends Fragment implements
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         storiesListView.setLayoutManager(llm);
+
+        storiesListView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
     }
 
     @Override

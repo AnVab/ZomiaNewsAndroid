@@ -8,6 +8,7 @@
     tools:layout_editor_absoluteY="81dp">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -20,20 +21,21 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:textSize="18sp"
+            android:ellipsize="marquee"
+            android:maxLines="3"
+            android:textSize="13sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/storyFirstSentenceTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/storyImageView"
             app:layout_constraintTop_toBottomOf="@+id/storyDateTextView"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_goneMarginLeft="16dp" />
 
         <ImageView
             android:id="@+id/storyImageView"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             app:layout_constraintDimensionRatio="w,4:3"
@@ -52,16 +54,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/storyImageView"
-            app:layout_constraintTop_toTopOf="@+id/storyImageView" />
+            app:layout_constraintTop_toTopOf="@+id/storyImageView"
+            app:layout_goneMarginLeft="16dp" />
 
         <TextView
             android:id="@+id/statusTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintBottom_toTopOf="@+id/storyImageView"
             app:layout_constraintStart_toStartOf="@+id/storyImageView"
-            app:layout_constraintTop_toTopOf="@+id/storyImageView" />
+            app:layout_constraintTop_toTopOf="@+id/storyImageView"
+            app:layout_goneMarginLeft="16dp"
+            app:layout_goneMarginTop="8dp" />
 
         <TextView
             android:id="@+id/storyFirstSentenceTextView"
@@ -71,6 +76,9 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="4"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
