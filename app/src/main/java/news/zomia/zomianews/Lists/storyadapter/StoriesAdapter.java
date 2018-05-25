@@ -244,19 +244,19 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 {
                     case to_read:
                         statusValue = context.getString(R.string.status_unread);
-                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
+                        statusTextView.setBackground(context.getResources().getDrawable(R.drawable.new_status, null));
                         break;
                     case reading:
                         statusValue = context.getString(R.string.status_reading);
-                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_reading, null));
+                        statusTextView.setBackground(context.getResources().getDrawable(R.drawable.reading_status, null));
                         break;
                     case read:
                         statusValue = context.getString(R.string.status_read);
-                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_read, null));
+                        statusTextView.setBackground(context.getResources().getDrawable(R.drawable.read_status, null));
                         break;
                     default:
                         statusValue = context.getString(R.string.status_unread);
-                        statusTextView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.story_status_unread, null));
+                        statusTextView.setBackground(context.getResources().getDrawable(R.drawable.new_status, null));
                         break;
                 }
                 statusTextView.setText(statusValue);
