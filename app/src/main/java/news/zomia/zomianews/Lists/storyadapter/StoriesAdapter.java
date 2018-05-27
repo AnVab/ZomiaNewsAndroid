@@ -2,6 +2,7 @@ package news.zomia.zomianews.Lists.storyadapter;
 
 import android.arch.paging.PagedListAdapter;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.content.res.ResourcesCompat;
@@ -151,6 +152,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         TextView statusTextView;
         TextView storyFirstSentenceTextView;
         ConstraintLayout constraintLayout;
+        View readStatusGray;
 
         private ClickListener listener;
 
@@ -163,6 +165,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             statusTextView = (TextView)itemView.findViewById(R.id.statusTextView);
             storyFirstSentenceTextView = (TextView)itemView.findViewById(R.id.storyFirstSentenceTextView);
             constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraintLayout);
+            readStatusGray = (View) itemView.findViewById(R.id.readStatusGray);
             this.listener = listener;
 
             itemView.setOnClickListener(this);
@@ -253,6 +256,12 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                     case read:
                         statusValue = context.getString(R.string.status_read);
                         statusTextView.setBackground(context.getResources().getDrawable(R.drawable.read_status, null));
+
+                        readStatusGray.setVisibility(View.VISIBLE);
+                        storyImageView.setColorFilter(Color.argb(200,153,153,153));
+                        storyFirstSentenceTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+                        statusTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+                        storyTitleTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
                         break;
                     default:
                         statusValue = context.getString(R.string.status_unread);

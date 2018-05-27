@@ -7,6 +7,16 @@
     android:layout_height="wrap_content"
     tools:layout_editor_absoluteY="81dp">
 
+    <View
+        android:id="@+id/readStatusGray"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:background="@color/read_status_gray_out"
+        android:layerType="software"
+
+        android:visibility="gone" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
@@ -30,6 +40,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/storyImageView"
             app:layout_constraintTop_toBottomOf="@+id/storyDateTextView"
+            app:layout_constraintVertical_bias="0.0"
             app:layout_goneMarginLeft="16dp" />
 
         <ImageView
@@ -37,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             app:layout_constraintDimensionRatio="w,4:3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -50,6 +61,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="8dp"
             android:textAlignment="textStart"
+            android:textColor="@color/story_item_date_text"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -62,6 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/storyImageView"
             app:layout_constraintStart_toStartOf="@+id/storyImageView"
             app:layout_constraintTop_toTopOf="@+id/storyImageView"
@@ -72,7 +85,7 @@
             android:id="@+id/storyFirstSentenceTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="5dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
