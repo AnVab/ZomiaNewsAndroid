@@ -7,7 +7,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
+import android.support.v7.util.DiffUtil;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -26,7 +26,7 @@ import java.util.Date;
                 unique = true)})
 public class Story {
 
-    public static DiffCallback<Story> DIFF_CALLBACK = new DiffCallback<Story>() {
+    public static DiffUtil.ItemCallback<Story> DIFF_CALLBACK = new DiffUtil.ItemCallback<Story>() {
         @Override
         public boolean areItemsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
             return oldItem.getStoryId() == newItem.getStoryId();

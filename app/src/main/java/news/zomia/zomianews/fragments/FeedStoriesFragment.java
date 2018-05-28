@@ -126,7 +126,7 @@ public class FeedStoriesFragment extends Fragment implements
 
         storyViewModel.getStories().observe(this, resource -> {
             // update UI
-            storiesAdapter.setList(resource);
+            storiesAdapter.submitList(resource);
         });
 
         storyViewModel.networkState.observe(this, networkState -> {
