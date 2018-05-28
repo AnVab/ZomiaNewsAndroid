@@ -3,13 +3,11 @@ package news.zomia.zomianews.fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.support.design.chip.Chip;
+import android.support.design.chip.ChipGroup;
 import android.support.v4.app.ActivityCompat;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
@@ -25,7 +23,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -78,13 +76,12 @@ public class NewFeedFragment extends Fragment implements
     FeedViewModelFactory feedViewModelFactory;
 
     private FeedViewModel feedViewModel;
-    private ListView tagsListView;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
     private LiveData<Resource<Boolean>> feedInsertLiveData;
     private LiveData<Resource<Boolean>> feedUpdateLiveData;
     private LiveData<Resource<Boolean>> opmlImportLiveData;
-    TagListAdapter tagsListViewAdapter;
-
+    private TagListAdapter tagsListViewAdapter;
+    private ChipGroup tagsChipGroup;
     //0: new feed; 1: edit feed
     private Integer mode;
 
@@ -119,11 +116,9 @@ public class NewFeedFragment extends Fragment implements
 
         feedSourcePathTextView = (TextView) view.findViewById(R.id.feedSourcePathTextView);
 
-        //Tag list
-        tagsListView = (ListView) view.findViewById(R.id.tagsListView);
+        //Tag list adapter
         tagsListViewAdapter = new TagListAdapter(getActivity());
-        tagsListView.setAdapter(tagsListViewAdapter);
-        tagsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        tagsChipGroup = (ChipGroup) view.findViewById(R.id.tagsChipGroup);
 
         //Add tag to the list button
         FloatingActionButton addTagButton = (FloatingActionButton) view.findViewById(R.id.addTagButton);
@@ -221,12 +216,12 @@ public class NewFeedFragment extends Fragment implements
 
     private String getSelectedTagNames()
     {
-        SparseBooleanArray checkedTags = tagsListView.getCheckedItemPositions();
         StringBuilder tagsSb = new StringBuilder();
-        for (int i = 0; i < checkedTags.size(); i++) {
-            int key = checkedTags.keyAt(i);
-            if(checkedTags.get(key)) {
-                tagsSb.append(tagsListViewAdapter.getTag(key).getName());
+        for(int index = 0; index < tagsChipGroup.getChildCount(); index++) {
+            Chip chip = (Chip) tagsChipGroup.findViewById(tagsListViewAdapter.getTag(index).getTagId());
+            if(chip.isChecked())
+            {
+                tagsSb.append(tagsListViewAdapter.getTag(index).getName());
                 tagsSb.append(" ");
             }
         }
@@ -263,10 +258,47 @@ public class NewFeedFragment extends Fragment implements
     private void onGetTags(Resource<List<Tag>> resource) {
         // update UI
         if (resource != null && resource.data != null) {
-            //Add tags
-            tagsListViewAdapter.replace(resource.data);
+            //Remove previously added tags to the chip group
+            tagsChipGroup.removeAllViews();
+            //Add tags list to the chip group
+            for(Tag tag: resource.data) {
+                Chip chip = new Chip(getActivity());
+                chip.setId(tag.getTagId());
+                chip.setChipText(tag.getName());
+                chip.setCheckable(true);
+                chip.setCheckedIconEnabled(false);
+                chip.setChipCornerRadius(10.f);
 
-            //Update list
+                int[][] states = new int[][] {
+                        new int[] {-android.R.attr.state_checked},
+                        new int[] {android.R.attr.state_checked}
+                };
+
+                int[] colors = new int[] {
+                        getResources().getColor(R.color.tag_list_item_background),
+                        getResources().getColor(R.color.tag_list_item_checked_background)
+                };
+
+                ColorStateList chipColors = new ColorStateList(states, colors);
+                chip.setChipBackgroundColor(chipColors);
+
+                //Add listeners to a chip
+                chip.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton view, boolean isChecked) {
+                    }
+                });
+
+                chip.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                    }
+                });
+                tagsChipGroup.addView(chip);
+            }
+
+            //Add tags to the adapter
+            tagsListViewAdapter.replace(resource.data);
             if(tagsListViewAdapter != null)
                 tagsListViewAdapter.notifyDataSetChanged();
 
@@ -276,13 +308,14 @@ public class NewFeedFragment extends Fragment implements
                 feedSourcePathTextView.setText(feedViewModel.getSelectedFeedId().getValue().getUrl());
                 //get list of tags for the current feed
                 List<Tag> tagsOnFeed = feedViewModel.getTagsForCurrentFeed();
+
                 //select tags for the current feed in the list view
                 if(tagsListViewAdapter != null && tagsOnFeed != null) {
                     for (int i = 0; i < tagsListViewAdapter.getCount(); i++) {
                         Tag tagInTheList = tagsListViewAdapter.getTag(i);
                         for (Tag tag : tagsOnFeed) {
                             if (tag.getTagId() == tagInTheList.getTagId()) {
-                                tagsListView.setItemChecked(i, true);
+                                tagsChipGroup.check(tag.getTagId());
                             }
                         }
                     }
