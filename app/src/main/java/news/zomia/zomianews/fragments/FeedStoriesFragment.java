@@ -106,7 +106,10 @@ public class FeedStoriesFragment extends Fragment implements
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         storiesListView.setLayoutManager(llm);
 
-        storiesListView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(),
+                llm.getOrientation());
+        dividerItemDecoration.setDrawable(getContext().getResources().getDrawable(R.drawable.stories_list_divider));
+        storiesListView.addItemDecoration(dividerItemDecoration);
     }
 
     @Override
