@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/edit_feed"
+        android:title="@string/edit_context_menu_item" />
+
+    <item android:id="@+id/delete_feed"
+        android:title="@string/delete_context_menu_item" />
+
+</menu>
