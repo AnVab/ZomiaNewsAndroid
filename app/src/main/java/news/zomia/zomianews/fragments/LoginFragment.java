@@ -105,8 +105,9 @@ public class LoginFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Gide fragment if we are on this window
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+        //Hide fragment if we are on this window
+        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
+            ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override

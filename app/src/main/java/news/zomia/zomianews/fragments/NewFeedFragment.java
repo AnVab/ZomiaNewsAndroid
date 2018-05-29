@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +28,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -38,11 +36,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import news.zomia.zomianews.Lists.TagListAdapter;
+import news.zomia.zomianews.Lists.feedTypeAdapter.SpinnerFeedTypeAdapter;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Feed;
 import news.zomia.zomianews.data.model.Tag;
@@ -129,10 +130,11 @@ public class NewFeedFragment extends Fragment implements
 
         //Feed channel type
         Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
-        ArrayAdapter<CharSequence> feedTypeListAdapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.channel_categories, android.R.layout.simple_spinner_item);
-        feedTypeListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        feedTypeList.setAdapter(feedTypeListAdapter);
+        ArrayList<CharSequence> feedTypesArray = new ArrayList(Arrays.asList(getResources().getStringArray(R.array.channel_categories)));
+        SpinnerFeedTypeAdapter feedTypeListAdapter2 = new SpinnerFeedTypeAdapter(getContext(),
+                android.R.layout.simple_spinner_item, feedTypesArray);
+        //feedTypeListAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        feedTypeList.setAdapter(feedTypeListAdapter2);
         feedTypeList.setOnItemSelectedListener(this);
 
         opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);
