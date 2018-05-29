@@ -447,9 +447,14 @@ public class NewFeedFragment extends Fragment implements
 
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        Log.d("ZOMIA", "Selected: " + parent.getItemAtPosition(pos));
+        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Youtube") == 0)
+            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.youtube_logo, 0, 0, 0);
+        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("RSS") == 0)
+            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.rss_logo, 0, 0, 0);
+        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Telegram") == 0)
+            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.telegram_logo, 0, 0, 0);
+        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Facebook") == 0)
+            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.facebook_logo, 0, 0, 0);
     }
 
     public void onNothingSelected(AdapterView<?> parent) {

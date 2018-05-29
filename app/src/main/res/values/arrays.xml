@@ -3,5 +3,7 @@
     <string-array name="channel_categories">
         <item>RSS</item>
         <item>Telegram</item>
+        <item>Youtube</item>
+        <item>Facebook</item>
     </string-array>
 </resources>
