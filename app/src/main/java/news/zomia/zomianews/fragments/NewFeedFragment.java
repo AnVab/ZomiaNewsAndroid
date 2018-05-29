@@ -5,7 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
+import android.support.design.button.MaterialButton;
 import android.support.design.chip.Chip;
 import android.support.design.chip.ChipGroup;
 import android.support.v4.app.ActivityCompat;
@@ -19,10 +19,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +32,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -121,11 +120,11 @@ public class NewFeedFragment extends Fragment implements
         tagsChipGroup = (ChipGroup) view.findViewById(R.id.tagsChipGroup);
 
         //Add tag to the list button
-        FloatingActionButton addTagButton = (FloatingActionButton) view.findViewById(R.id.addTagButton);
+        MaterialButton addTagButton = (MaterialButton) view.findViewById(R.id.addTagButton);
         addTagButton.setOnClickListener(addTagButtonOnClickListener);
 
         //Add feed button
-        FloatingActionButton addFeedButton = (FloatingActionButton) view.findViewById(R.id.addFeedButton);
+        MaterialButton addFeedButton = (MaterialButton) view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(addFeedButtonOnClickListener);
 
         //Feed channel type
@@ -268,6 +267,7 @@ public class NewFeedFragment extends Fragment implements
                 chip.setCheckable(true);
                 chip.setCheckedIconEnabled(false);
                 chip.setChipCornerRadius(10.f);
+                chip.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
 
                 int[][] states = new int[][] {
                         new int[] {-android.R.attr.state_checked},
