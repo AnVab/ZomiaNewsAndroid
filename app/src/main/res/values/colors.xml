@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#31beed</color>
     <color name="selected_overlay">#FF4081</color>
+    <color name="action_bar_text_color">@android:color/white</color>
     <color name="story_status_unread">#aeea00</color>
     <color name="story_status_reading">#ffe030</color>
     <color name="story_status_read">#ffffff</color>
@@ -21,4 +22,5 @@
 
     <color name="tag_list_item_background">#dbe1e4</color>
     <color name="tag_list_item_checked_background">#ffe030</color>
+
 </resources>

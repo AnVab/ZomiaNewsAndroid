@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -80,8 +79,10 @@ public class FeedsListFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
+        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().show();
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.feeds_list));
+        }
     }
 
     @Override
@@ -108,16 +109,6 @@ public class FeedsListFragment extends Fragment implements
         //Indicate that this fragment has appbar menu
         setHasOptionsMenu(true);
 
-        //Floating button to add new feeds and tags
-        FloatingActionButton addFeedButton = (FloatingActionButton)view.findViewById(R.id.addFeedButton);
-        addFeedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                onFeedsListListenerCallback.onNewFeedAddAction();
-            }
-        });
-
         //Feeds and tags collection to popullate feeds to the undecided tag group.
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
@@ -142,6 +133,10 @@ public class FeedsListFragment extends Fragment implements
             //Set feed as selected on the viewmodel
             feedViewModel.setSelectedFeed(selectedFeed);
             onFeedsListListenerCallback.onFeedSelected();
+
+            if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(feedViewModel.getSelectedFeedId().getValue().getTitle());
+            }
 
             return true;
         }
@@ -240,6 +235,9 @@ public class FeedsListFragment extends Fragment implements
 
         if (menu.findItem(R.id.menu_refresh) != null)
             menu.findItem(R.id.menu_refresh).setVisible(true);
+
+        if (menu.findItem(R.id.menu_add_channel) != null)
+            menu.findItem(R.id.menu_add_channel).setVisible(true);
     }
 
     @Override
@@ -248,6 +246,10 @@ public class FeedsListFragment extends Fragment implements
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 onRefresh();
+                return true;
+
+            case R.id.menu_add_channel:
+                onFeedsListListenerCallback.onNewFeedAddAction();
                 return true;
 
             default:

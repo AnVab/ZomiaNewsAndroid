@@ -12,6 +12,7 @@
 
         <item name="android:textViewStyle">@style/customfontstyle</item>
         <item name="android:expandableListViewStyle">@style/customfontstyle</item>
+
     </style>
 
     <style name="AppAlertDialog"
@@ -26,5 +27,10 @@
 
     <style name="customfontstyle">
         <item name="android:fontFamily">@font/firasans</item>
+    </style>
+
+    <style name="appBarTheme" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/action_bar_text_color</item>
+        <item name="android:colorControlNormal">@color/action_bar_text_color</item>
     </style>
 </resources>

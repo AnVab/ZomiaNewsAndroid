@@ -469,6 +469,12 @@ public class NewFeedFragment extends Fragment implements
 
         if (menu.findItem(R.id.menu_import_opml) != null)
             menu.findItem(R.id.menu_import_opml).setVisible(true);
+
+        if (menu.findItem(R.id.menu_search) != null)
+            menu.findItem(R.id.menu_search).setVisible(false);
+
+        if (menu.findItem(R.id.menu_refresh) != null)
+            menu.findItem(R.id.menu_refresh).setVisible(false);
     }
 
     @Override

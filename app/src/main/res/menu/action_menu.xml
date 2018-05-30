@@ -36,4 +36,11 @@
         android:icon="@drawable/ic_action_refresh"
         android:visible="false"
         android:title="@string/menu_refresh"/>
+
+    <item
+        android:id="@+id/menu_add_channel"
+        app:showAsAction="collapseActionView|always"
+        android:icon="@drawable/ic_action_add"
+        android:visible="false"
+        android:title="@string/add_feed"/>
 </menu>

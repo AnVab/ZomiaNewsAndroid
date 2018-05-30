@@ -662,6 +662,10 @@ public class MainActivity extends AppCompatActivity
                         //Indicator that we returned to a feeds list
                         ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_FEED_LIST;
                         setOnePaneLeftMode();
+
+                        if(getSupportActionBar() != null)
+                            getSupportActionBar().setTitle(getString(R.string.feeds_list));
+
                         break;
                     case PANEL_MODE_ONE_PANE_RIGHT:
                         //Indicator that we returned to a stories list
