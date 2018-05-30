@@ -131,10 +131,10 @@ public class NewFeedFragment extends Fragment implements
         //Feed channel type
         Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
         ArrayList<CharSequence> feedTypesArray = new ArrayList(Arrays.asList(getResources().getStringArray(R.array.channel_categories)));
-        SpinnerFeedTypeAdapter feedTypeListAdapter2 = new SpinnerFeedTypeAdapter(getContext(),
-                android.R.layout.simple_spinner_item, feedTypesArray);
-        //feedTypeListAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        feedTypeList.setAdapter(feedTypeListAdapter2);
+        SpinnerFeedTypeAdapter feedTypeListAdapter = new SpinnerFeedTypeAdapter(getContext(),
+                R.layout.layout_spinner_feed_type_row, feedTypesArray);
+        feedTypeListAdapter.setDropDownViewResource(R.layout.layout_spinner_feed_type_row);
+        feedTypeList.setAdapter(feedTypeListAdapter);
         feedTypeList.setOnItemSelectedListener(this);
 
         opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);

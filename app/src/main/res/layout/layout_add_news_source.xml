@@ -76,10 +76,13 @@
         android:layout_width="32dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:drawSelectorOnTop="false"
+        android:dropDownWidth="4000dp"
+        android:dropDownVerticalOffset="-7dp"
+        android:overlapAnchor="false"
         app:layout_constraintBottom_toBottomOf="@+id/feedSourcePathTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
-
 
     <android.support.design.button.MaterialButton
         android:id="@+id/addTagButton"
@@ -116,5 +119,5 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addTagButton" />
-
+    
 </android.support.constraint.ConstraintLayout>
