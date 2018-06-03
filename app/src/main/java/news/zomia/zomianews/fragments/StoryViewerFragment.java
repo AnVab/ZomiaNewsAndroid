@@ -373,10 +373,10 @@ public class StoryViewerFragment extends Fragment
 
         return "<style type=\"text/css\">" +
                 "@font-face {" +
-                "font-family: CustomFont;" +
-                "src: url(\"file:///android_asset/fonts/OpenSans-SemiBold.ttf\")}" +
+                "font-family: firasans;" +
+                "src: url(\"file:///android_asset/fonts/firasans_regular.ttf\")}" +
                 "body {" +
-                "font-family: CustomFont;" +
+                "font-family: firasans;" +
                 "font-size: medium;" +
                 "text-align: justify;" +
                 "}" +
