@@ -82,6 +82,7 @@ public class FeedsListFragment extends Fragment implements
         if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().show();
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.feeds_list));
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
     }
 

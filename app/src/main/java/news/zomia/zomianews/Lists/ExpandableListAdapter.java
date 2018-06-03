@@ -103,8 +103,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         TextView item = (TextView) view.findViewById(R.id.titleTextView);
         item.setText(feed.getTitle());
 
-        TextView channelType = (TextView) view.findViewById(R.id.descriptionTextView);
-        channelType.setText("rss");
+        /*TextView channelType = (TextView) view.findViewById(R.id.descriptionTextView);
+        channelType.setText("rss");*/
 
         TextView storiesCountTextView =  (TextView) view.findViewById(R.id.storiesCountTextView);
 
@@ -112,7 +112,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
             storiesCountTextView.setText(feedsStoriesCountMap.get(feed.getFeedId()).toString());
         }
         else
-            storiesCountTextView.setText("0");
+            storiesCountTextView.setVisibility(View.INVISIBLE);
 
         ImageView faviconImageView = (ImageView)  view.findViewById(R.id.faviconImageView);
 
@@ -152,7 +152,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
             itemFeedCount.setText(String.valueOf(this.feedsCollections.get(tag).size()));
         }
         else
-            itemFeedCount.setText(String.valueOf(0));
+            itemFeedCount.setVisibility(View.INVISIBLE);
+
+        ImageView arrowImageView = (ImageView) view.findViewById(R.id.arrowImageView);
+        if (isExpanded) {
+            arrowImageView.setImageResource(R.drawable.ic_keyboard_arrow_down_black_24dp);
+        } else {
+            arrowImageView.setImageResource(R.drawable.ic_keyboard_arrow_up_black_24dp);
+        }
 
         return view;
     }
