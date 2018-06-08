@@ -21,9 +21,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -138,7 +138,33 @@ public class NewFeedFragment extends Fragment implements
         feedTypeList.setOnItemSelectedListener(this);
 
         opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);
+
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_edit_feed_fragment);
+        toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
+        toolbar.setNavigationIcon(R.drawable.ic_action_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
+        //Add menu for the toolbar
+        toolbar.inflateMenu(R.menu.edit_feed_menu);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
     }
+
+    Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch(item.getItemId()){
+                case R.id.menu_import_opml:
+                    openOPMLFile();
+                    return true;
+            }
+            return true;
+        }
+    };
 
     //Click listener for adding new feed
     private View.OnClickListener addTagButtonOnClickListener = new View.OnClickListener() {
@@ -461,35 +487,6 @@ public class NewFeedFragment extends Fragment implements
 
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        if (menu.findItem(R.id.menu_import_opml) != null)
-            menu.findItem(R.id.menu_import_opml).setVisible(true);
-
-        if (menu.findItem(R.id.menu_search) != null)
-            menu.findItem(R.id.menu_search).setVisible(false);
-
-        if (menu.findItem(R.id.menu_refresh) != null)
-            menu.findItem(R.id.menu_refresh).setVisible(false);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_import_opml:
-            {
-                openOPMLFile();
-            }
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public void openOPMLFile()

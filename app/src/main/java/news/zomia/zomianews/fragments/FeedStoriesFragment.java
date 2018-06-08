@@ -12,23 +12,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
-
-import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -88,16 +81,50 @@ public class FeedStoriesFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_feed_stories_fragment);
+        toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
+        toolbar.setNavigationIcon(R.drawable.ic_action_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
+        //Add menu for the toolbar
+        toolbar.inflateMenu(R.menu.stories_list_action_menu);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         return rootView;
     }
+
+    Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch(item.getItemId()){
+                case R.id.menu_refresh:
+                    onRefresh();
+                    return true;
+
+                case android.R.id.home:
+                    getActivity().onBackPressed();
+                    return true;
+
+                case R.id.action_settings:
+                    onStorySelectedListenerCallback.onSettings();
+                    return true;
+
+                case R.id.logout:
+                    onStorySelectedListenerCallback.onLogOut();
+                    return true;
+            }
+            return true;
+        }
+    };
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        //Indicate that this fragment has appbar menu
-        setHasOptionsMenu(true);
-
         //Stories list
         storiesListView = (RecyclerView) view.findViewById(R.id.storiesListView);
         storiesListView.setItemAnimator(null);
@@ -158,30 +185,6 @@ public class FeedStoriesFragment extends Fragment implements
             storyViewModel.setFeedId(resource.getFeedId());
         });
 
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        if (menu.findItem(R.id.menu_search) != null)
-            menu.findItem(R.id.menu_search).setVisible(false);
-
-        if (menu.findItem(R.id.menu_refresh) != null)
-            menu.findItem(R.id.menu_refresh).setVisible(true);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                onRefresh();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -261,5 +264,7 @@ public class FeedStoriesFragment extends Fragment implements
     // Container Activity must implement this interface
     public interface OnStorySelectedListener {
         public void onStorySelected(Story story);
+        public void onSettings();
+        public void onLogOut();
     }
 }

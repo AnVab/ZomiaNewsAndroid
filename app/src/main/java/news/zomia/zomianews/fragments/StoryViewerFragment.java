@@ -7,23 +7,29 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.Guideline;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,6 +44,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.NestedScrollViewTouched;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
@@ -77,9 +84,10 @@ public class StoryViewerFragment extends Fragment
 
     SwipyRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
-    //Guideline loadNextGuideline;
-    //ProgressBar nextStoryLoadProgressBar;
-    private float loadNextGuidelineDefaultPercentage = 1.15f;
+    ImageView expandedImageAppBar;
+    TextView appBarStoryTitle;
+    TextView appBarStoryDate;
+    CollapsingToolbarLayout collapsingToolbar;
     //Web view scrolling states
     public static final int WEBVIEW_SCROLLING = 0;
     public static final int WEBVIEW_AT_BOTTOM = 1;
@@ -98,9 +106,46 @@ public class StoryViewerFragment extends Fragment
 
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_news_viewer, container, false);
+
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.action_toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_action_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
+        //Add menu for the toolbar
+        toolbar.inflateMenu(R.menu.story_viewer_action_menu);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         return rootView;
     }
 
+    Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch(item.getItemId()){
+                case R.id.menu_refresh:
+                    loadContent(true);
+                    return true;
+
+                case android.R.id.home:
+                    getActivity().onBackPressed();
+                    return true;
+
+                case R.id.action_settings:
+                    onStoryViewerListenerCallback.onSettings();
+                    return true;
+
+                case R.id.logout:
+                    onStoryViewerListenerCallback.onLogOut();
+                    return true;
+            }
+            return true;
+        }
+    };
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +159,23 @@ public class StoryViewerFragment extends Fragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        expandedImageAppBar = (ImageView) getActivity().findViewById(R.id.expandedImage );
+        collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsing_toolbar);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            collapsingToolbar.setExpandedTitleTextAppearance(R.style.TransparentText);
+        };
+
+        collapsingToolbar.setCollapsedTitleTextAppearance(R.style.TextAppearance_Zomia_Title_Collapsed);
+        collapsingToolbar.setExpandedTitleTextAppearance(R.style.TextAppearance_Zomia_Title_Expanded);
+
+        collapsingToolbar.setTitle(" ");
+
+        appBarStoryTitle = (TextView) getActivity().findViewById(R.id.appBarStoryTitle );
+        appBarStoryDate = (TextView) getActivity().findViewById(R.id.appBarStoryDate );
+        /*final Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "font/firasans_regular.otf");
+        collapsingToolbar.setCollapsedTitleTypeface(tf);
+        collapsingToolbar.setExpandedTitleTypeface(tf);*/
 
         storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
         swipeRefreshLayout = (SwipyRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
@@ -331,6 +393,24 @@ public class StoryViewerFragment extends Fragment
     {
         if(storyPageViewer != null && currentStory != null) {
 
+            String storyUrl = currentStory.getImage();
+            //Load img from a story. If image not loaded, show default icon.
+            if (storyUrl != null && !storyUrl.isEmpty()) {
+                //final int radius = 15;
+                //final int margin = 0;
+                //final Transformation transformation = new RoundedCornersTransformation(radius, margin);
+                Picasso.with(getActivity())
+                        .load(storyUrl)
+                        .fit()
+                        .centerCrop()
+                        .placeholder(R.drawable.progress_animation)
+                        .error(R.drawable.error_image)
+                        //.transform(transformation)
+                        .into(expandedImageAppBar);
+            } else {
+
+            }
+
             //storyPageViewer.startAnimation(slideLeftAnimation);
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
             //Convert timestamp to milliseconds format
@@ -338,12 +418,16 @@ public class StoryViewerFragment extends Fragment
             Date dateToStr = new Date(tmp.getTime());
             storyDateText = formatter.format(dateToStr);
 
+            appBarStoryTitle.setText(currentStory.getTitle());
+            appBarStoryDate.setText(storyDateText);
+
             String serverUrl = "";
             String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
             String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 
             serverUrl = "http://" + serverAddress + ":" + serverPort;
             new GetPage(serverUrl, currentStory, dataRepo.getFeedDao(), forceUpdate).execute();
+
         }
     }
 
@@ -432,6 +516,8 @@ public class StoryViewerFragment extends Fragment
         //public void showNextStoryFragment();
         //public void showNextStoryFragmentAnimationRight();
         public void goBackToStoriesList();
+        public void onSettings();
+        public void onLogOut();
     }
 
     public class GetPage extends AsyncTask<Void, Void, Void> {

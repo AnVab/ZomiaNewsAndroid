@@ -16,25 +16,12 @@ import news.zomia.zomianews.fragments.StoryViewerFragment;
 
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.Token;
-
-import android.content.res.Configuration;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.Guideline;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.os.Build;
-import android.support.design.widget.AppBarLayout;
-
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -89,20 +76,12 @@ public class MainActivity extends AppCompatActivity
         //Check if the device is a smartphone then use one pane mode
         isTablet = getResources().getBoolean(R.bool.isTablet);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.action_toolbar);
-        setSupportActionBar(myToolbar);
-
-        //Disable appbar scroll flags for tablets in the landscape mode
+        /*//Disable appbar scroll flags for tablets in the landscape mode
         if(getLandscapeOrientationTablet()) {
             AppBarLayout.LayoutParams params =
                     (AppBarLayout.LayoutParams) myToolbar.getLayoutParams();
             params.setScrollFlags(0);
-        }
-        // Get a support ActionBar corresponding to this toolbar
-        ActionBar actionBar = getSupportActionBar();
-        // Enable the Up button
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setBackgroundDrawable( ContextCompat.getDrawable(this, R.drawable.action_bar_color));
+        }*/
 
         ((ZomiaApp) getApplication()).setUnauthorizedInterceptorListener(this);
         ((ZomiaApp) getApplication()).setNetworkConnectionInterceptorListener(this);
@@ -246,6 +225,16 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.commit();
     }
 
+    @Override
+    public void onSettings() {
+        ShowSettingsFragment();
+    }
+
+    @Override
+    public void onLogOut() {
+        logOut();
+    }
+
     public void onStorySelected(Story story)
     {
         loadStoryFragment();
@@ -376,36 +365,6 @@ public class MainActivity extends AppCompatActivity
         ShowToolbar();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.action_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                ShowSettingsFragment();
-                return true;
-
-            case R.id.logout:
-                logOut();
-                return true;
-
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
-
     private void logOut()
     {
         //Reset token in the preferences
@@ -477,8 +436,8 @@ public class MainActivity extends AppCompatActivity
 
     private void ShowToolbar()
     {
-        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
-        appBar.setExpanded(true, true);
+       // AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
+       // appBar.setExpanded(true, true);
     }
 
     @Override

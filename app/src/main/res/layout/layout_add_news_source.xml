@@ -1,123 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayout"
+    android:id="@+id/edit_feed_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:layout_editor_absoluteY="25dp">
+    android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/opmlmportProgressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="67dp"
-        tools:layout_editor_absoluteY="241dp" />
-
-    <EditText
-        android:id="@+id/feedSourcePathTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:drawablePadding="8dp"
-        android:ems="10"
-        android:hint="@string/new_custom_newsfeed_path"
-        android:inputType="text"
-        android:paddingRight="48dp"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-
-    <ScrollView
-        android:id="@+id/scrollView2"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_edit_feed_fragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@+id/addTagButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/feedSourcePathTextView">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_edit_feed_fragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="top|center"
-            android:orientation="vertical">
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:theme="@style/appBarTheme"
+            app:layout_scrollFlags="scroll|enterAlways"/>
+    </android.support.design.widget.AppBarLayout>
 
-            <android.support.design.chip.ChipGroup
-                android:id="@+id/tagsChipGroup"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ProgressBar
+            android:id="@+id/opmlmportProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/addTagButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/addTagButton" />
+
+        <EditText
+            android:id="@+id/feedSourcePathTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:drawablePadding="8dp"
+            android:ems="10"
+            android:hint="@string/new_custom_newsfeed_path"
+            android:inputType="text"
+            android:paddingRight="48dp"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+
+        <ScrollView
+            android:id="@+id/scrollView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@+id/addTagButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/feedSourcePathTextView">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:chipSpacing="8dp"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="78dp">
+                android:gravity="top|center"
+                android:orientation="vertical">
 
-            </android.support.design.chip.ChipGroup>
-        </LinearLayout>
-    </ScrollView>
+                <android.support.design.chip.ChipGroup
+                    android:id="@+id/tagsChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:chipSpacing="8dp"
+                    tools:layout_editor_absoluteX="16dp"
+                    tools:layout_editor_absoluteY="78dp">
 
-    <Spinner
-        android:id="@+id/feedTypeList"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:drawSelectorOnTop="false"
-        android:dropDownWidth="4000dp"
-        android:dropDownVerticalOffset="-7dp"
-        android:overlapAnchor="false"
-        app:layout_constraintBottom_toBottomOf="@+id/feedSourcePathTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
+                </android.support.design.chip.ChipGroup>
+            </LinearLayout>
+        </ScrollView>
 
-    <android.support.design.button.MaterialButton
-        android:id="@+id/addTagButton"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:fontFamily="@font/firasans"
-        android:text="@string/add_tag"
-        android:textColor="@color/colorAccent"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:icon="@drawable/ic_add_circle_black_24dp"
-        app:iconTint="@color/colorAccent"
-        app:layout_constraintBottom_toTopOf="@+id/addFeedButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+        <Spinner
+            android:id="@+id/feedTypeList"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:drawSelectorOnTop="false"
+            android:dropDownWidth="4000dp"
+            android:dropDownVerticalOffset="-7dp"
+            android:overlapAnchor="false"
+            app:layout_constraintBottom_toBottomOf="@+id/feedSourcePathTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
 
-    <android.support.design.button.MaterialButton
-        android:id="@+id/addFeedButton"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:elevation="4dp"
-        android:fontFamily="@font/firasans"
-        android:text="@string/add_feed"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addTagButton" />
-    
-</android.support.constraint.ConstraintLayout>
+        <android.support.design.button.MaterialButton
+            android:id="@+id/addTagButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/firasans"
+            android:text="@string/add_tag"
+            android:textColor="@color/colorAccent"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:icon="@drawable/ic_add_circle_black_24dp"
+            app:iconTint="@color/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/addFeedButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+
+        <android.support.design.button.MaterialButton
+            android:id="@+id/addFeedButton"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp"
+            android:fontFamily="@font/firasans"
+            android:text="@string/add_feed"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addTagButton" />
+
+    </android.support.constraint.ConstraintLayout>
+</android.support.design.widget.CoordinatorLayout>

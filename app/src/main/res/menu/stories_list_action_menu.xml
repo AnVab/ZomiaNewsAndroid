@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="90"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/logout"
+        android:title="@string/logout"
+        android:orderInCategory="100"
+        android:visible="true"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_refresh"
+        app:showAsAction="collapseActionView|always"
+        android:icon="@drawable/ic_action_refresh"
+        android:visible="true"
+        android:title="@string/menu_refresh"/>
+</menu>

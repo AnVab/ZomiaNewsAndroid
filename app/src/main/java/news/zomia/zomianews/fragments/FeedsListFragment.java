@@ -15,10 +15,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,12 +77,6 @@ public class FeedsListFragment extends Fragment implements
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.feeds_list));
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        }
     }
 
     @Override
@@ -100,17 +93,65 @@ public class FeedsListFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+        //Add the fragment appbar toolbar
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
+        toolbar.setTitle(getString(R.string.feeds_list));
+
+        //Add back button on the toolbar
+        /*toolbar.setNavigationIcon(R.drawable.ic_action_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });*/
+
+        //Add menu for the toolbar
+        toolbar.inflateMenu(R.menu.feeds_list_action_menu);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
+        // Get the SearchView on the app bar
+        SearchView filterFeedsSearchView = (SearchView) toolbar.getMenu().findItem(R.id.menu_search).getActionView();
+        if (filterFeedsSearchView != null) {
+            filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
+        }
+
         return rootView;
     }
+
+    Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch(item.getItemId()){
+                case R.id.menu_refresh:
+                    onRefresh();
+                    return true;
+
+                case R.id.menu_add_channel:
+                    onFeedsListListenerCallback.onNewFeedAddAction();
+                    return true;
+
+                case android.R.id.home:
+                    getActivity().onBackPressed();
+                    return true;
+
+                case R.id.action_settings:
+                    onFeedsListListenerCallback.onSettings();
+                    return true;
+
+                case R.id.logout:
+                    onFeedsListListenerCallback.onLogOut();
+                    return true;
+            }
+            return true;
+        }
+    };
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        //Indicate that this fragment has appbar menu
-        setHasOptionsMenu(true);
-
-        //Feeds and tags collection to popullate feeds to the undecided tag group.
+        //Feeds and tags collection to populate feeds to the undecided tag group.
         feedsCollection = new LinkedHashMap<String, List<Feed>>();
 
         //List of tags and feeds
@@ -123,7 +164,6 @@ public class FeedsListFragment extends Fragment implements
     }
 
     ExpandableListView.OnChildClickListener tagListClickListener = new ExpandableListView.OnChildClickListener() {
-
         public boolean onChildClick(ExpandableListView parent, View v,
         int groupPosition, int childPosition, long id) {
             final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
@@ -138,7 +178,6 @@ public class FeedsListFragment extends Fragment implements
             if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(feedViewModel.getSelectedFeedId().getValue().getTitle());
             }
-
             return true;
         }
     };
@@ -183,7 +222,7 @@ public class FeedsListFragment extends Fragment implements
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (v.getId()==R.id.feedsExpandableList) {
+        if (v.getId() == R.id.feedsExpandableList) {
             MenuInflater inflater = getActivity().getMenuInflater();
             inflater.inflate(R.menu.feeds_context_menu, menu);
         }
@@ -224,37 +263,6 @@ public class FeedsListFragment extends Fragment implements
                 return true;
             default:
                 return super.onContextItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        if (menu.findItem(R.id.menu_search) != null)
-            menu.findItem(R.id.menu_search).setVisible(true);
-
-        if (menu.findItem(R.id.menu_refresh) != null)
-            menu.findItem(R.id.menu_refresh).setVisible(true);
-
-        if (menu.findItem(R.id.menu_add_channel) != null)
-            menu.findItem(R.id.menu_add_channel).setVisible(true);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                onRefresh();
-                return true;
-
-            case R.id.menu_add_channel:
-                onFeedsListListenerCallback.onNewFeedAddAction();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -373,15 +381,6 @@ public class FeedsListFragment extends Fragment implements
                     unregisterOnFeedDeleteObserver();
                     break;
             }
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Get the SearchView on the app bar
-        SearchView filterFeedsSearchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        if (filterFeedsSearchView != null) {
-            filterFeedsSearchView.setOnQueryTextListener(feedTextListener);
         }
     }
 
@@ -626,6 +625,8 @@ public class FeedsListFragment extends Fragment implements
         public void onFeedSelected();
         public void onNewFeedAddAction();
         public void onFeedEdit();
+        public void onSettings();
+        public void onLogOut();
     }
 
     @Override
