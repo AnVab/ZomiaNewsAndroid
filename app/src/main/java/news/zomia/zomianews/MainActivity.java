@@ -174,6 +174,10 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
             FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
+            Bundle data = new Bundle();
+            data.putBoolean("showArrow", false);
+            data.putBoolean("showBurger", true);
+            feedStoriesFragment.setArguments(data);
             fragmentTransaction.replace(dataContainerId, feedStoriesFragment);
             fragmentTransaction.addToBackStack("feedStoriesFragment");
             fragmentTransaction.commit();
@@ -251,6 +255,10 @@ public class MainActivity extends AppCompatActivity
             if(!(fragment instanceof FeedStoriesFragment)) {
                 fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
                 FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
+                Bundle data = new Bundle();
+                data.putBoolean("showBurger", false);
+                data.putBoolean("showArrow", true);
+                feedStoriesFragment.setArguments(data);
                 fragmentTransaction.replace(containerLeftId, feedStoriesFragment);
                 fragmentTransaction.addToBackStack("feedStoriesFragment");
             }
@@ -258,6 +266,10 @@ public class MainActivity extends AppCompatActivity
             //Add stories container
             fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             StoryViewerFragment storyViewerFragment = new StoryViewerFragment();
+            Bundle data2 = new Bundle();
+            data2.putBoolean("showBurger", true);
+            data2.putBoolean("showArrow", false);
+            storyViewerFragment.setArguments(data2);
             fragmentTransaction.replace(dataContainerId, storyViewerFragment);
             fragmentTransaction.addToBackStack("storyViewerFragment");
             fragmentTransaction.commit();
@@ -326,6 +338,9 @@ public class MainActivity extends AppCompatActivity
             HideLeftFrameLayout(false);
 
             FeedsListFragment feedsListFragment = new FeedsListFragment();
+            Bundle data = new Bundle();
+            data.putBoolean("showBurger", false);
+            feedsListFragment.setArguments(data);
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
             fragmentTransaction.replace(containerLeftId, feedsListFragment);

@@ -107,19 +107,28 @@ public class StoryViewerFragment extends Fragment
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_news_viewer, container, false);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.action_toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_action_back);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().onBackPressed();
-            }
-        });
+        Bundle arguments = getArguments();
+        boolean showArrow = arguments.getBoolean("showArrow", false);
+        boolean showBurger = arguments.getBoolean("showBurger", false);
 
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.action_toolbar);
+        if(showArrow) {
+            toolbar.setNavigationIcon(R.drawable.ic_action_back);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
         //Add menu for the toolbar
         toolbar.inflateMenu(R.menu.story_viewer_action_menu);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
+        if(!showBurger){
+            toolbar.getMenu().findItem(R.id.action_settings).setVisible(false);
+            toolbar.getMenu().findItem(R.id.logout).setVisible(false);
+        }
         return rootView;
     }
 

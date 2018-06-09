@@ -81,19 +81,29 @@ public class FeedStoriesFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+        Bundle arguments = getArguments();
+        boolean showArrow = arguments.getBoolean("showArrow", false);
+        boolean showBurger = arguments.getBoolean("showBurger", false);
+
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_feed_stories_fragment);
         toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
-        toolbar.setNavigationIcon(R.drawable.ic_action_back);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().onBackPressed();
-            }
-        });
-
+        if(showArrow) {
+            toolbar.setNavigationIcon(R.drawable.ic_action_back);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
         //Add menu for the toolbar
         toolbar.inflateMenu(R.menu.stories_list_action_menu);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
+        if(!showBurger){
+            toolbar.getMenu().findItem(R.id.action_settings).setVisible(false);
+            toolbar.getMenu().findItem(R.id.logout).setVisible(false);
+        }
 
         return rootView;
     }
