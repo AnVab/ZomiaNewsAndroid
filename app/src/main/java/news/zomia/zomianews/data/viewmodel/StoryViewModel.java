@@ -19,6 +19,7 @@ import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.service.StoryBoundaryCallback;
 import news.zomia.zomianews.data.service.StoryStatus;
 import news.zomia.zomianews.data.util.AbsentLiveData;
+import news.zomia.zomianews.data.util.Objects;
 
 import static news.zomia.zomianews.data.service.StoryStatus.read;
 import static news.zomia.zomianews.data.service.StoryStatus.reading;
@@ -176,9 +177,9 @@ public class StoryViewModel  extends ViewModel {
         }
 
         void updateStory(Integer feedId, Integer storyId, int status) {
-            if (this.storyId.equals(storyId)) {
+            /*if (Objects.equals(this.storyId, storyId)) {
                 return;
-            }
+            }*/
             unregister();
             this.feedId = feedId;
             this.storyId = storyId;
