@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -485,12 +484,12 @@ public class StoryViewerFragment extends Fragment
                 "}" +
                 "</style>" +
                 (addBodyTagStart ? "<body>" : "") +
-                "<h2>" +
-                (linkEnd ? "<a href=" + link + ">" : "")+
-                title +
-                (linkEnd ? "</a>" : "") +
-                "</h2>" +
-                "<h6>" + date + "</h6>" +
+                //"<h2>" +
+                //(linkEnd ? "<a href=" + link + ">" : "")+
+                //title +
+                //(linkEnd ? "</a>" : "") +
+                //"</h2>" +
+                //"<h6>" + date + "</h6>" +
                 (!videoFrame.isEmpty() ? "<div style=\"text-align: center;\">" : "") +
                 videoFrame +
                 (!videoFrame.isEmpty() ? "</div>" : "") +

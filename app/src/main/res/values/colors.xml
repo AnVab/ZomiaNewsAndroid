@@ -18,8 +18,10 @@
 
     <color name="read_status_gray_out">#1e999999</color>
     <color name="read_status_gray_out_text">#3c010101</color>
+
     <color name="story_item_date_text">#999999</color>
     <color name="stories_list_item_divider">#fafafa</color>
+    <color name="stories_list_item_normal_text">#010101</color>
 
     <color name="tag_list_item_background">#dbe1e4</color>
     <color name="tag_list_item_checked_background">#ffe030</color>

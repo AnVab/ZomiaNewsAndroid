@@ -5,8 +5,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,29 +14,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import java.text.SimpleDateFormat;
-
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.NetworkState;
 import news.zomia.zomianews.data.service.Status;
-import news.zomia.zomianews.data.service.StoryStatus;
 import news.zomia.zomianews.data.util.ListItemClickListener;
-import news.zomia.zomianews.data.util.Objects;
+import static news.zomia.zomianews.data.service.StoryStatus.read;
+import static news.zomia.zomianews.data.service.StoryStatus.reading;
+import static news.zomia.zomianews.data.service.StoryStatus.to_read;
 
 /**
  * Created by Andrey on 03.01.2018.
@@ -243,29 +237,36 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
                 String statusString = context.getString(R.string.status);
                 String statusValue = "";
-                switch(StoryStatus.getValue(story.getStatus()))
+                switch(story.getStatus().intValue())
                 {
                     case to_read:
                         statusValue = context.getString(R.string.status_unread);
                         statusTextView.setBackground(context.getResources().getDrawable(R.drawable.new_status, null));
+
+                        //Set default style
+                        SetItemStyleDefault(context);
                         break;
                     case reading:
                         statusValue = context.getString(R.string.status_reading);
                         statusTextView.setBackground(context.getResources().getDrawable(R.drawable.reading_status, null));
+
+                        //Set default style
+                        SetItemStyleDefault(context);
                         break;
                     case read:
                         statusValue = context.getString(R.string.status_read);
                         statusTextView.setBackground(context.getResources().getDrawable(R.drawable.read_status, null));
 
-                        readStatusGray.setVisibility(View.VISIBLE);
-                        storyImageView.setColorFilter(Color.argb(200,153,153,153));
-                        storyFirstSentenceTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
-                        statusTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
-                        storyTitleTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+                        //Set the style for a read story
+                        SetItemStyleRead(context);
                         break;
                     default:
+                        Log.d("ZOMIA", "UNKNOWN STATUS");
                         statusValue = context.getString(R.string.status_unread);
                         statusTextView.setBackground(context.getResources().getDrawable(R.drawable.new_status, null));
+
+                        //Set default style
+                        SetItemStyleDefault(context);
                         break;
                 }
                 statusTextView.setText(statusValue);
@@ -275,6 +276,27 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
                 if(shortText != null)
                     storyFirstSentenceTextView.setText(shortText);
             }
+        }
+
+        //Set default style
+        private void SetItemStyleDefault(Context context)
+        {
+            readStatusGray.setVisibility(View.INVISIBLE);
+            storyImageView.clearColorFilter();
+            statusTextView.setTextColor(context.getResources().getColor(R.color.stories_list_item_normal_text));
+            storyDateTextView.setTextColor(context.getResources().getColor(R.color.story_item_date_text));
+            storyTitleTextView.setTextColor(context.getResources().getColor(R.color.stories_list_item_normal_text));
+            storyFirstSentenceTextView.setTextColor(context.getResources().getColor(R.color.stories_list_item_normal_text));
+        }
+        //Set the style for a read story
+        private void SetItemStyleRead(Context context)
+        {
+            readStatusGray.setVisibility(View.VISIBLE);
+            storyImageView.setColorFilter(Color.argb(200,153,153,153));
+            statusTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+            storyDateTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+            storyTitleTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
+            storyFirstSentenceTextView.setTextColor(context.getResources().getColor(R.color.read_status_gray_out_text));
         }
 
         private String GetStoryUrl(String content)

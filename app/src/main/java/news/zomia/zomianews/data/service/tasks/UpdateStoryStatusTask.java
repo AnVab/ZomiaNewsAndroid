@@ -23,14 +23,14 @@ public class UpdateStoryStatusTask implements Runnable {
 
     private final MutableLiveData<Resource<Boolean>> resultState = new MutableLiveData<>();
 
-    private final StoryStatus status;
+    private final int status;
     private final Integer feedId;
     private final Integer storyId;
     private final ZomiaService zomiaService;
     private final FeedDao feedDao;
     private final ZomiaDb db;
 
-    public UpdateStoryStatusTask(Integer feedId, Integer storyId, StoryStatus status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
+    public UpdateStoryStatusTask(Integer feedId, Integer storyId, int status, ZomiaService zomiaService, FeedDao feedDao, ZomiaDb db) {
         this.status = status;
         this.feedId = feedId;
         this.storyId = storyId;
@@ -42,7 +42,7 @@ public class UpdateStoryStatusTask implements Runnable {
     @Override
     public void run() {
         try {
-            String statusString = status.name();
+            String statusString = StoryStatus.getName(status);
 
             //First: try to insert into remote server
             Response<Story> response = zomiaService.updateStoryStatus(feedId, storyId, statusString).execute();
@@ -53,7 +53,7 @@ public class UpdateStoryStatusTask implements Runnable {
                 //Insert new tag to DB
                 db.beginTransaction();
                 try {
-                    int updatedRows = feedDao.updateStory(storyId, status.getValueInt());
+                    int updatedRows = feedDao.updateStory(storyId, status);
                     db.setTransactionSuccessful();
 
                 } finally {

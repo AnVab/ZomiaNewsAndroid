@@ -416,7 +416,7 @@ public class DataRepository {
         return task.getResultState();
     }
 
-    public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, StoryStatus status) {
+    public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, int status) {
         UpdateStoryStatusTask updateStoryTask = new UpdateStoryStatusTask(
                 feedId, storyId, status, webService, feedDao, db);
 

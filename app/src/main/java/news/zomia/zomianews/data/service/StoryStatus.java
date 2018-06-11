@@ -6,35 +6,25 @@ import android.util.Log;
  * Created by Andrey on 18.02.2018.
  */
 
-public enum StoryStatus {
-    to_read(0),
-    reading(1),
-    read(2);
+public final class StoryStatus {
+    public static final int to_read = 0;
+    public static final int reading = 1;
+    public static final int read = 2;
 
-    private Integer value;
+    private StoryStatus() { }
 
-    StoryStatus(Integer value) {
-        this.value = value;
-    }
-
-    public static StoryStatus getValue(Integer id)
+    public static String getName(int id)
     {
-        StoryStatus[] As = StoryStatus.values();
-        for(int i = 0; i < As.length; i++)
+        switch(id)
         {
-            if(As[i].getValueInt().equals(id))
-                return As[i];
+            case to_read:
+                return "to_read";
+            case reading:
+                return "reading";
+            case read:
+                return "read";
+            default:
+                return "to_read";
         }
-        return StoryStatus.to_read;
     }
-
-    public static String getValueName(Integer id)
-    {
-        return getValue(id.intValue()).name();
-    }
-
-    public Integer getValueInt() {
-        return value;
-    }
-
 }

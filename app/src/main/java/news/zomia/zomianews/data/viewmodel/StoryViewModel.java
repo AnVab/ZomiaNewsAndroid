@@ -11,12 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-
-import java.util.List;
-
 import javax.inject.Inject;
-
-import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.service.DataRepository;
 import news.zomia.zomianews.data.service.NetworkState;
@@ -24,8 +19,9 @@ import news.zomia.zomianews.data.service.Resource;
 import news.zomia.zomianews.data.service.StoryBoundaryCallback;
 import news.zomia.zomianews.data.service.StoryStatus;
 import news.zomia.zomianews.data.util.AbsentLiveData;
-import news.zomia.zomianews.data.util.Objects;
-import okhttp3.Interceptor;
+
+import static news.zomia.zomianews.data.service.StoryStatus.read;
+import static news.zomia.zomianews.data.service.StoryStatus.reading;
 
 /**
  * Created by Andrey on 17.01.2018.
@@ -71,20 +67,10 @@ public class StoryViewModel  extends ViewModel {
             if (result == null ) {
                 return AbsentLiveData.create();
             } else {
-
                 //Load new story
-                Integer index = stories.getValue().get(result).getStoryId();
-                if(index >= 0) {
-                    LiveData<Resource<Story>> loadedStory = dataRepo.loadStory(index);
-
-                    //Set status of the previoud story to readed
-                    setStoryStatus(previousStory, StoryStatus.read);
-
-                    //Set status of a new story to reading
-                    setStoryStatus(loadedStory.getValue().data, StoryStatus.reading);
-
-                    return loadedStory;
-                }
+                Integer index = stories.getValue().get(selectedCurrentStory.getValue()).getStoryId();
+                if(index >= 0)
+                    return dataRepo.loadStory(index);
                 else
                     return AbsentLiveData.create();
             }
@@ -101,11 +87,11 @@ public class StoryViewModel  extends ViewModel {
                 stories.getValue().size() > 0)
         {
             Story story = stories.getValue().get(selectedCurrentStory.getValue());
-            setStoryStatus(story, StoryStatus.read);
+            setStoryStatus(story, read);
         }
     }
 
-    private void setStoryStatus(Story story, StoryStatus status)
+    private void setStoryStatus(Story story, int status)
     {
         //Set status of the story
         if (story != null)
@@ -134,6 +120,13 @@ public class StoryViewModel  extends ViewModel {
         }
         //Select a new current story
         selectedCurrentStory.setValue(storyListPosition);
+
+        //Set status of the previous story to read
+        setStoryStatus(previousStory, read);
+
+        //Set status of a new story to reading
+        Story story = stories.getValue().get(selectedCurrentStory.getValue());
+        setStoryStatus(story, reading);
     }
 
     public void goToNextCurrentStoryPosition() {
@@ -148,9 +141,16 @@ public class StoryViewModel  extends ViewModel {
         //Set new story id
         Integer newValue = selectedCurrentStory.getValue() + 1;
         if(newValue < stories.getValue().size())
-            selectedCurrentStory.postValue(newValue);
+            selectedCurrentStory.setValue(newValue);
         else
-            selectedCurrentStory.postValue(0);
+            selectedCurrentStory.setValue(0);
+
+        //Set status of the previous story to read
+        setStoryStatus(previousStory, read);
+
+        //Set status of a new story to reading
+        Story story = stories.getValue().get(selectedCurrentStory.getValue());
+        setStoryStatus(story, reading);
     }
 
     public LiveData<Resource<Story>> getCurrentStory() {
@@ -165,7 +165,7 @@ public class StoryViewModel  extends ViewModel {
 
         private Integer feedId;
         private Integer storyId;
-        private StoryStatus status;
+        private int status;
 
         private final DataRepository repository;
 
@@ -175,8 +175,8 @@ public class StoryViewModel  extends ViewModel {
             reset();
         }
 
-        void updateStory(Integer feedId, Integer storyId, StoryStatus status) {
-            if (Objects.equals(this.storyId, storyId)) {
+        void updateStory(Integer feedId, Integer storyId, int status) {
+            if (this.storyId.equals(storyId)) {
                 return;
             }
             unregister();
@@ -197,7 +197,7 @@ public class StoryViewModel  extends ViewModel {
                 switch (result.status) {
                     case SUCCESS:
                         unregister();
-                        Log.d("ZOMIA", "Story updated successfully. Id: " + storyId + " status: " + status.name());
+                        Log.d("ZOMIA", "Story updated successfully. Id: " + storyId + " status: " + StoryStatus.getName(status));
                         break;
                     case ERROR:
                         unregister();
