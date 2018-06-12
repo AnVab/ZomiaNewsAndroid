@@ -63,7 +63,7 @@ public class FeedStoriesFragment extends Fragment implements
     private StoriesAdapter storiesAdapter;
 
     OnStorySelectedListener onStorySelectedListenerCallback;
-
+    Toolbar toolbar;
     public FeedStoriesFragment() {
         // Required empty public constructor
     }
@@ -85,7 +85,7 @@ public class FeedStoriesFragment extends Fragment implements
         boolean showArrow = arguments.getBoolean("showArrow", false);
         boolean showBurger = arguments.getBoolean("showBurger", false);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_feed_stories_fragment);
+        toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_feed_stories_fragment);
         toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
         if(showArrow) {
             toolbar.setNavigationIcon(R.drawable.ic_action_back);
@@ -193,6 +193,7 @@ public class FeedStoriesFragment extends Fragment implements
         feedViewModel.getSelectedFeedId().observe(this, resource -> {
             // update UI
             storyViewModel.setFeedId(resource.getFeedId());
+            toolbar.setTitle(resource.getTitle());
         });
 
     }
