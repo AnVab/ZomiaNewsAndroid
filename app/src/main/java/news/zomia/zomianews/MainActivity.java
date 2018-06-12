@@ -7,6 +7,7 @@ import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.service.NetworkConnectionInterceptorListener;
 import news.zomia.zomianews.data.service.UnauthorizedInterceptorListener;
 import news.zomia.zomianews.data.service.UserSessionInfo;
+import news.zomia.zomianews.fragments.DummyFragment;
 import news.zomia.zomianews.fragments.FeedStoriesFragment;
 import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity
         StoryViewerFragment.OnStoryViewerListener,
         UnauthorizedInterceptorListener,
         NetworkConnectionInterceptorListener,
+        DummyFragment.OnDummyFragmentListener,
         HasSupportFragmentInjector
 {
     @Inject DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
@@ -96,8 +98,10 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null) {
             if (token.isEmpty())
                 LoadLoginFragment();
-            else
+            else {
                 LoadFeedsListFragment();
+                LoadDummyFragment();
+            }
         }
         else
         {
@@ -354,6 +358,25 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.replace(dataContainerId, feedsListFragment);
             fragmentTransaction.addToBackStack("feedsListFragment");
             fragmentTransaction.commit();
+        }
+        ShowToolbar();
+    }
+
+    public void LoadDummyFragment()
+    {
+        if(getLandscapeOrientationTablet()) {
+            DummyFragment dummyFragment = new DummyFragment();
+            Bundle data = new Bundle();
+            data.putBoolean("showBurger", true);
+            data.putBoolean("showArrow", false);
+            dummyFragment.setArguments(data);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            //fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            fragmentTransaction.replace(dataContainerId, dummyFragment);
+            fragmentTransaction.addToBackStack("dummyFragment");
+            fragmentTransaction.commit();
+        }
+        else {
         }
         ShowToolbar();
     }
