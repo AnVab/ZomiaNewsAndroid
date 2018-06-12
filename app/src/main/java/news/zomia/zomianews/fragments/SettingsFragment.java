@@ -9,10 +9,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.preference.PreferenceManager;
-
-import org.apache.commons.lang3.ObjectUtils;
-
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import news.zomia.zomianews.R;
 
 /**
@@ -32,6 +32,25 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_prefs_fragment);
+        toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));
+        toolbar.setTitle(getString(R.string.action_settings));
+        toolbar.setNavigationIcon(R.drawable.ic_action_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { getActivity().onBackPressed(); }}
+            );
+
+        return rootView;
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
@@ -82,5 +101,4 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public interface OnSettingsChangedListener {
         public void onSettingsUpdated(String key);
     }
-
 }
