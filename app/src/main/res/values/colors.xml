@@ -26,4 +26,11 @@
     <color name="tag_list_item_background">#dbe1e4</color>
     <color name="tag_list_item_checked_background">#ffe030</color>
     <color name="collapsing_toolbar_background">#5288ce</color>
+
+    <color name="story_viewer_font_selected">#31beed</color>
+    <color name="story_viewer_page_background1">#ffffff</color>
+    <color name="story_viewer_page_background2">#f6efe4</color>
+    <color name="story_viewer_page_background3">#6f6f72</color>
+    <color name="story_viewer_page_background4">#191919</color>
+
 </resources>

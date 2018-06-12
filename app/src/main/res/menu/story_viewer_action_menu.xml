@@ -16,6 +16,14 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/textFormat"
+        android:title="@string/menu_text_format"
+        android:orderInCategory="100"
+        android:visible="true"
+        app:showAsAction="collapseActionView|always"
+        android:icon="@drawable/ic_action_text_format"/>
+
+    <item
         android:id="@+id/menu_refresh"
         app:showAsAction="collapseActionView|always"
         android:icon="@drawable/ic_action_refresh"

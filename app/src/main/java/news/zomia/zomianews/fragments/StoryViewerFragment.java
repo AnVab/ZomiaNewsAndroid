@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,14 +18,20 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.squareup.picasso.Picasso;
@@ -57,7 +64,7 @@ public class StoryViewerFragment extends Fragment
         implements
 
         LifecycleRegistryOwner,
-        Injectable {
+        Injectable, PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = "StoryViewerFragment";
 
@@ -90,6 +97,13 @@ public class StoryViewerFragment extends Fragment
     private Story currentStory;
     private String storyDateText;
     private float bottomRefreshLayoutValue = 0;
+
+    String story_viewer_font;
+    int story_viewer_font_size;
+    String story_viewer_text_alignment;
+    float story_viewer_text_spacing;
+    String story_viewer_background_color;
+
     public StoryViewerFragment() {
         // Required empty public constructor
     }
@@ -145,10 +159,153 @@ public class StoryViewerFragment extends Fragment
                 case R.id.logout:
                     onStoryViewerListenerCallback.onLogOut();
                     return true;
+
+                case R.id.textFormat:
+                    //showTextFormatPopupMenu(getActivity().findViewById(R.id.textFormat));
+
+                    PopupWindow popupwindow_obj = popupDisplay();
+                    popupwindow_obj.showAsDropDown(getActivity().findViewById(R.id.textFormat), 40, 18);
+                    return true;
             }
             return true;
         }
     };
+
+    public void showTextFormatPopupMenu(View v) {
+        PopupMenu popup = new PopupMenu(getActivity(), v);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.action_menu);
+        popup.show();
+    }
+
+    public PopupWindow popupDisplay()
+    {
+
+        final PopupWindow popupWindow = new PopupWindow(getContext());
+
+        // inflate your layout or dynamically add view
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View view = inflater.inflate(R.layout.layout_story_text_format, null);
+
+        //load settings
+        loadStoryViewerSettings();
+
+        //Font
+        Button font1Button = (Button)  view.findViewById(R.id.font1Button);
+        Button font2Button = (Button)  view.findViewById(R.id.font2Button);
+        Button font3Button = (Button)  view.findViewById(R.id.font3Button);
+
+        View.OnClickListener fontButtonOnClickListener = new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(!view.isSelected()) {
+                    view.setSelected(!view.isSelected());
+                    //disable other buttons
+                    if (view.getId() != R.id.font1Button)
+                        font1Button.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.font2Button)
+                        font2Button.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.font3Button)
+                        font3Button.setSelected(!view.isSelected());
+                }
+            }
+        };
+        font1Button.setOnClickListener(fontButtonOnClickListener);
+        font2Button.setOnClickListener(fontButtonOnClickListener);
+        font3Button.setOnClickListener(fontButtonOnClickListener);
+
+        //page background
+        ImageButton background1Button = (ImageButton) view.findViewById(R.id.background1Button);
+        ImageButton background2Button = (ImageButton) view.findViewById(R.id.background2Button);
+        ImageButton background3Button = (ImageButton) view.findViewById(R.id.background3Button);
+        ImageButton background4Button = (ImageButton) view.findViewById(R.id.background4Button);
+
+        View.OnClickListener backgroundButtonOnClickListener = new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(!view.isSelected()) {
+                    view.setSelected(!view.isSelected());
+                    //disable other buttons
+                    if (view.getId() != R.id.background1Button)
+                        background1Button.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.background2Button)
+                        background2Button.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.background3Button)
+                        background3Button.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.background4Button)
+                        background4Button.setSelected(!view.isSelected());
+
+                    if(view.isSelected()) {
+                        /*GradientDrawable drawable = (GradientDrawable) view.getBackground();
+                        story_viewer_background_color = String.format("#%06X", 0xFFFFFF & drawable.getColor().getDefaultColor());
+                        Log.d("ZOMIA", "COLOR WEBVIEW " + story_viewer_background_color);*/
+                    }
+                }
+            }
+        };
+        background1Button.setOnClickListener(backgroundButtonOnClickListener);
+        background2Button.setOnClickListener(backgroundButtonOnClickListener);
+        background3Button.setOnClickListener(backgroundButtonOnClickListener);
+        background4Button.setOnClickListener(backgroundButtonOnClickListener);
+
+        /*if(story_viewer_background_color == getResources().getColor(R.color.story_viewer_page_background1))
+            font1Button.setSelected(true);*/
+
+        //font size
+        Button fontSizeDecreaseButton = (Button)  view.findViewById(R.id.fontSizeDecreaseButton);
+        Button fontSizeIncreaseButton = (Button)  view.findViewById(R.id.fontSizeIncreaseButton);
+        TextView fontSizeTextView = (TextView) view.findViewById(R.id.fontSizeTextView);
+
+        //text spacing
+        Button increaseTextSpacingButton = (Button)  view.findViewById(R.id.increaseTextSpacingButton);
+        Button decreaseTextSpacingButton = (Button)  view.findViewById(R.id.decreaseTextSpacingButton);
+        TextView textSpacingTextView = (TextView) view.findViewById(R.id.textSpacingTextView);
+
+        //text alignment
+        Button textAlignJustifyButton = (Button)  view.findViewById(R.id.textAlignJustifyButton);
+        Button textAlignLeftButton = (Button)  view.findViewById(R.id.textAlignLeftButton);
+
+        View.OnClickListener textAlignButtonOnClickListener = new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(!view.isSelected()) {
+                    view.setSelected(!view.isSelected());
+                    //disable other buttons
+                    if (view.getId() != R.id.textAlignJustifyButton)
+                        textAlignJustifyButton.setSelected(!view.isSelected());
+                    if (view.getId() != R.id.textAlignLeftButton)
+                        textAlignLeftButton.setSelected(!view.isSelected());
+                }
+            }
+        };
+        textAlignJustifyButton.setOnClickListener(textAlignButtonOnClickListener);
+        textAlignLeftButton.setOnClickListener(textAlignButtonOnClickListener);
+
+        popupWindow.setFocusable(true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popupWindow.setElevation(20);
+        popupWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+        popupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        popupWindow.setContentView(view);
+
+        return popupWindow;
+    }
+
+    private void loadStoryViewerSettings()
+    {
+        //Get preferences values
+        story_viewer_font = sharedPref.getString(getString(R.string.preferences_story_viewer_font), getString(R.string.preferences_story_viewer_font_default));
+        story_viewer_font_size = sharedPref.getInt(getString(R.string.preferences_story_viewer_font_size), getContext().getResources().getInteger(R.integer.preferences_story_viewer_font_size_default));
+        story_viewer_text_alignment = sharedPref.getString(getString(R.string.preferences_story_viewer_text_alignment), getString(R.string.preferences_story_viewer_text_alignment_default));
+
+        TypedValue typedValue = new TypedValue();
+        getResources().getValue(R.dimen.preferences_story_viewer_text_spacing_default, typedValue, true);
+        float floatValue = typedValue.getFloat();
+        story_viewer_text_spacing = sharedPref.getFloat(getString(R.string.preferences_story_viewer_text_spacing), floatValue);
+
+        story_viewer_background_color = sharedPref.getString(getString(R.string.preferences_story_viewer_background_color), getString(R.string.preferences_story_viewer_background_color_default));
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,6 +340,7 @@ public class StoryViewerFragment extends Fragment
         collapsingToolbar.setExpandedTitleTypeface(tf);*/
 
         storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
+        storyPageViewer.setBackgroundColor(0);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -472,7 +630,8 @@ public class StoryViewerFragment extends Fragment
                 "font-size: medium;" +
                 "text-align: justify;" +
                 "margin: 8px;" +
-                "padding: 8px" +
+                "padding: 8px;" +
+                "background-color:" + story_viewer_background_color + ";" +
                 "}" +
                 "a:hover, a:visited, a:link, a:active {" +
                 "text-decoration: none;" +
@@ -519,6 +678,11 @@ public class StoryViewerFragment extends Fragment
                         + " must implement OnStoryViewerListener");
             }
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        return false;
     }
 
     // Container Activity must implement this interface

@@ -6,4 +6,15 @@
 
     <string name="preferences_serverAddress_default" translatable="false">10.0.2.2</string>
     <string name="preferences_serverPort_default" translatable="false">8000</string>
+
+    <string name="preferences_story_viewer_font" translatable="false">story_viewer_font</string>
+    <string name="preferences_story_viewer_font_size" translatable="false">story_viewer_font_size</string>
+    <string name="preferences_story_viewer_text_alignment" translatable="false">story_viewer_text_alignment</string>
+    <string name="preferences_story_viewer_text_spacing" translatable="false">story_viewer_text_spacing</string>
+
+    <string name="preferences_story_viewer_font_default" translatable="false">fira_sans</string>
+    <string name="preferences_story_viewer_text_alignment_default" translatable="false">justify</string>
+    <string name="preferences_story_viewer_background_color" translatable="false">story_viewer_background_color</string>
+
+    <string name="preferences_story_viewer_background_color_default">#FFFFFF</string>
 </resources>

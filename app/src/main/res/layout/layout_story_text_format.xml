@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/font1Button"
+
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/circle_button_font_selector"
+        android:text="Aa"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@+id/background1Button"
+        app:layout_constraintEnd_toStartOf="@+id/font2Button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/font2Button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/circle_button_font_selector"
+        android:text="Aa"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/font1Button"
+        app:layout_constraintEnd_toStartOf="@+id/font3Button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/font1Button"
+        app:layout_constraintTop_toTopOf="@+id/font1Button" />
+
+    <Button
+        android:id="@+id/font3Button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/circle_button_font_selector"
+        android:text="Aa"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/font1Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/font2Button"
+        app:layout_constraintTop_toTopOf="@+id/font1Button" />
+
+    <TextView
+        android:id="@+id/font1TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Fira Sans"
+        app:layout_constraintBottom_toTopOf="@+id/background1Button"
+        app:layout_constraintEnd_toEndOf="@+id/font1Button"
+        app:layout_constraintStart_toStartOf="@+id/font1Button"
+        app:layout_constraintTop_toBottomOf="@+id/font1Button" />
+
+    <TextView
+        android:id="@+id/font2TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="PT Sans"
+        app:layout_constraintEnd_toEndOf="@+id/font2Button"
+        app:layout_constraintStart_toStartOf="@+id/font2Button"
+        app:layout_constraintTop_toBottomOf="@+id/font2Button" />
+
+    <TextView
+        android:id="@+id/font3TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="PT Serif"
+        app:layout_constraintEnd_toEndOf="@+id/font3Button"
+        app:layout_constraintStart_toStartOf="@+id/font3Button"
+        app:layout_constraintTop_toBottomOf="@+id/font3Button" />
+
+    <ImageButton
+        android:id="@+id/background1Button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circle_button_page_color1"
+        android:src="@drawable/circle_button_page_color_selector"
+        app:layout_constraintBottom_toTopOf="@+id/fontSizeDecreaseButton"
+        app:layout_constraintEnd_toStartOf="@+id/background2Button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/font1Button" />
+
+    <ImageButton
+        android:id="@+id/background2Button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/circle_button_page_color2"
+        android:src="@drawable/circle_button_page_color_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/background1Button"
+        app:layout_constraintEnd_toStartOf="@+id/background3Button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/background1Button"
+        app:layout_constraintTop_toTopOf="@+id/background1Button" />
+
+    <ImageButton
+        android:id="@+id/background3Button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/circle_button_page_color3"
+        app:layout_constraintBottom_toBottomOf="@+id/background2Button"
+        app:layout_constraintEnd_toStartOf="@+id/background4Button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/background2Button"
+        app:layout_constraintTop_toTopOf="@+id/background2Button"
+        app:srcCompat="@drawable/circle_button_page_color_selector" />
+
+    <ImageButton
+        android:id="@+id/background4Button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/circle_button_page_color4"
+        app:layout_constraintBottom_toBottomOf="@+id/background3Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/background3Button"
+        app:layout_constraintTop_toTopOf="@+id/background3Button"
+        app:srcCompat="@drawable/circle_button_page_color_selector" />
+
+    <Button
+        android:id="@+id/fontSizeIncreaseButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="24dp"
+        android:text="A"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/fontSizeDecreaseButton"
+        app:layout_constraintEnd_toStartOf="@+id/increaseTextSpacingButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/fontSizeTextView"
+        app:layout_constraintTop_toTopOf="@+id/fontSizeDecreaseButton" />
+
+    <Button
+        android:id="@+id/fontSizeDecreaseButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="16dp"
+        android:text="A"
+        app:layout_constraintBottom_toTopOf="@+id/textAlignJustifyButton"
+        app:layout_constraintEnd_toStartOf="@+id/fontSizeTextView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/background1Button" />
+
+    <TextView
+        android:id="@+id/fontSizeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="18"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/fontSizeDecreaseButton"
+        app:layout_constraintEnd_toStartOf="@+id/fontSizeIncreaseButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/fontSizeDecreaseButton"
+        app:layout_constraintTop_toTopOf="@+id/fontSizeDecreaseButton" />
+
+    <TextView
+        android:id="@+id/textSpacingTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="18"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/increaseTextSpacingButton"
+        app:layout_constraintEnd_toStartOf="@+id/decreaseTextSpacingButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/increaseTextSpacingButton"
+        app:layout_constraintTop_toTopOf="@+id/increaseTextSpacingButton" />
+
+    <Button
+        android:id="@+id/textAlignJustifyButton"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/ic_action_font_align_justify_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textAlignLeftButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fontSizeDecreaseButton" />
+
+    <Button
+        android:id="@+id/textAlignLeftButton"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:background="@drawable/ic_action_font_align_left_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/textAlignJustifyButton"
+        app:layout_constraintStart_toEndOf="@+id/textAlignJustifyButton"
+        app:layout_constraintTop_toTopOf="@+id/textAlignJustifyButton" />
+
+    <Button
+        android:id="@+id/decreaseTextSpacingButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/ic_action_font_line_spacing"
+        app:layout_constraintBottom_toBottomOf="@+id/increaseTextSpacingButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/textSpacingTextView"
+        app:layout_constraintTop_toTopOf="@+id/increaseTextSpacingButton" />
+
+    <Button
+        android:id="@+id/increaseTextSpacingButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:background="@drawable/ic_action_font_line_spacing"
+        app:layout_constraintBottom_toBottomOf="@+id/fontSizeIncreaseButton"
+        app:layout_constraintEnd_toStartOf="@+id/textSpacingTextView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/fontSizeIncreaseButton"
+        app:layout_constraintTop_toTopOf="@+id/fontSizeIncreaseButton" />
+
+</android.support.constraint.ConstraintLayout>
