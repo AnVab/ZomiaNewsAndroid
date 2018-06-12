@@ -112,12 +112,11 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+    <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:srl_direction="both">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <news.zomia.zomianews.customcontrols.NestedScrollViewTouched
             android:id="@+id/nestedScrollView"
@@ -139,7 +138,7 @@
 
         </news.zomia.zomianews.customcontrols.NestedScrollViewTouched>
 
-    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
     </android.support.design.widget.CoordinatorLayout>

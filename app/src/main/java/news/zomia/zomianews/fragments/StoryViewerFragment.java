@@ -11,8 +11,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,9 +27,6 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.squareup.picasso.Picasso;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,12 +75,13 @@ public class StoryViewerFragment extends Fragment
     @Inject
     DataRepository dataRepo;
 
-    SwipyRefreshLayout swipeRefreshLayout;
+    SwipeRefreshLayout swipeRefreshLayout;
     WebView storyPageViewer;
     ImageView expandedImageAppBar;
     TextView appBarStoryTitle;
     TextView appBarStoryDate;
     CollapsingToolbarLayout collapsingToolbar;
+    AppBarLayout appBarLayout;
     //Web view scrolling states
     public static final int WEBVIEW_SCROLLING = 0;
     public static final int WEBVIEW_AT_BOTTOM = 1;
@@ -163,6 +163,8 @@ public class StoryViewerFragment extends Fragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        appBarLayout = (AppBarLayout) getActivity().findViewById(R.id.appbarStoryViewer );
+
         expandedImageAppBar = (ImageView) getActivity().findViewById(R.id.expandedImage );
         collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsing_toolbar);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -181,11 +183,14 @@ public class StoryViewerFragment extends Fragment
         collapsingToolbar.setExpandedTitleTypeface(tf);*/
 
         storyPageViewer = (WebView) view.findViewById(R.id.storyPageViewer );
-        swipeRefreshLayout = (SwipyRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onRefresh(SwipyRefreshLayoutDirection direction) {
-                if(direction == SwipyRefreshLayoutDirection.TOP)
+            public void onRefresh(){//SwipyRefreshLayoutDirection direction) {
+                if(storyPageViewer != null) {
+                    loadContent(true);
+                }
+                /*if(direction == SwipyRefreshLayoutDirection.TOP)
                 {
                     if(storyPageViewer != null) {
                         loadContent(true);
@@ -196,7 +201,7 @@ public class StoryViewerFragment extends Fragment
                     //if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
                         goToNextNews();
                     //}
-                }
+                }*/
             }
         });
 
@@ -371,7 +376,7 @@ public class StoryViewerFragment extends Fragment
     {
         //onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
-
+        appBarLayout.setExpanded(true);
        // collapseNextPageBottomProgress();
     }
 
