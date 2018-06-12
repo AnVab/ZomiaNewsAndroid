@@ -6,6 +6,7 @@ import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,11 +29,8 @@ import android.widget.Toast;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -40,10 +38,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
-
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.NestedScrollViewTouched;
 import news.zomia.zomianews.customcontrols.OnSwipeTouchListener;
@@ -218,7 +213,7 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.getSettings().setAllowUniversalAccessFromFileURLs(true);
         //storyPageViewer.getSettings().setLayoutAlgorithm(TEXT_AUTOSIZING);
 
-        storyPageViewer.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        storyPageViewer.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
         storyPageViewer.setScrollbarFadingEnabled(true);
         storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
 
@@ -415,9 +410,9 @@ public class StoryViewerFragment extends Fragment
                         .error(R.drawable.error_image)
                         //.transform(transformation)
                         .into(expandedImageAppBar);
-            } else {
-
             }
+            //Set image color filter
+            expandedImageAppBar.setColorFilter(Color.argb(180,45,74,161));
 
             //storyPageViewer.startAnimation(slideLeftAnimation);
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
@@ -471,6 +466,8 @@ public class StoryViewerFragment extends Fragment
                 "font-family: firasans;" +
                 "font-size: medium;" +
                 "text-align: justify;" +
+                "margin: 8px;" +
+                "padding: 8px" +
                 "}" +
                 "a:hover, a:visited, a:link, a:active {" +
                 "text-decoration: none;" +
