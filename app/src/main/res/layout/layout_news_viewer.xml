@@ -38,11 +38,9 @@
             android:layout_height="match_parent"
             app:collapsedTitleTextAppearance="@style/TextAppearance.Zomia.Title.Collapsed"
             app:expandedTitleTextAppearance="@style/TextAppearance.Zomia.Title.Expanded"
-
-            app:contentScrim="@drawable/action_bar_color"
+            android:background="@color/collapsing_toolbar_background"
             app:layout_collapseMode="pin"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
-
 
             <ImageView
                 android:id="@+id/expandedImage"
@@ -50,12 +48,6 @@
                 android:layout_height="220dp"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/scrim"/>
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
@@ -111,7 +103,6 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
@@ -127,8 +118,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <WebView
                 android:id="@+id/storyPageViewer"
@@ -137,9 +127,6 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         </news.zomia.zomianews.customcontrols.NestedScrollViewTouched>
-
     </android.support.v4.widget.SwipeRefreshLayout>
-
-
     </android.support.design.widget.CoordinatorLayout>
 
