@@ -35,9 +35,13 @@ public class DummyFragment  extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.layout_dummy_landscape, container, false);
 
+        boolean showArrow = true;
+        boolean showBurger = true;
         Bundle arguments = getArguments();
-        boolean showArrow = arguments.getBoolean("showArrow", false);
-        boolean showBurger = arguments.getBoolean("showBurger", false);
+        if(arguments != null) {
+            showArrow = arguments.getBoolean("showArrow", false);
+            showBurger = arguments.getBoolean("showBurger", false);
+        }
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_dummy_fragment_container);
         toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));

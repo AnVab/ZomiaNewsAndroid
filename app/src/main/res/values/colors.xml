@@ -32,5 +32,6 @@
     <color name="story_viewer_page_background2">#f6efe4</color>
     <color name="story_viewer_page_background3">#6f6f72</color>
     <color name="story_viewer_page_background4">#191919</color>
-
+    <color name="story_viewer_page_text_color1">@android:color/black</color>
+    <color name="story_viewer_page_text_color2">@android:color/white</color>
 </resources>

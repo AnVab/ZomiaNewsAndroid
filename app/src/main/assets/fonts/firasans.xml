@@ -2,10 +2,10 @@
 <font-family xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <font android:fontStyle="normal" android:fontWeight="400" android:font="@font/firasans_regular"
-        app:fontStyle="normal" app:fontWeight="400" app:font="@font/firasans_regular"/>
-    <font android:fontStyle="italic" android:fontWeight="400" android:font="@font/firasans_italic"
-        app:fontStyle="italic" app:fontWeight="400" app:font="@font/firasans_italic" />
-    <font android:fontStyle="normal" android:fontWeight="700" android:font="@font/firasans_bold"
-        app:fontStyle="normal" app:fontWeight="700" app:font="@font/firasans_bold"/>
+    <font android:fontStyle="normal" android:fontWeight="400" android:font="@font/firasans/firasans_regular"
+        app:fontStyle="normal" app:fontWeight="400" app:font="@font/firasans/firasans_regular"/>
+    <font android:fontStyle="italic" android:fontWeight="400" android:font="@font/firasans/firasans_italic"
+        app:fontStyle="italic" app:fontWeight="400" app:font="@font/firasans/firasans_italic" />
+    <font android:fontStyle="normal" android:fontWeight="700" android:font="@font/firasans/firasans_bold"
+        app:fontStyle="normal" app:fontWeight="700" app:font="@font/firasans/firasans_bold"/>
 </font-family>

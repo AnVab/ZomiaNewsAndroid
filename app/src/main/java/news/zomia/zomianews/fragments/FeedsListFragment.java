@@ -93,10 +93,14 @@ public class FeedsListFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        Bundle arguments = getArguments();
-        boolean showArrow = arguments.getBoolean("showArrow", false);
-        boolean showBurger = arguments.getBoolean("showBurger", false);
 
+        boolean showArrow = false;
+        boolean showBurger = true;
+        Bundle arguments = getArguments();
+        if(arguments != null) {
+            showArrow = arguments.getBoolean("showArrow", false);
+            showBurger = arguments.getBoolean("showBurger", false);
+        }
         //Add the fragment appbar toolbar
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
         toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));

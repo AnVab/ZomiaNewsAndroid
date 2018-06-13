@@ -79,6 +79,7 @@ public class StoryViewerFragment extends Fragment
     private StoryViewModel storyViewModel;
     @Inject
     SharedPreferences sharedPref;
+    SharedPreferences.Editor editorSharedPreferences;
     @Inject
     DataRepository dataRepo;
 
@@ -98,11 +99,14 @@ public class StoryViewerFragment extends Fragment
     private String storyDateText;
     private float bottomRefreshLayoutValue = 0;
 
+    PopupWindow popupWindow;
     String story_viewer_font;
+    String story_viewer_font_file;
     int story_viewer_font_size;
     String story_viewer_text_alignment;
     float story_viewer_text_spacing;
     String story_viewer_background_color;
+    String story_viewer_text_color;
 
     public StoryViewerFragment() {
         // Required empty public constructor
@@ -111,13 +115,17 @@ public class StoryViewerFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        editorSharedPreferences = sharedPref.edit();
         // Inflate the layout for this fragment
         rootView =  inflater.inflate(R.layout.layout_news_viewer, container, false);
 
+        boolean showArrow = true;
+        boolean showBurger = true;
         Bundle arguments = getArguments();
-        boolean showArrow = arguments.getBoolean("showArrow", false);
-        boolean showBurger = arguments.getBoolean("showBurger", false);
+        if(arguments != null) {
+            showArrow = arguments.getBoolean("showArrow", false);
+            showBurger = arguments.getBoolean("showBurger", false);
+        }
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.action_toolbar);
         if(showArrow) {
@@ -137,6 +145,8 @@ public class StoryViewerFragment extends Fragment
             toolbar.getMenu().findItem(R.id.action_settings).setVisible(false);
             toolbar.getMenu().findItem(R.id.logout).setVisible(false);
         }
+
+        loadStoryViewerSettings();
         return rootView;
     }
 
@@ -171,17 +181,10 @@ public class StoryViewerFragment extends Fragment
         }
     };
 
-    public void showTextFormatPopupMenu(View v) {
-        PopupMenu popup = new PopupMenu(getActivity(), v);
-        popup.setOnMenuItemClickListener(this);
-        popup.inflate(R.menu.action_menu);
-        popup.show();
-    }
-
     public PopupWindow popupDisplay()
     {
-
-        final PopupWindow popupWindow = new PopupWindow(getContext());
+        if(popupWindow == null)
+            popupWindow = new PopupWindow(getContext());
 
         // inflate your layout or dynamically add view
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -208,6 +211,26 @@ public class StoryViewerFragment extends Fragment
                         font2Button.setSelected(!view.isSelected());
                     if (view.getId() != R.id.font3Button)
                         font3Button.setSelected(!view.isSelected());
+
+                    if(view.isSelected()) {
+                        if (view.getId() == R.id.font1Button) {
+                            story_viewer_font = getString(R.string.preferences_story_viewer_font1);
+                            story_viewer_font_file = getString(R.string.preferences_story_viewer_font1_file);
+                        }
+                        if (view.getId() == R.id.font2Button) {
+                            story_viewer_font = getString(R.string.preferences_story_viewer_font2);
+                            story_viewer_font_file = getString(R.string.preferences_story_viewer_font2_file);
+                        }
+                        if (view.getId() == R.id.font3Button) {
+                            story_viewer_font = getString(R.string.preferences_story_viewer_font3);
+                            story_viewer_font_file = getString(R.string.preferences_story_viewer_font3_file);
+                        }
+                        //Save value
+                        editorSharedPreferences.putString(getString(R.string.preferences_story_viewer_font), story_viewer_font);
+                        editorSharedPreferences.commit();
+
+                        loadContent(false);
+                    }
                 }
             }
         };
@@ -237,9 +260,28 @@ public class StoryViewerFragment extends Fragment
                         background4Button.setSelected(!view.isSelected());
 
                     if(view.isSelected()) {
-                        /*GradientDrawable drawable = (GradientDrawable) view.getBackground();
-                        story_viewer_background_color = String.format("#%06X", 0xFFFFFF & drawable.getColor().getDefaultColor());
-                        Log.d("ZOMIA", "COLOR WEBVIEW " + story_viewer_background_color);*/
+                        if (view.getId() == R.id.background1Button)
+                            story_viewer_background_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background1));
+                        if (view.getId() == R.id.background2Button)
+                            story_viewer_background_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background2));
+                        if (view.getId() == R.id.background3Button)
+                            story_viewer_background_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background3));
+                        if (view.getId() == R.id.background4Button)
+                            story_viewer_background_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background4));
+
+                        //Set the contrast text color with background
+                        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background1))) == 0 ||
+                                story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background2))) == 0)
+                            story_viewer_text_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_text_color1));
+                        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background3))) == 0 ||
+                                story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background4))) == 0)
+                            story_viewer_text_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_text_color2));
+
+                        //Save value
+                        editorSharedPreferences.putString(getString(R.string.preferences_story_viewer_background_color), story_viewer_background_color);
+                        editorSharedPreferences.commit();
+
+                        loadContent(false);
                     }
                 }
             }
@@ -249,18 +291,72 @@ public class StoryViewerFragment extends Fragment
         background3Button.setOnClickListener(backgroundButtonOnClickListener);
         background4Button.setOnClickListener(backgroundButtonOnClickListener);
 
-        /*if(story_viewer_background_color == getResources().getColor(R.color.story_viewer_page_background1))
-            font1Button.setSelected(true);*/
-
         //font size
         Button fontSizeDecreaseButton = (Button)  view.findViewById(R.id.fontSizeDecreaseButton);
         Button fontSizeIncreaseButton = (Button)  view.findViewById(R.id.fontSizeIncreaseButton);
         TextView fontSizeTextView = (TextView) view.findViewById(R.id.fontSizeTextView);
+        fontSizeTextView.setText(String.valueOf(story_viewer_font_size));
+        fontSizeDecreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(story_viewer_font_size > 0)
+                    story_viewer_font_size = story_viewer_font_size - 1;
+                fontSizeTextView.setText(String.valueOf(story_viewer_font_size));
+
+                //Save value
+                editorSharedPreferences.putInt(getString(R.string.preferences_story_viewer_font_size), story_viewer_font_size);
+                editorSharedPreferences.commit();
+
+                loadContent(false);
+            }
+        });
+
+        fontSizeIncreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                story_viewer_font_size = story_viewer_font_size + 1;
+                fontSizeTextView.setText(String.valueOf(story_viewer_font_size));
+
+                //Save value
+                editorSharedPreferences.putInt(getString(R.string.preferences_story_viewer_font_size), story_viewer_font_size);
+                editorSharedPreferences.commit();
+
+                loadContent(false);
+            }
+        });
 
         //text spacing
         Button increaseTextSpacingButton = (Button)  view.findViewById(R.id.increaseTextSpacingButton);
         Button decreaseTextSpacingButton = (Button)  view.findViewById(R.id.decreaseTextSpacingButton);
         TextView textSpacingTextView = (TextView) view.findViewById(R.id.textSpacingTextView);
+        textSpacingTextView.setText(String.format("%.1f", story_viewer_text_spacing));
+        decreaseTextSpacingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(story_viewer_text_spacing > 0)
+                    story_viewer_text_spacing = story_viewer_text_spacing - 0.1f;
+                textSpacingTextView.setText(String.format("%.1f", story_viewer_text_spacing));
+
+                //Save value
+                editorSharedPreferences.putFloat(getString(R.string.preferences_story_viewer_text_spacing), story_viewer_text_spacing);
+                editorSharedPreferences.commit();
+
+                loadContent(false);
+            }
+        });
+        increaseTextSpacingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                story_viewer_text_spacing = story_viewer_text_spacing + 0.1f;
+                textSpacingTextView.setText(String.format("%.1f", story_viewer_text_spacing));
+
+                //Save value
+                editorSharedPreferences.putFloat(getString(R.string.preferences_story_viewer_text_spacing), story_viewer_text_spacing);
+                editorSharedPreferences.commit();
+
+                loadContent(false);
+            }
+        });
 
         //text alignment
         Button textAlignJustifyButton = (Button)  view.findViewById(R.id.textAlignJustifyButton);
@@ -276,11 +372,46 @@ public class StoryViewerFragment extends Fragment
                         textAlignJustifyButton.setSelected(!view.isSelected());
                     if (view.getId() != R.id.textAlignLeftButton)
                         textAlignLeftButton.setSelected(!view.isSelected());
+
+                    if(view.isSelected()) {
+                        if (view.getId() == R.id.textAlignJustifyButton)
+                            story_viewer_text_alignment = getString(R.string.preferences_story_viewer_text_alignment_justify);
+                        if (view.getId() == R.id.textAlignLeftButton)
+                            story_viewer_text_alignment = getString(R.string.preferences_story_viewer_text_alignment_left);
+
+                        //Save value
+                        editorSharedPreferences.putString(getString(R.string.preferences_story_viewer_text_alignment), story_viewer_text_alignment);
+                        editorSharedPreferences.commit();
+
+                        loadContent(false);
+                    }
                 }
             }
         };
         textAlignJustifyButton.setOnClickListener(textAlignButtonOnClickListener);
         textAlignLeftButton.setOnClickListener(textAlignButtonOnClickListener);
+
+        //select UI controls with correspondense to settings
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font1)) == 0)
+            ((View)font1Button).setSelected(true);
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font2)) == 0)
+            ((View)font2Button).setSelected(true);
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font3)) == 0)
+            ((View)font3Button).setSelected(true);
+
+        if(story_viewer_text_alignment.compareTo(getString(R.string.preferences_story_viewer_text_alignment_justify)) == 0)
+            ((View)textAlignJustifyButton).setSelected(true);
+        if(story_viewer_text_alignment.compareTo(getString(R.string.preferences_story_viewer_text_alignment_left)) == 0)
+            ((View)textAlignLeftButton).setSelected(true);
+
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background1))) == 0)
+            ((View)background1Button).setSelected(true);
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background2))) == 0)
+            ((View)background2Button).setSelected(true);
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background3))) == 0)
+            ((View)background3Button).setSelected(true);
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background4))) == 0)
+            ((View)background4Button).setSelected(true);
 
         popupWindow.setFocusable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
@@ -295,9 +426,16 @@ public class StoryViewerFragment extends Fragment
     private void loadStoryViewerSettings()
     {
         //Get preferences values
-        story_viewer_font = sharedPref.getString(getString(R.string.preferences_story_viewer_font), getString(R.string.preferences_story_viewer_font_default));
+        story_viewer_font = sharedPref.getString(getString(R.string.preferences_story_viewer_font), getString(R.string.preferences_story_viewer_font1));
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font1)) == 0)
+            story_viewer_font_file = getString(R.string.preferences_story_viewer_font1_file);
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font2)) == 0)
+            story_viewer_font_file = getString(R.string.preferences_story_viewer_font2_file);
+        if(story_viewer_font.compareTo(getString(R.string.preferences_story_viewer_font3)) == 0)
+            story_viewer_font_file = getString(R.string.preferences_story_viewer_font3_file);
+
         story_viewer_font_size = sharedPref.getInt(getString(R.string.preferences_story_viewer_font_size), getContext().getResources().getInteger(R.integer.preferences_story_viewer_font_size_default));
-        story_viewer_text_alignment = sharedPref.getString(getString(R.string.preferences_story_viewer_text_alignment), getString(R.string.preferences_story_viewer_text_alignment_default));
+        story_viewer_text_alignment = sharedPref.getString(getString(R.string.preferences_story_viewer_text_alignment), getString(R.string.preferences_story_viewer_text_alignment_left));
 
         TypedValue typedValue = new TypedValue();
         getResources().getValue(R.dimen.preferences_story_viewer_text_spacing_default, typedValue, true);
@@ -305,6 +443,13 @@ public class StoryViewerFragment extends Fragment
         story_viewer_text_spacing = sharedPref.getFloat(getString(R.string.preferences_story_viewer_text_spacing), floatValue);
 
         story_viewer_background_color = sharedPref.getString(getString(R.string.preferences_story_viewer_background_color), getString(R.string.preferences_story_viewer_background_color_default));
+        //Set the contrast text color with background
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background1))) == 0 ||
+            story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background2))) == 0)
+            story_viewer_text_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_text_color1));
+        if(story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background3))) == 0 ||
+           story_viewer_background_color.compareTo(String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_background4))) == 0)
+            story_viewer_text_color = String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.story_viewer_page_text_color2));
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -623,14 +768,16 @@ public class StoryViewerFragment extends Fragment
 
         return "<style type=\"text/css\">" +
                 "@font-face {" +
-                "font-family: firasans;" +
-                "src: url(\"file:///android_asset/fonts/firasans_regular.ttf\")}" +
+                "font-family: " + story_viewer_font + ";" +
+                "src: url(\"file:///android_asset/fonts/" + story_viewer_font + "/" + story_viewer_font_file + "\")}" +
                 "body {" +
-                "font-family: firasans;" +
-                "font-size: medium;" +
-                "text-align: justify;" +
+                "font-family: " + story_viewer_font + ";" +
+                "font-size: " + String.valueOf(story_viewer_font_size) + "px;" +
+                "text-align: " + story_viewer_text_alignment + ";" +
+                "line-height:" +String.valueOf(story_viewer_text_spacing) + "em;"+
                 "margin: 8px;" +
                 "padding: 8px;" +
+                "color:" + story_viewer_text_color + ";" +
                 "background-color:" + story_viewer_background_color + ";" +
                 "}" +
                 "a:hover, a:visited, a:link, a:active {" +
@@ -638,10 +785,10 @@ public class StoryViewerFragment extends Fragment
                 "}" +
                 "img{display: inline;height: auto;max-width: 100%;}"+
                 "h2 {" +
-                "text-align: left;" +
+                "text-align: " + story_viewer_text_alignment + ";" +
                 "}" +
                 "h6 {" +
-                "text-align: left;" +
+                "text-align: " + story_viewer_text_alignment + ";" +
                 "}" +
                 "</style>" +
                 (addBodyTagStart ? "<body>" : "") +

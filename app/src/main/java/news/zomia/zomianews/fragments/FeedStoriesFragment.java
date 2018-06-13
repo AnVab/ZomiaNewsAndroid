@@ -81,9 +81,13 @@ public class FeedStoriesFragment extends Fragment implements
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
+        boolean showArrow = true;
+        boolean showBurger = true;
         Bundle arguments = getArguments();
-        boolean showArrow = arguments.getBoolean("showArrow", false);
-        boolean showBurger = arguments.getBoolean("showBurger", false);
+        if(arguments != null) {
+            showArrow = arguments.getBoolean("showArrow", false);
+            showBurger = arguments.getBoolean("showBurger", false);
+        }
 
         toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_feed_stories_fragment);
         toolbar.setBackground(getContext().getResources().getDrawable(R.drawable.action_bar_color));

@@ -4,7 +4,7 @@
     <string name="preferences_serverAddress" translatable="false">serverAddress</string>
     <string name="preferences_serverPort" translatable="false">serverPort</string>
 
-    <string name="preferences_serverAddress_default" translatable="false">10.0.2.2</string>
+    <string name="preferences_serverAddress_default" translatable="false">192.168.1.242</string>
     <string name="preferences_serverPort_default" translatable="false">8000</string>
 
     <string name="preferences_story_viewer_font" translatable="false">story_viewer_font</string>
@@ -12,8 +12,14 @@
     <string name="preferences_story_viewer_text_alignment" translatable="false">story_viewer_text_alignment</string>
     <string name="preferences_story_viewer_text_spacing" translatable="false">story_viewer_text_spacing</string>
 
-    <string name="preferences_story_viewer_font_default" translatable="false">fira_sans</string>
-    <string name="preferences_story_viewer_text_alignment_default" translatable="false">justify</string>
+    <string name="preferences_story_viewer_font1" translatable="false">firasans</string>
+    <string name="preferences_story_viewer_font1_file" translatable="false">firasans_regular.otf</string>
+    <string name="preferences_story_viewer_font2" translatable="false">ptsans</string>
+    <string name="preferences_story_viewer_font2_file" translatable="false">ptsans_regular.ttf</string>
+    <string name="preferences_story_viewer_font3" translatable="false">ptserif</string>
+    <string name="preferences_story_viewer_font3_file" translatable="false">ptserif_regular.ttf</string>
+    <string name="preferences_story_viewer_text_alignment_justify" translatable="false">justify</string>
+    <string name="preferences_story_viewer_text_alignment_left" translatable="false">left</string>
     <string name="preferences_story_viewer_background_color" translatable="false">story_viewer_background_color</string>
 
     <string name="preferences_story_viewer_background_color_default">#FFFFFF</string>

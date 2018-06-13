@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="preferences_story_viewer_font_size_default">12</integer>
+    <integer name="preferences_story_viewer_font_size_default">13</integer>
 </resources>
