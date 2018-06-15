@@ -871,7 +871,7 @@ public class StoryViewerFragment extends Fragment
                 if(URLUtil.isNetworkUrl(currentStory.getContent()))
                     contentUrl = currentStory.getContent();
                 else
-                    contentUrl = "/storage/" + currentStory.getContent();
+                    contentUrl = serverUrl + "/storage/" + currentStory.getContent();
 
                 //Check if we have a story in cache already. If not, send request to the remote server
                 StoryCache storyCache = feedDao.findStoryInCacheByLink(contentUrl);
@@ -882,7 +882,7 @@ public class StoryViewerFragment extends Fragment
                 else{
                     // Connect to the web site
                     //Document document = Jsoup.parse(new URL(url).openStream(), "UTF-8", url);
-                    Document document = Jsoup.connect(serverUrl + contentUrl)
+                    Document document = Jsoup.connect(contentUrl)
                             .timeout(5000)
                             .get();
                     dataBody = document.body().toString();
