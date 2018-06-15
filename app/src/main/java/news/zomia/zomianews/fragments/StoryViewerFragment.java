@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -865,7 +866,12 @@ public class StoryViewerFragment extends Fragment
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                String contentUrl = "/storage/" + currentStory.getContent();
+                String contentUrl = "";
+                //Check if url starts with http or https
+                if(URLUtil.isNetworkUrl(currentStory.getContent()))
+                    contentUrl = currentStory.getContent();
+                else
+                    contentUrl = "/storage/" + currentStory.getContent();
 
                 //Check if we have a story in cache already. If not, send request to the remote server
                 StoryCache storyCache = feedDao.findStoryInCacheByLink(contentUrl);
