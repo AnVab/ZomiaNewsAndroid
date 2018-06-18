@@ -28,6 +28,7 @@
     <string name="select_opml_file">Select OPML file</string>
     <string name="opml_file_importing">OPML file is importing</string>
     <string name="go_to_next_story">Next story</string>
+    <string name="feed_is_broken">Feed is broken. Please, check the URL.</string>
 
     <string name="no_server_connection">No server connection</string>
     <string name="connection_problem">Connection problem</string>

@@ -181,15 +181,22 @@ public class FeedsListFragment extends Fragment implements
         int groupPosition, int childPosition, long id) {
             final Feed selectedFeed = (Feed) expListAdapter.getChild(groupPosition, childPosition);
 
-            Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
-                    .show();
+            if(!selectedFeed.getBroken()) {
+                Toast.makeText(getActivity(), selectedFeed.getTitle(), Toast.LENGTH_SHORT)
+                        .show();
 
-            //Set feed as selected on the viewmodel
-            feedViewModel.setSelectedFeed(selectedFeed);
-            onFeedsListListenerCallback.onFeedSelected();
+                //Set feed as selected on the viewmodel
+                feedViewModel.setSelectedFeed(selectedFeed);
+                onFeedsListListenerCallback.onFeedSelected();
 
-            if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            /*if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(feedViewModel.getSelectedFeedId().getValue().getTitle());
+            }*/
+            }
+            else
+            {
+                Toast.makeText(getActivity(), getString(R.string.feed_is_broken), Toast.LENGTH_SHORT)
+                        .show();
             }
             return true;
         }

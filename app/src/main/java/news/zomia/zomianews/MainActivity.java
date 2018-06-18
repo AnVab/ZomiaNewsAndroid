@@ -336,6 +336,11 @@ public class MainActivity extends AppCompatActivity
 
     public void LoadFeedsListFragment()
     {
+        showFeedListFragment(true);
+    }
+
+    public void showFeedListFragment(boolean slideInRightSlideOutLeft)
+    {
         ON_ROTATION_ACTIVE_FEED_FRAME = ON_ROTATION_FRAGMENTS_STATE_FEED_LIST;
 
         if(getLandscapeOrientationTablet()) {
@@ -355,6 +360,11 @@ public class MainActivity extends AppCompatActivity
             FeedsListFragment feedsListFragment = new FeedsListFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            if (slideInRightSlideOutLeft)
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+            else
+                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
             fragmentTransaction.replace(dataContainerId, feedsListFragment);
             fragmentTransaction.addToBackStack("feedsListFragment");
             fragmentTransaction.commit();
@@ -467,8 +477,22 @@ public class MainActivity extends AppCompatActivity
                         break;
                 }
             }
-            else
-                super.onBackPressed();
+            else {
+                switch (ON_ROTATION_ACTIVE_FEED_FRAME) {
+                    case ON_ROTATION_FRAGMENTS_STATE_FEED_LIST:
+                        //super.onBackPressed();
+                        break;
+                    case ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST:
+                        showFeedListFragment(false);
+                        break;
+                    case ON_ROTATION_FRAGMENTS_STATE_STORY_VIEWER:
+                        goBackToStoriesList();
+                        break;
+                    default:
+                        super.onBackPressed();
+                        break;
+                }
+            }
         }
     }
 

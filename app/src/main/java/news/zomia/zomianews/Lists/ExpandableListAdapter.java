@@ -116,20 +116,29 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
         ImageView faviconImageView = (ImageView)  view.findViewById(R.id.faviconImageView);
 
-        //Load feed favicon. If image not loaded, show default icon.
-        String faviconUrl = feed.getIcon();
-        if (faviconUrl != null && !faviconUrl.isEmpty()) {
-            //final int radius = 50;
-            //final int margin = 0;
-            //final Transformation transformation = new RoundedCornersTransformation(radius, margin);
-            Picasso.with(viewGroup.getContext())
-                    .load(faviconUrl)
-                    .fit()
-                    .centerCrop()
-                    .placeholder(R.drawable.progress_animation)
-                    .error(R.drawable.error_image)
-                    //.transform(transformation)
-                    .into(faviconImageView);
+        //Check if a feed is broken
+        if(!feed.getBroken()) {
+            //Load feed favicon. If image not loaded, show default icon.
+            String faviconUrl = feed.getIcon();
+            if (faviconUrl != null && !faviconUrl.isEmpty()) {
+                //final int radius = 50;
+                //final int margin = 0;
+                //final Transformation transformation = new RoundedCornersTransformation(radius, margin);
+                Picasso.with(viewGroup.getContext())
+                        .load(faviconUrl)
+                        .fit()
+                        .centerCrop()
+                        .placeholder(R.drawable.progress_animation)
+                        .error(R.drawable.error_image)
+                        //.transform(transformation)
+                        .into(faviconImageView);
+            }
+        }
+        else
+        {
+            //Feed is broken
+            item.setTextColor(view.getResources().getColor(R.color.read_status_gray_out_text));
+            faviconImageView.setImageDrawable(view.getResources().getDrawable(R.drawable.error_image));
         }
         return view;
     }

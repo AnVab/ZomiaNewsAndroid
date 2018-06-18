@@ -720,6 +720,9 @@ public class StoryViewerFragment extends Fragment
                         //.transform(transformation)
                         .into(expandedImageAppBar);
             }
+            else
+                expandedImageAppBar.setImageResource(android.R.color.transparent);
+
             //Set image color filter
             expandedImageAppBar.setColorFilter(Color.argb(180,45,74,161));
 
