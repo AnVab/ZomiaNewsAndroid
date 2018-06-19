@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:drawSelectorOnTop="false"
-            android:dropDownWidth="4000dp"
+
             android:dropDownVerticalOffset="-7dp"
             android:overlapAnchor="false"
             app:layout_constraintBottom_toBottomOf="@+id/feedSourcePathTextView"

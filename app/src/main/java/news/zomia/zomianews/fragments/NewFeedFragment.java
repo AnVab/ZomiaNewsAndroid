@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -59,7 +60,6 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  */
 public class NewFeedFragment extends Fragment implements
-        AdapterView.OnItemSelectedListener,
         LifecycleRegistryOwner,
         Injectable {
 
@@ -128,15 +128,6 @@ public class NewFeedFragment extends Fragment implements
         MaterialButton addFeedButton = (MaterialButton) view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(addFeedButtonOnClickListener);
 
-        //Feed channel type
-        Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
-        ArrayList<CharSequence> feedTypesArray = new ArrayList(Arrays.asList(getResources().getStringArray(R.array.channel_categories)));
-        SpinnerFeedTypeAdapter feedTypeListAdapter = new SpinnerFeedTypeAdapter(getContext(),
-                R.layout.layout_spinner_feed_type_row, feedTypesArray);
-        feedTypeListAdapter.setDropDownViewResource(R.layout.layout_spinner_feed_type_row);
-        feedTypeList.setAdapter(feedTypeListAdapter);
-        feedTypeList.setOnItemSelectedListener(this);
-
         opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar_edit_feed_fragment);
@@ -152,6 +143,22 @@ public class NewFeedFragment extends Fragment implements
         //Add menu for the toolbar
         toolbar.inflateMenu(R.menu.edit_feed_menu);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
+        //Feed channel type
+        Spinner feedTypeList = (Spinner) view.findViewById(R.id.feedTypeList);
+        ArrayList<CharSequence> feedTypesArray = new ArrayList(Arrays.asList(getResources().getStringArray(R.array.channel_categories)));
+        SpinnerFeedTypeAdapter feedTypeListAdapter = new SpinnerFeedTypeAdapter(getContext(),
+                R.layout.layout_spinner_feed_type_row, feedTypesArray);
+        feedTypeListAdapter.setDropDownViewResource(R.layout.layout_spinner_feed_type_row);
+        feedTypeList.setAdapter(feedTypeListAdapter);
+        feedTypeList.setOnItemSelectedListener(onFeedListItemSelected);
+        //Set width for the drop down list
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                feedTypeList.setDropDownWidth(view.getWidth());
+            }
+        });
     }
 
     Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
@@ -163,6 +170,25 @@ public class NewFeedFragment extends Fragment implements
                     return true;
             }
             return true;
+        }
+    };
+
+    AdapterView.OnItemSelectedListener onFeedListItemSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            if(adapterView.getItemAtPosition(i).toString().compareToIgnoreCase("Youtube") == 0)
+                feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.youtube_logo, 0, 0, 0);
+            if(adapterView.getItemAtPosition(i).toString().compareToIgnoreCase("RSS") == 0)
+                feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.rss_logo, 0, 0, 0);
+            if(adapterView.getItemAtPosition(i).toString().compareToIgnoreCase("Telegram") == 0)
+                feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.telegram_logo, 0, 0, 0);
+            if(adapterView.getItemAtPosition(i).toString().compareToIgnoreCase("Facebook") == 0)
+                feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.facebook_logo, 0, 0, 0);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
         }
     };
 
@@ -471,22 +497,6 @@ public class NewFeedFragment extends Fragment implements
     public interface OnFeedAddedListener {
         public void onFeedAdded();
         public void onFeedUpdated();
-    }
-
-    public void onItemSelected(AdapterView<?> parent, View view,
-                               int pos, long id) {
-        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Youtube") == 0)
-            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.youtube_logo, 0, 0, 0);
-        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("RSS") == 0)
-            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.rss_logo, 0, 0, 0);
-        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Telegram") == 0)
-            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.telegram_logo, 0, 0, 0);
-        if(parent.getItemAtPosition(pos).toString().compareToIgnoreCase("Facebook") == 0)
-            feedSourcePathTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.facebook_logo, 0, 0, 0);
-    }
-
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
     }
 
     public void openOPMLFile()
