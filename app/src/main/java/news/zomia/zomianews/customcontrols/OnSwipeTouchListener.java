@@ -89,8 +89,8 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
 
-            /*if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-                return false;*/
+            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                return false;
             if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
                     && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                 onSwipeLeft();
