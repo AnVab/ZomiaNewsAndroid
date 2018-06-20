@@ -102,7 +102,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
 
         TextView item = (TextView) view.findViewById(R.id.titleTextView);
         item.setText(feed.getTitle());
-
+        item.setTextColor(view.getResources().getColor(R.color.feeds_list_item_text));
         /*TextView channelType = (TextView) view.findViewById(R.id.descriptionTextView);
         channelType.setText("rss");*/
 
@@ -137,7 +137,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
         else
         {
             //Feed is broken
-            item.setTextColor(view.getResources().getColor(R.color.read_status_gray_out_text));
+            item.setTextColor(view.getResources().getColor(R.color.feeds_list_item_text_broken));
             faviconImageView.setImageDrawable(view.getResources().getDrawable(R.drawable.error_image));
         }
         return view;
@@ -151,8 +151,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter
             view = inflater.inflate(R.layout.layout_feeds_list_group_item, null);
         }
         TextView item = (TextView) view.findViewById(R.id.tagNameTextView);
-        //item.setTypeface(null, Typeface.BOLD);
         item.setText(tag);
+        item.setTextColor(view.getResources().getColor(R.color.feeds_list_group_item_text));
 
         //Set feeds count for the tag
         TextView itemFeedCount = (TextView) view.findViewById(R.id.tagFeedsCountTextView);

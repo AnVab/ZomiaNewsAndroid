@@ -15,6 +15,9 @@
     <color name="feeds_list_group">@android:color/white</color>
     <color name="feeds_list_item">#efefef</color>
     <color name="feeds_list_group_item_count_feeds">#ffe030</color>
+    <color name="feeds_list_group_item_text">#2a394c</color>
+    <color name="feeds_list_item_text">#2a394c</color>
+    <color name="feeds_list_item_text_broken">#3c010101</color>
 
     <color name="read_status_gray_out">#1e999999</color>
     <color name="read_status_gray_out_text">#3c010101</color>
