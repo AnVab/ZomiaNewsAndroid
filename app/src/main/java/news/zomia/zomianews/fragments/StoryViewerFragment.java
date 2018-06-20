@@ -5,9 +5,11 @@ import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -601,6 +603,15 @@ public class StoryViewerFragment extends Fragment
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 Toast.makeText(getActivity(), getString(R.string.page_loading_error) + ": " + description, Toast.LENGTH_SHORT).show();
             }
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+                    view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         });
         storyPageViewer.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
@@ -735,14 +746,27 @@ public class StoryViewerFragment extends Fragment
 
             appBarStoryTitle.setText(currentStory.getTitle());
             appBarStoryDate.setText(storyDateText);
-
+            appBarStoryTitle.setOnClickListener(null);
+            appBarStoryTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), getString(R.string.loading_story_source_link) + ": " + currentStory.getLink(), Toast.LENGTH_SHORT).show();
+                    getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentStory.getLink())));
+                }
+            });
+            expandedImageAppBar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), getString(R.string.loading_story_source_link) + ": " + currentStory.getLink(), Toast.LENGTH_SHORT).show();
+                    getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentStory.getLink())));
+                }
+            });
             String serverUrl = "";
             String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
             String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
 
             serverUrl = "http://" + serverAddress + ":" + serverPort;
             new GetPage(serverUrl, currentStory, dataRepo.getFeedDao(), forceUpdate).execute();
-
         }
     }
 

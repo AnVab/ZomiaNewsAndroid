@@ -67,4 +67,5 @@
     <string name="status_reading">reading</string>
     <string name="status_unread">new</string>
 
+    <string name="loading_story_source_link">Loading story source URL</string>
 </resources>
