@@ -489,18 +489,9 @@ public class FeedsListFragment extends Fragment implements
                 if (feedList != null) {
                     feedList.add(tagFeedPair.feed);
                 } else {
-                    // Key might be present
-                    if (feedsCollection.containsKey(tagFeedPair.tag.getName())) {
-                        // Okay, there's a key but the value is null
-                        feedList = new ArrayList<Feed>();
-                        feedList.add(tagFeedPair.feed);
-                        feedsCollection.put(tagFeedPair.tag.getName(),feedList);
-                    } else {
-                        // Definitely no such key
-                        feedList = new ArrayList<Feed>();
-                        feedList.add(tagFeedPair.feed);
-                        feedsCollection.put(tagFeedPair.tag.getName(),feedList);
-                    }
+                    feedList = new ArrayList<Feed>();
+                    feedList.add(tagFeedPair.feed);
+                    feedsCollection.put(tagFeedPair.tag.getName(),feedList);
                 }
             }
 
@@ -523,18 +514,9 @@ public class FeedsListFragment extends Fragment implements
                 feedList.clear();
                 feedList.addAll(resource.data);
             } else {
-                // Key might be present
-                if (feedsCollection.containsKey(getString(R.string.tag_undecided))) {
-                    // Okay, there's a key but the value is null
-                    feedList = new ArrayList<Feed>();
-                    feedList.addAll(resource.data);
-                    feedsCollection.put(getString(R.string.tag_undecided),feedList);
-                } else {
-                    // Definitely no such key
-                    feedList = new ArrayList<Feed>();
-                    feedList.addAll(resource.data);
-                    feedsCollection.put(getString(R.string.tag_undecided),feedList);
-                }
+                feedList = new ArrayList<Feed>();
+                feedList.addAll(resource.data);
+                feedsCollection.put(getString(R.string.tag_undecided),feedList);
             }
 
             if(expListAdapter != null)
