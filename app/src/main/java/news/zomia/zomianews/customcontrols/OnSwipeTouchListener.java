@@ -53,8 +53,6 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
                 break;
         }
 
-
-
         //stop default scroll action
         if(event.getAction()== MotionEvent.ACTION_MOVE) {
             return true;
@@ -83,11 +81,11 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
             final int SWIPE_MAX_OFF_PATH = 250;
             final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
+            /*if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
                     && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY){
                 onSwipeUp();
                 return super.onFling(e1, e2, velocityX, velocityY);
-            }
+            }*/
 
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
                 return false;

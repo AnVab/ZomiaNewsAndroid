@@ -48,7 +48,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     private StoryViewHolder.ClickListener clickListener;
     private ListItemClickListener itemClickListener;
 
-    public StoriesAdapter(Context context, StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
+    public StoriesAdapter(Context context){//, StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
         super(Story.DIFF_CALLBACK);
 
         this.clickListener = clickListener;

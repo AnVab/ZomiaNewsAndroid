@@ -3,9 +3,7 @@ package news.zomia.zomianews.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.paging.PagedList;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,6 +25,7 @@ import javax.inject.Inject;
 
 import news.zomia.zomianews.Lists.storyadapter.StoriesAdapter;
 import news.zomia.zomianews.R;
+import news.zomia.zomianews.customcontrols.RecyclerViewTouchListener;
 import news.zomia.zomianews.data.model.Story;
 import news.zomia.zomianews.data.util.ListItemClickListener;
 import news.zomia.zomianews.data.viewmodel.FeedViewModel;
@@ -39,7 +38,6 @@ import news.zomia.zomianews.di.Injectable;
  * A simple {@link Fragment} subclass.
  */
 public class FeedStoriesFragment extends Fragment implements
-        StoriesAdapter.StoryViewHolder.ClickListener,
         ListItemClickListener,
         SwipeRefreshLayout.OnRefreshListener,
         LifecycleRegistryOwner,
@@ -52,11 +50,11 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Inject
     FeedViewModelFactory feedViewModelFactory;
-    private FeedViewModel feedViewModel;
+    public FeedViewModel feedViewModel;
 
     @Inject
     StoryViewModelFactory storyViewModelFactory;
-    private StoryViewModel storyViewModel;
+    public StoryViewModel storyViewModel;
 
     SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storiesListView;
@@ -152,6 +150,28 @@ public class FeedStoriesFragment extends Fragment implements
                 llm.getOrientation());
         dividerItemDecoration.setDrawable(getContext().getResources().getDrawable(R.drawable.stories_list_divider));
         storiesListView.addItemDecoration(dividerItemDecoration);
+
+
+        storiesListView.addOnItemTouchListener(new RecyclerViewTouchListener(getContext(),
+                storiesListView,
+                new RecyclerViewTouchListener.OnTouchActionListener() {
+                    @Override
+                    public void onLeftSwipe(View view, int position) {
+                    }
+
+                    @Override
+                    public void onRightSwipe(View view, int position) {
+                        getActivity().onBackPressed();
+                    }
+
+                    @Override
+                    public void onClick(View view, int position) {
+                        storyViewModel.setCurrentStoryPosition(position);
+
+                        Story selectedStory = (Story) storiesAdapter.getStory(position);
+                        onStorySelectedListenerCallback.onStorySelected(selectedStory);
+                    }
+                }));
     }
 
     @Override
@@ -160,7 +180,8 @@ public class FeedStoriesFragment extends Fragment implements
 
         feedViewModel = ViewModelProviders.of(getActivity(), feedViewModelFactory).get(FeedViewModel.class);
 
-        storiesAdapter = new StoriesAdapter(getActivity(), this,this);
+        //storiesAdapter = new StoriesAdapter(getActivity(), this,this);
+        storiesAdapter = new StoriesAdapter(getActivity());
         storiesAdapter.setHasStableIds(true);
         storiesListView.setAdapter(storiesAdapter);
 
@@ -234,18 +255,6 @@ public class FeedStoriesFragment extends Fragment implements
         super.onPause();
     }
 
-    @Override
-    public void onItemClicked(int position) {
-        storyViewModel.setCurrentStoryPosition(position);
-
-        Story selectedStory = (Story) storiesAdapter.getStory(position);
-        onStorySelectedListenerCallback.onStorySelected(selectedStory);
-    }
-
-    @Override
-    public boolean onItemLongClicked(int position) {
-        return true;
-    }
 
     @Override
     public void onRefresh() {

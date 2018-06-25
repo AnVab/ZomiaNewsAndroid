@@ -60,7 +60,7 @@ public class FeedsListFragment extends Fragment implements
 
     @Inject
     FeedViewModelFactory feedViewModelFactory;
-    private FeedViewModel feedViewModel;
+    public FeedViewModel feedViewModel;
     private Map<String, List<Feed>> feedsCollection;
     private ExpandableListView expListView;
     private ExpandableListAdapter expListAdapter;

@@ -65,7 +65,6 @@ import news.zomia.zomianews.di.Injectable;
  */
 public class StoryViewerFragment extends Fragment
         implements
-
         LifecycleRegistryOwner,
         Injectable, PopupMenu.OnMenuItemClickListener {
 
@@ -79,7 +78,7 @@ public class StoryViewerFragment extends Fragment
 
     @Inject
     StoryViewModelFactory storyViewModelFactory;
-    private StoryViewModel storyViewModel;
+    public  StoryViewModel storyViewModel;
     @Inject
     SharedPreferences sharedPref;
     SharedPreferences.Editor editorSharedPreferences;
@@ -100,7 +99,6 @@ public class StoryViewerFragment extends Fragment
 
     private Story currentStory;
     private String storyDateText;
-    private float bottomRefreshLayoutValue = 0;
 
     PopupWindow popupWindow;
     String story_viewer_font;
@@ -174,10 +172,8 @@ public class StoryViewerFragment extends Fragment
                     return true;
 
                 case R.id.textFormat:
-                    //showTextFormatPopupMenu(getActivity().findViewById(R.id.textFormat));
-
-                    PopupWindow popupwindow_obj = popupDisplay();
-                    popupwindow_obj.showAsDropDown(getActivity().findViewById(R.id.textFormat), 40, 18);
+                    PopupWindow popupWindowTextFormat = popupDisplay();
+                    popupWindowTextFormat.showAsDropDown(getActivity().findViewById(R.id.textFormat), 40, 18);
                     return true;
             }
             return true;
@@ -492,22 +488,10 @@ public class StoryViewerFragment extends Fragment
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onRefresh(){//SwipyRefreshLayoutDirection direction) {
+            public void onRefresh(){
                 if(storyPageViewer != null) {
                     loadContent(true);
                 }
-                /*if(direction == SwipyRefreshLayoutDirection.TOP)
-                {
-                    if(storyPageViewer != null) {
-                        loadContent(true);
-                    }
-                }
-                else
-                {
-                    //if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
-                        goToNextNews();
-                    //}
-                }*/
             }
         });
 
@@ -528,9 +512,6 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.setScrollbarFadingEnabled(true);
         storyPageViewer.getSettings().setLoadsImagesAutomatically(true);
 
-        //loadNextGuideline = (Guideline) view.findViewById(R.id.loadNextGuideline );
-        //nextStoryLoadProgressBar = (ProgressBar)  view.findViewById(R.id.nextStoryLoadProgressBar);
-
         onSwipeTouchListener = new OnSwipeTouchListener(getActivity()) {
             @Override
             public void onSwipeLeft() {
@@ -544,37 +525,7 @@ public class StoryViewerFragment extends Fragment
 
             @Override
             public void onSwipeUp() {
-                /*if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM) {
-                    goToNextNews();
-                }*/
             }
-
-            /*@Override
-            public void onScrollValue(float yValue) {
-                if(yValue < 0)
-                    collapseNextPageBottomProgress();
-
-                if(WEBVIEW_SCROLLING_STATE == WEBVIEW_AT_BOTTOM)
-                {
-                    if(nextStoryLoadProgressBar.getVisibility() == View.GONE)
-                        nextStoryLoadProgressBar.setVisibility(View.VISIBLE);
-
-                    if(yValue < 0)
-                        bottomRefreshLayoutValue -= 1;
-                    else
-                        bottomRefreshLayoutValue += 1;
-
-                    float value = loadNextGuidelineDefaultPercentage - bottomRefreshLayoutValue * 100 / 200/ 30;
-                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) loadNextGuideline.getLayoutParams();
-                    params.guidePercent = value;
-
-                    //Log.d(TAG, "onSwipeUpValue: " + yValue + " " + value);
-                    loadNextGuideline.setLayoutParams(params);
-
-                    if(value < 0.8f)
-                        goToNextNews();
-                }
-            }*/
         };
 
         //Get scroll view to detect when we reach end of the webview
@@ -635,9 +586,6 @@ public class StoryViewerFragment extends Fragment
                 }
                 else {
                     WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
-
-                    //Hide the next page loading indicator
-                    //collapseNextPageBottomProgress();
                 }
             }
         });
@@ -657,14 +605,6 @@ public class StoryViewerFragment extends Fragment
         });
     }
 
-    /*private void collapseNextPageBottomProgress()
-    {
-        bottomRefreshLayoutValue = 0.0f;
-        nextStoryLoadProgressBar.setVisibility(View.GONE);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) loadNextGuideline.getLayoutParams();
-        params.guidePercent = loadNextGuidelineDefaultPercentage;
-    }*/
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -682,30 +622,25 @@ public class StoryViewerFragment extends Fragment
     public void onStop() {
         //Unsubscribe all livedata observers
         storyViewModel.getCurrentStory().removeObservers(this);
-
         super.onStop();
     }
 
     @JavascriptInterface
     public void goToNextNews()
     {
-        //onStoryViewerListenerCallback.showNextStoryFragment();
         storyViewModel.goToNextCurrentStoryPosition();
         appBarLayout.setExpanded(true);
-       // collapseNextPageBottomProgress();
     }
 
     private void ongetCurrentStory(Resource<Story> resource) {
         // Update the UI.
         if (resource != null && resource.data != null) {
             currentStory = resource.data;
-
             loadContent(false);
         }
         else
-        {
             swipeRefreshLayout.setRefreshing(false);
-        }
+
     }
     @Override
     public LifecycleRegistry getLifecycle() {
@@ -862,8 +797,6 @@ public class StoryViewerFragment extends Fragment
 
     // Container Activity must implement this interface
     public interface OnStoryViewerListener {
-        //public void showNextStoryFragment();
-        //public void showNextStoryFragmentAnimationRight();
         public void goBackToStoriesList();
         public void onSettings();
         public void onLogOut();

@@ -75,7 +75,7 @@ public class NewFeedFragment extends Fragment implements
     @Inject
     FeedViewModelFactory feedViewModelFactory;
 
-    private FeedViewModel feedViewModel;
+    public FeedViewModel feedViewModel;
     private LiveData<Resource<Boolean>> tagInsertLiveData;
     private LiveData<Resource<Boolean>> feedInsertLiveData;
     private LiveData<Resource<Boolean>> feedUpdateLiveData;
