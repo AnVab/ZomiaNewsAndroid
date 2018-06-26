@@ -77,8 +77,8 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
-            final int SWIPE_MIN_DISTANCE = 120;
-            final int SWIPE_MAX_OFF_PATH = 250;
+            final int SWIPE_MIN_DISTANCE = 150;
+            final int SWIPE_MAX_OFF_PATH = 50;
             final int SWIPE_THRESHOLD_VELOCITY = 200;
 
             /*if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
@@ -96,8 +96,8 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
                     && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                 onSwipeRight();
             }
-
-            return super.onFling(e1, e2, velocityX, velocityY);
+            return true;
+            //return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
 }

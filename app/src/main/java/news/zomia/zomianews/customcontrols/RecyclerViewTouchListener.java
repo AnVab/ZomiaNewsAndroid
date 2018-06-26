@@ -8,9 +8,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class RecyclerViewTouchListener implements RecyclerView.OnItemTouchListener {
-    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_MIN_DISTANCE = 150;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_MAX_OFF_PATH = 50;
 
     private OnTouchActionListener mOnTouchActionListener;
     private GestureDetectorCompat mGestureDetector;
