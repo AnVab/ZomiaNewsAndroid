@@ -17,6 +17,8 @@ import news.zomia.zomianews.fragments.StoryViewerFragment;
 
 import news.zomia.zomianews.data.model.User;
 import news.zomia.zomianews.data.model.Token;
+import news.zomia.zomianews.fragments.ViewPagerFragment;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.content.SharedPreferences;
@@ -31,6 +33,9 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static news.zomia.zomianews.fragments.ViewPagerFragment.FEEDS_LIST_PAGE_NUM;
+import static news.zomia.zomianews.fragments.ViewPagerFragment.FEED_STORIES_PAGE_NUM;
+import static news.zomia.zomianews.fragments.ViewPagerFragment.STORY_VIEWER_PAGE_NUM;
 
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.OnSuccessAuthorizationListener,
@@ -67,6 +72,8 @@ public class MainActivity extends AppCompatActivity
     private int containerLeftId;
     private int dataContainerId;
     boolean isTablet;
+    ViewPagerFragment viewPagerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,13 +84,6 @@ public class MainActivity extends AppCompatActivity
 
         //Check if the device is a smartphone then use one pane mode
         isTablet = getResources().getBoolean(R.bool.isTablet);
-
-        /*//Disable appbar scroll flags for tablets in the landscape mode
-        if(getLandscapeOrientationTablet()) {
-            AppBarLayout.LayoutParams params =
-                    (AppBarLayout.LayoutParams) myToolbar.getLayoutParams();
-            params.setScrollFlags(0);
-        }*/
 
         ((ZomiaApp) getApplication()).setUnauthorizedInterceptorListener(this);
         ((ZomiaApp) getApplication()).setNetworkConnectionInterceptorListener(this);
@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity
     private boolean getLandscapeOrientationTablet()
     {
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-        //return ((getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) && isTablet);
         return isTablet;
     }
 
@@ -186,16 +185,8 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.addToBackStack("feedStoriesFragment");
             fragmentTransaction.commit();
         }else {
-
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            if (slideInRightSlideOutLeft)
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            else
-                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-            FeedStoriesFragment feedStoriesFragment = new FeedStoriesFragment();
-            fragmentTransaction.replace(dataContainerId, feedStoriesFragment);
-            fragmentTransaction.addToBackStack("feedStoriesFragment");
-            fragmentTransaction.commit();
+            if(viewPagerFragment != null)
+                viewPagerFragment.setCurrentPage(FEED_STORIES_PAGE_NUM);
         }
 
         ShowToolbar();
@@ -279,12 +270,8 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
         }
         else {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            StoryViewerFragment storyViewerFragment = new StoryViewerFragment();
-            fragmentTransaction.replace(dataContainerId, storyViewerFragment);
-            fragmentTransaction.addToBackStack("storyViewerFragment");
-            fragmentTransaction.commit();
+            if(viewPagerFragment != null)
+                viewPagerFragment.setCurrentPage(STORY_VIEWER_PAGE_NUM);
         }
         ShowToolbar();
     }
@@ -357,17 +344,23 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
         }
         else {
-            FeedsListFragment feedsListFragment = new FeedsListFragment();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            if (slideInRightSlideOutLeft)
-                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-            else
-                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            //Create a viewpager for the first time loading or set page for a feeds list for other times
+            if(viewPagerFragment == null) {
+                viewPagerFragment = new ViewPagerFragment();
 
-            fragmentTransaction.replace(dataContainerId, feedsListFragment);
-            fragmentTransaction.addToBackStack("feedsListFragment");
-            fragmentTransaction.commit();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+                if (slideInRightSlideOutLeft)
+                    fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+                else
+                    fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+                fragmentTransaction.replace(dataContainerId, viewPagerFragment);
+                fragmentTransaction.addToBackStack("viewPagerFragment");
+                fragmentTransaction.commit();
+            }
+            else
+                viewPagerFragment.setCurrentPage(FEEDS_LIST_PAGE_NUM);
         }
         ShowToolbar();
     }

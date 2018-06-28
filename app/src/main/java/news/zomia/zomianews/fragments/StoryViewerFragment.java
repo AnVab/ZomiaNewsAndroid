@@ -517,15 +517,6 @@ public class StoryViewerFragment extends Fragment
             public void onSwipeLeft() {
                 goToNextNews();
             }
-
-            @Override
-            public void onSwipeRight() {
-                onStoryViewerListenerCallback.goBackToStoriesList();
-            }
-
-            @Override
-            public void onSwipeUp() {
-            }
         };
 
         //Get scroll view to detect when we reach end of the webview
