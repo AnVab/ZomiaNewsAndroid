@@ -107,7 +107,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/feedSourcePathTextView" />
 
-        <android.support.design.button.MaterialButton
+        <Button
             android:id="@+id/addTagButton"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
@@ -118,13 +118,12 @@
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:icon="@drawable/ic_add_circle_black_24dp"
-            app:iconTint="@color/colorAccent"
+            android:drawableLeft="@drawable/ic_add_circle_black_24dp"
             app:layout_constraintBottom_toTopOf="@+id/addFeedButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
 
-        <android.support.design.button.MaterialButton
+        <Button
             android:id="@+id/addFeedButton"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="0dp"

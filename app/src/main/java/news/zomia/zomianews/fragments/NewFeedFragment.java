@@ -5,7 +5,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.support.design.button.MaterialButton;
 import android.support.design.chip.Chip;
 import android.support.design.chip.ChipGroup;
 import android.support.v4.app.ActivityCompat;
@@ -29,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -121,11 +121,11 @@ public class NewFeedFragment extends Fragment implements
         tagsChipGroup = (ChipGroup) view.findViewById(R.id.tagsChipGroup);
 
         //Add tag to the list button
-        MaterialButton addTagButton = (MaterialButton) view.findViewById(R.id.addTagButton);
+        Button addTagButton = (Button) view.findViewById(R.id.addTagButton);
         addTagButton.setOnClickListener(addTagButtonOnClickListener);
 
         //Add feed button
-        MaterialButton addFeedButton = (MaterialButton) view.findViewById(R.id.addFeedButton);
+        Button addFeedButton = (Button) view.findViewById(R.id.addFeedButton);
         addFeedButton.setOnClickListener(addFeedButtonOnClickListener);
 
         opmlmportProgressBar = (ProgressBar) view.findViewById(R.id.opmlmportProgressBar);

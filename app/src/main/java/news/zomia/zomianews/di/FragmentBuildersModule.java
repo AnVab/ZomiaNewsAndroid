@@ -7,6 +7,7 @@ import news.zomia.zomianews.fragments.FeedsListFragment;
 import news.zomia.zomianews.fragments.LoginFragment;
 import news.zomia.zomianews.fragments.NewFeedFragment;
 import news.zomia.zomianews.fragments.StoryViewerFragment;
+import news.zomia.zomianews.fragments.ViewPagerFragment;
 
 /**
  * Created by Andrey on 13.01.2018.
@@ -28,4 +29,7 @@ public abstract class FragmentBuildersModule {
 
     @ContributesAndroidInjector
     abstract StoryViewerFragment contributeStoryViewerFragment();
+
+    @ContributesAndroidInjector
+    abstract ViewPagerFragment contributeViewPagerFragment();
 }

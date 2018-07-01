@@ -111,6 +111,13 @@ public class MainActivity extends AppCompatActivity
 
             if(isTablet)
                 HideLeftFrameLayout(ON_ROTATION_LEFT_FRAMELAYOUT_VISIBLE);
+            else
+            {
+                Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+                if(fragment instanceof ViewPagerFragment) {
+                    viewPagerFragment = (ViewPagerFragment)getSupportFragmentManager().findFragmentById(dataContainerId);
+                }
+            }
         }
     }
 
@@ -185,8 +192,9 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.addToBackStack("feedStoriesFragment");
             fragmentTransaction.commit();
         }else {
-            if(viewPagerFragment != null)
-                viewPagerFragment.setCurrentPage(FEED_STORIES_PAGE_NUM);
+            Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+            if(fragment instanceof ViewPagerFragment)
+                ((ViewPagerFragment) fragment).setCurrentPage(FEED_STORIES_PAGE_NUM);
         }
 
         ShowToolbar();
@@ -270,8 +278,9 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
         }
         else {
-            if(viewPagerFragment != null)
-                viewPagerFragment.setCurrentPage(STORY_VIEWER_PAGE_NUM);
+            Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+            if(fragment instanceof ViewPagerFragment)
+                ((ViewPagerFragment) fragment).setCurrentPage(STORY_VIEWER_PAGE_NUM);
         }
         ShowToolbar();
     }
@@ -359,8 +368,11 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.addToBackStack("viewPagerFragment");
                 fragmentTransaction.commit();
             }
-            else
-                viewPagerFragment.setCurrentPage(FEEDS_LIST_PAGE_NUM);
+            else {
+                Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+                if(fragment instanceof ViewPagerFragment)
+                    ((ViewPagerFragment) fragment).setCurrentPage(FEEDS_LIST_PAGE_NUM);
+            }
         }
         ShowToolbar();
     }
@@ -399,7 +411,7 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
         SettingsFragment settingsFragment = new SettingsFragment();
-        fragmentTransaction.replace(R.id.data_container, settingsFragment);
+        fragmentTransaction.replace(dataContainerId, settingsFragment);
         fragmentTransaction.addToBackStack("settingsFragment");
         fragmentTransaction.commit();
 
@@ -440,11 +452,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        //Check if we get back to the FragmentTransaction on the top then exit app
+        /*//Check if we get back to the FragmentTransaction on the top then exit app
         if (getSupportFragmentManager().getBackStackEntryCount() == 1){
             finish();
         }
-        else {
+        else */
+            {
             if(getLandscapeOrientationTablet()) {
                 Log.d(TAG, "ON_ROTATION_ACTIVE_FEED_FRAME: " + ON_ROTATION_ACTIVE_FEED_FRAME);
                 switch (ON_ROTATION_ACTIVE_FEED_FRAME) {
@@ -471,19 +484,18 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             else {
-                switch (ON_ROTATION_ACTIVE_FEED_FRAME) {
-                    case ON_ROTATION_FRAGMENTS_STATE_FEED_LIST:
-                        //super.onBackPressed();
-                        break;
-                    case ON_ROTATION_FRAGMENTS_STATE_STORIES_LIST:
-                        showFeedListFragment(false);
-                        break;
-                    case ON_ROTATION_FRAGMENTS_STATE_STORY_VIEWER:
-                        goBackToStoriesList();
-                        break;
-                    default:
+                Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+                if(!(fragment instanceof ViewPagerFragment)) {
+                    super.onBackPressed();
+                }
+                else
+                {
+                    if (((ViewPagerFragment)fragment).getCurrentPage() == 0) {
                         super.onBackPressed();
-                        break;
+                    }
+                    else {
+                        ((ViewPagerFragment)fragment).setCurrentPage(((ViewPagerFragment)fragment).getCurrentPage() - 1);
+                    }
                 }
             }
         }

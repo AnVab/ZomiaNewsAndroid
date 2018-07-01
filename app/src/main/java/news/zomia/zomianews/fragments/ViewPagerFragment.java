@@ -1,5 +1,7 @@
 package news.zomia.zomianews.fragments;
 
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,10 +15,11 @@ import android.view.ViewGroup;
 
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.DirectionalViewPager;
+import news.zomia.zomianews.di.Injectable;
 
-import static android.support.v7.widget.RecyclerView.EdgeEffectFactory.DIRECTION_LEFT;
-
-public class ViewPagerFragment  extends Fragment {
+public class ViewPagerFragment  extends Fragment implements
+        LifecycleRegistryOwner,
+        Injectable {
 
     public static final int NUM_PAGES = 5;
     public static final int FEEDS_LIST_PAGE_NUM = 0;
@@ -25,6 +28,8 @@ public class ViewPagerFragment  extends Fragment {
     private DirectionalViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private int currentPosition;
+
+    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
     public ViewPagerFragment() {
     }
 
@@ -40,7 +45,7 @@ public class ViewPagerFragment  extends Fragment {
         View view = inflater.inflate(R.layout.layout_view_pager, container, false);
 
         viewPager = (DirectionalViewPager) view.findViewById(R.id.viewPager);
-        pagerAdapter = new NewsSliderPageAdapter(getActivity().getSupportFragmentManager());
+        pagerAdapter = new NewsSliderPageAdapter(getChildFragmentManager());
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(NUM_PAGES);
         viewPager.setSwipeDirection(DirectionalViewPager.SwipeDirection.LEFT);
@@ -64,9 +69,28 @@ public class ViewPagerFragment  extends Fragment {
 
     public void setCurrentPage(int num)
     {
-        if(num < NUM_PAGES)
+        if(viewPager != null && num < NUM_PAGES)
             viewPager.setCurrentItem(num);
     }
+
+    public int getCurrentPage()
+    {
+        if(viewPager != null)
+            return viewPager.getCurrentItem();
+
+        return 0;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return lifecycleRegistry;
+    }
+
 
     private class NewsSliderPageAdapter extends FragmentStatePagerAdapter{
 
