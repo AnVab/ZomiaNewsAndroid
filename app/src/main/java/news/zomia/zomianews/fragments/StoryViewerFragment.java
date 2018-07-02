@@ -507,6 +507,7 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.getSettings().setAllowFileAccessFromFileURLs(true);
         storyPageViewer.getSettings().setAllowUniversalAccessFromFileURLs(true);
         //storyPageViewer.getSettings().setLayoutAlgorithm(TEXT_AUTOSIZING);
+        //storyPageViewer.getSettings().setBuiltInZoomControls(true);
 
         storyPageViewer.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
         storyPageViewer.setScrollbarFadingEnabled(true);
