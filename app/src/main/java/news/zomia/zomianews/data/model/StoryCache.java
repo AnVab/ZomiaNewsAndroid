@@ -16,7 +16,8 @@ import com.google.gson.annotations.SerializedName;
 
 @Entity(foreignKeys = @ForeignKey(entity = Feed.class,
         parentColumns = "feed_id",
-        childColumns = "feed_id"))
+        childColumns = "feed_id"),
+        indices = {@Index(value = {"feed_id"}, unique = true)})
 public class StoryCache {
 
     @ColumnInfo(name = "link")

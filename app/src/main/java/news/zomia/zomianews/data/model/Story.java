@@ -5,15 +5,11 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * Created by Andrey on 26.12.2017.
@@ -22,40 +18,37 @@ import java.util.Date;
 @Entity(foreignKeys = @ForeignKey(entity = Feed.class,
         parentColumns = "feed_id",
         childColumns = "feed_id"),
-        indices = {@Index(value = {"story_id"},
-                unique = true)})
+        indices = {
+                @Index(value = {"story_id"}, unique = true),
+                @Index(value = {"feed_id"})})
 public class Story {
 
     public static DiffUtil.ItemCallback<Story> DIFF_CALLBACK = new DiffUtil.ItemCallback<Story>() {
         @Override
         public boolean areItemsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
-            return oldItem.getStoryId() == newItem.getStoryId();
+            return oldItem.getStoryId().equals(newItem.getStoryId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Story oldItem, @NonNull Story newItem) {
-            return oldItem.equals(newItem);
+            //return oldItem.equals(newItem);
+
+            if(newItem == null)
+                return false;
+
+            //if (newItem == oldItem)
+            //    return true;
+
+            //Story story = (Story) newItem;
+
+            return newItem.getFeedId().equals(oldItem.getFeedId()) &&
+                    newItem.getStoryId().equals(oldItem.getStoryId()) &&
+                    newItem.getTitle().equalsIgnoreCase(oldItem.getTitle()) &&
+                    newItem.getDate().equals(oldItem.getDate()) &&
+                    newItem.getCreated().equals(oldItem.getCreated()) &&
+                    newItem.getContent().equalsIgnoreCase(oldItem.getContent());
         }
     };
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj == null)
-            return false;
-
-        if (obj == this)
-            return true;
-
-        Story story = (Story) obj;
-
-        return story.getFeedId() == this.getFeedId() &&
-                story.getStoryId() == this.getStoryId() &&
-                story.getTitle() == this.getTitle() &&
-                story.getDate() == this.getDate() &&
-                story.getCreated() == this.getCreated() &&
-                story.getContent() == this.getContent();
-    }
-
 
     //Not serializable field. Used in database
     @ColumnInfo(name = "sid")
