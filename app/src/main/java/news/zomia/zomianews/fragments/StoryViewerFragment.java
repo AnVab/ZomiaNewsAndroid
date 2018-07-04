@@ -745,6 +745,40 @@ public class StoryViewerFragment extends Fragment
                 "h6 {" +
                 "text-align: " + story_viewer_text_alignment + ";" +
                 "}" +
+
+                "blockquote{" +
+                "font-family: " + story_viewer_font + ";" +
+                "font-size: " + String.valueOf(story_viewer_font_size) + "px;" +
+                "text-align: " + story_viewer_text_alignment + ";" +
+                "background-color:" + story_viewer_background_color + " !important;" +
+                    "border-left: 10px solid " + String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.collapsing_toolbar_background)) +";" +
+                    "margin: .5em 0px;" +
+                    "padding: 0 10px;" +
+                    "quotes: \"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\";" +
+                    "padding: 10px 20px;" +
+                    "line-height: 1.4;" +
+                "}" +
+                "blockquote:before {" +
+                    "content: open-quote;" +
+                    "display: inline;" +
+                    "height: 0;" +
+                    "line-height: 0;" +
+                    "left: -5px;" +
+                    "position: relative;" +
+                    "top: 12px;" +
+                    "color: " + String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.collapsing_toolbar_background)) +";" +
+                    "font-size: 3em;" +
+                "}" +
+                "p{" +
+                    "margin: 0;" +
+                "}" +
+                "footer{" +
+                    "margin:0;" +
+                    "text-align: right;" +
+                    "font-family: " + story_viewer_font + ";" +
+                    "font-size: " + String.valueOf(story_viewer_font_size) + "px;" +
+                    "font-style: italic;" +
+                "}" +
                 "</style>" +
                 (addBodyTagStart ? "<body>" : "") +
                 //"<h2>" +
