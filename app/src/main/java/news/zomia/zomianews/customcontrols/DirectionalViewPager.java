@@ -1,73 +1,61 @@
 package news.zomia.zomianews.customcontrols;
 
 import android.content.Context;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.view.View;
 
 public class DirectionalViewPager  extends ViewPager {
 
-    public enum SwipeDirection {
-        ALL, LEFT, RIGHT, NONE;
+    public static final int DIRECTION_NONE = 0;
+    public static final int DIRECTION_LEFT = 1;
+    public static final int DIRECTION_RIGHT = 2;
+    public static final int DIRECTION_BOTH = 3;
+
+    public interface DirectionProvider {
+        public int getScrollDirections(int position);
     }
 
-    private float initialXValue;
-    private SwipeDirection direction;
-
+    public DirectionalViewPager(Context context) {
+        super(context);
+    }
     public DirectionalViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.direction = SwipeDirection.ALL;
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (this.IsSwipeAllowed(event)) {
-            return super.onTouchEvent(event);
+    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+        final PagerAdapter adapter = getAdapter();
+        final int page = getCurrentItem();
+
+        if (adapter == null || page >= adapter.getCount() || !(adapter instanceof DirectionProvider)) {
+            return super.canScroll(v, checkV, dx, x, y);
         }
 
-        return false;
-    }
+        final DirectionProvider provider = (DirectionProvider) adapter;
+        final int directions = provider.getScrollDirections(page);
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (this.IsSwipeAllowed(event)) {
-            return super.onInterceptTouchEvent(event);
-        }
+        switch (directions) {
+            case DIRECTION_NONE : {
+                return true;
+            }
 
-        return false;
-    }
+            case DIRECTION_LEFT : {
+                return dx < 0 || super.canScroll(v, checkV, dx, x, y);
+            }
 
-    public void setSwipeDirection(SwipeDirection direction) {
-        this.direction = direction;
-    }
+            case DIRECTION_RIGHT : {
+                return dx > 0 || super.canScroll(v, checkV, dx, x, y);
+            }
 
-    private boolean IsSwipeAllowed(MotionEvent event) {
-        if (this.direction == SwipeDirection.ALL)
-            return true;
+            case DIRECTION_BOTH : {
+                return super.canScroll(v, checkV, dx, x, y);
+            }
 
-        //disable any swipe
-        if (direction == SwipeDirection.NONE)
-            return false;
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            initialXValue = event.getX();
-            return true;
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            try {
-                float diffX = event.getX() - initialXValue;
-                if (diffX > 0 && direction == SwipeDirection.RIGHT) {
-                    //left to right swipe
-                    return false;
-                } else if (diffX < 0 && direction == SwipeDirection.LEFT) {
-                    //right to left swipe
-                    return false;
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
+            default : {
+                throw new IllegalArgumentException("Unknown directions value : " + directions);
             }
         }
-        return true;
     }
 }
