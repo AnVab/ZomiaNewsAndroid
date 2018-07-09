@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_format_line_spacing_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/E:/Projects/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_navigate_before_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -33,7 +33,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_action_font_line_spacing" />
+                                      <entry key="outputName" value="ic_action_prev" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="000000" />
                                     </map>

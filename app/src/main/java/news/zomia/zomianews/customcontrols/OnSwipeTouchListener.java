@@ -78,7 +78,7 @@ public class OnSwipeTouchListener  implements View.OnTouchListener
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
             final int SWIPE_MIN_DISTANCE = 150;
-            final int SWIPE_MAX_OFF_PATH = 50;
+            final int SWIPE_MAX_OFF_PATH = 90;
             final int SWIPE_THRESHOLD_VELOCITY = 200;
 
             /*if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE

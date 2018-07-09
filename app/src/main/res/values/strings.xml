@@ -68,4 +68,6 @@
     <string name="status_unread">new</string>
 
     <string name="loading_story_source_link">Loading story source URL</string>
+    <string name="next_story">Next story</string>
+    <string name="previous_story">Previous story</string>
 </resources>

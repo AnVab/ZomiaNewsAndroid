@@ -154,6 +154,30 @@ public class StoryViewModel  extends ViewModel {
         setStoryStatus(story, reading);
     }
 
+    public void goToPrevCurrentStoryPosition() {
+
+        //Save id of previous Id
+        if(currentStory.getValue() != null && currentStory.getValue().data != null) {
+            previousStory = currentStory.getValue().data;
+            updateCurrentStoryHandler.reset();
+            updatePreviousStoryHandler.reset();
+        }
+
+        //Set new story id
+        Integer newValue = selectedCurrentStory.getValue() - 1;
+        if( 0 < newValue)
+            selectedCurrentStory.setValue(newValue);
+        else
+            selectedCurrentStory.setValue(0);
+
+        //Set status of the previous story to read
+        setStoryStatus(previousStory, read);
+
+        //Set status of a new story to reading
+        Story story = stories.getValue().get(selectedCurrentStory.getValue());
+        setStoryStatus(story, reading);
+    }
+
     public LiveData<Resource<Story>> getCurrentStory() {
         return currentStory;
     }

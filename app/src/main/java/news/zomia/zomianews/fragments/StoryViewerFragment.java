@@ -13,8 +13,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -146,6 +148,25 @@ public class StoryViewerFragment extends Fragment
             toolbar.getMenu().findItem(R.id.action_settings).setVisible(false);
             toolbar.getMenu().findItem(R.id.logout).setVisible(false);
         }
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                rootView.findViewById(R.id.bottomNavigationView);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_next_story:
+                                goToNextNews();
+                                break;
+                            case R.id.action_prev_story:
+                                goToPrevNews();
+                                break;
+                        }
+                        return true;
+                    }
+                });
 
         loadStoryViewerSettings();
         return rootView;
@@ -621,6 +642,13 @@ public class StoryViewerFragment extends Fragment
     public void goToNextNews()
     {
         storyViewModel.goToNextCurrentStoryPosition();
+        appBarLayout.setExpanded(true);
+    }
+
+    @JavascriptInterface
+    public void goToPrevNews()
+    {
+        storyViewModel.goToPrevCurrentStoryPosition();
         appBarLayout.setExpanded(true);
     }
 
