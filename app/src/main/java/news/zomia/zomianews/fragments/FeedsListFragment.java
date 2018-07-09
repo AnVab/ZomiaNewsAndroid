@@ -498,6 +498,9 @@ public class FeedsListFragment extends Fragment implements
             if(expListAdapter != null)
                 expListAdapter.replaceFeedsCollection(feedsCollection);
 
+            for(int i = 0; i < expListAdapter.getGroupCount(); i++)
+                expListView.expandGroup(i, false);
+
             swipeRefreshLayout.setRefreshing(false);
         }
         else
@@ -523,8 +526,11 @@ public class FeedsListFragment extends Fragment implements
                 expListAdapter.replaceFeedsCollection(feedsCollection);
 
             //Expand list
-            if(expListAdapter.getGroupCount() > 0)
-                expListView.expandGroup(0,false);
+            //if(expListAdapter.getGroupCount() > 0)
+            //    expListView.expandGroup(0,false);
+
+            for(int i = 0; i < expListAdapter.getGroupCount(); i++)
+                expListView.expandGroup(i, false);
 
             swipeRefreshLayout.setRefreshing(false);
         }
