@@ -131,7 +131,7 @@
             <WebView
                 android:id="@+id/storyPageViewer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         </news.zomia.zomianews.customcontrols.NestedScrollViewTouched>
     </android.support.v4.widget.SwipeRefreshLayout>
