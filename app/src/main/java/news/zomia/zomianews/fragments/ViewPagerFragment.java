@@ -21,6 +21,7 @@ import news.zomia.zomianews.di.Injectable;
 public class ViewPagerFragment  extends Fragment implements
         LifecycleRegistryOwner,
         Injectable {
+    public static String ON_ROTATION_CURRENT_PAGE;
 
     public static final int NUM_PAGES = 3;
     public static final int FEEDS_LIST_PAGE_NUM = 0;
@@ -63,7 +64,17 @@ public class ViewPagerFragment  extends Fragment implements
 
             }
         });
+
+        if(savedInstanceState != null){
+            setCurrentPage(savedInstanceState.getInt(ON_ROTATION_CURRENT_PAGE));
+        }
+
         return view;
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(ON_ROTATION_CURRENT_PAGE, getCurrentPage());
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     public void setCurrentPage(int num)
@@ -78,8 +89,8 @@ public class ViewPagerFragment  extends Fragment implements
     {
         if(viewPager != null)
             return viewPager.getCurrentItem();
-
-        return 0;
+        else
+            return 0;
     }
 
     @Override

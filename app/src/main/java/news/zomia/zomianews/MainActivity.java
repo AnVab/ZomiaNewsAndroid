@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
             {
                 Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
                 if(fragment instanceof ViewPagerFragment) {
-                    viewPagerFragment = (ViewPagerFragment)getSupportFragmentManager().findFragmentById(dataContainerId);
+                    viewPagerFragment = (ViewPagerFragment)fragment;
                 }
             }
         }
