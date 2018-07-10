@@ -779,11 +779,11 @@ public class StoryViewerFragment extends Fragment
                 "font-size: " + String.valueOf(story_viewer_font_size) + "px;" +
                 "text-align: " + story_viewer_text_alignment + ";" +
                 "background-color:" + story_viewer_background_color + " !important;" +
-                    "border-left: 10px solid " + String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.collapsing_toolbar_background)) +";" +
+                    "border-left: 4px solid " + String.format("#%06X", 0xFFFFFF & getResources().getColor(R.color.collapsing_toolbar_background)) +";" +
                     "margin: .5em 0px;" +
                     "padding: 0 10px;" +
                     "quotes: \"\\201C\"\"\\201D\"\"\\2018\"\"\\2019\";" +
-                    "padding: 10px 20px;" +
+                    "padding: 5px 10px;" +
                     "line-height: 1.4;" +
                 "}" +
                 "blockquote:before {" +
