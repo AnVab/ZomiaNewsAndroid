@@ -354,9 +354,10 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             //Create a viewpager for the first time loading or set page for a feeds list for other times
-            if(viewPagerFragment == null) {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+            if(!(fragment instanceof ViewPagerFragment))
+            {
                 viewPagerFragment = new ViewPagerFragment();
-
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
                 if (slideInRightSlideOutLeft)
@@ -368,11 +369,11 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.addToBackStack("viewPagerFragment");
                 fragmentTransaction.commit();
             }
-            else {
-                Fragment fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
-                if(fragment instanceof ViewPagerFragment)
-                    ((ViewPagerFragment) fragment).setCurrentPage(FEEDS_LIST_PAGE_NUM);
-            }
+
+            fragment = getSupportFragmentManager().findFragmentById(dataContainerId);
+            if(fragment instanceof ViewPagerFragment)
+                ((ViewPagerFragment) fragment).setCurrentPage(FEEDS_LIST_PAGE_NUM);
+
         }
         ShowToolbar();
     }
