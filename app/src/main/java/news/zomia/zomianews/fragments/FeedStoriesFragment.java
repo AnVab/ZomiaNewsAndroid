@@ -183,6 +183,9 @@ public class FeedStoriesFragment extends Fragment implements
         //storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesAdapter = new StoriesAdapter(getActivity());
         storiesAdapter.setHasStableIds(true);
+        //Register observer to check if data added to the top of the list then scroll to the new data
+        storiesAdapter.registerAdapterDataObserver(adapterDataObserver);
+
         storiesListView.setAdapter(storiesAdapter);
 
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
@@ -223,6 +226,16 @@ public class FeedStoriesFragment extends Fragment implements
 
     }
 
+    RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount)
+        {
+            if(positionStart == 0)
+            {
+                llm.scrollToPosition(positionStart);
+            }
+        }
+    };
     @Override
     public LifecycleRegistry getLifecycle() {
         return lifecycleRegistry;
@@ -244,22 +257,22 @@ public class FeedStoriesFragment extends Fragment implements
         if(storyViewModel != null)
             storyViewModel.setCurrentStoryAsRead();
 
-        storyViewModel.getCurrentStoryListPosition().observe(this, this::ongetCurrentStory);
+        //storyViewModel.getCurrentStoryListPosition().observe(this, this::ongetCurrentStory);
     }
 
     @Override
     public void onStop() {
         //Unsubscribe all livedata observers
-        storyViewModel.getCurrentStoryListPosition().removeObservers(this);
+        //storyViewModel.getCurrentStoryListPosition().removeObservers(this);
         super.onStop();
     }
 
-    private void ongetCurrentStory(Integer position) {
+    /*private void ongetCurrentStory(Integer position) {
         // Update the UI.
         if (position != null) {
             llm.scrollToPositionWithOffset( position, 0);
         }
-    }
+    }*/
 
     @Override
     public void onResume() {
