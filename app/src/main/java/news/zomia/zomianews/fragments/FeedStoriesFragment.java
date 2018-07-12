@@ -62,6 +62,7 @@ public class FeedStoriesFragment extends Fragment implements
 
     OnStorySelectedListener onStorySelectedListenerCallback;
     Toolbar toolbar;
+    LinearLayoutManager llm;
     public FeedStoriesFragment() {
         // Required empty public constructor
     }
@@ -143,7 +144,7 @@ public class FeedStoriesFragment extends Fragment implements
         //((DefaultItemAnimator) storiesListView.getItemAnimator()).setSupportsChangeAnimations(false);
         //storiesListView.setItemAnimator(new DefaultItemAnimator());
 
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        llm = new LinearLayoutManager(getActivity());
         storiesListView.setLayoutManager(llm);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(),
@@ -167,7 +168,6 @@ public class FeedStoriesFragment extends Fragment implements
                     @Override
                     public void onClick(View view, int position) {
                         storyViewModel.setCurrentStoryPosition(position);
-
                         Story selectedStory = (Story) storiesAdapter.getStory(position);
                         onStorySelectedListenerCallback.onStorySelected(selectedStory);
                     }
@@ -243,6 +243,22 @@ public class FeedStoriesFragment extends Fragment implements
         //Set story as read when we return back from story viewer by the back button press
         if(storyViewModel != null)
             storyViewModel.setCurrentStoryAsRead();
+
+        storyViewModel.getCurrentStoryListPosition().observe(this, this::ongetCurrentStory);
+    }
+
+    @Override
+    public void onStop() {
+        //Unsubscribe all livedata observers
+        storyViewModel.getCurrentStoryListPosition().removeObservers(this);
+        super.onStop();
+    }
+
+    private void ongetCurrentStory(Integer position) {
+        // Update the UI.
+        if (position != null) {
+            llm.scrollToPositionWithOffset( position, 0);
+        }
     }
 
     @Override

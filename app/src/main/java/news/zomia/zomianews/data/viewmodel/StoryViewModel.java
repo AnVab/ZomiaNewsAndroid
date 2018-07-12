@@ -182,6 +182,9 @@ public class StoryViewModel  extends ViewModel {
         return currentStory;
     }
 
+    public LiveData<Integer> getCurrentStoryListPosition() {
+        return selectedCurrentStory;
+    }
 
     @VisibleForTesting
     static class UpdateStoryHandler implements Observer<Resource<Boolean>> {
