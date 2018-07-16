@@ -257,22 +257,23 @@ public class FeedStoriesFragment extends Fragment implements
         if(storyViewModel != null)
             storyViewModel.setCurrentStoryAsRead();
 
-        //storyViewModel.getCurrentStoryListPosition().observe(this, this::ongetCurrentStory);
+        storyViewModel.getCurrentStoryListPosition().observe(this, this::ongetCurrentStory);
     }
 
     @Override
     public void onStop() {
         //Unsubscribe all livedata observers
-        //storyViewModel.getCurrentStoryListPosition().removeObservers(this);
+        storyViewModel.getCurrentStoryListPosition().removeObservers(this);
         super.onStop();
     }
 
-    /*private void ongetCurrentStory(Integer position) {
+    private void ongetCurrentStory(Integer position) {
         // Update the UI.
         if (position != null) {
-            llm.scrollToPositionWithOffset( position, 0);
+            //llm.scrollToPosition(position);
+            llm.scrollToPositionWithOffset(position, 0);
         }
-    }*/
+    }
 
     @Override
     public void onResume() {

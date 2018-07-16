@@ -53,6 +53,7 @@ public class StoryViewModel  extends ViewModel {
         PagedList.Config pagedListConfig =
                 (new PagedList.Config.Builder()).setEnablePlaceholders(false)
                         .setPrefetchDistance(10)
+                        .setEnablePlaceholders(true)
                         .setPageSize(10).build();
 
         storyBoundaryCallback = new StoryBoundaryCallback(dataRepo.getZomiaService(), dataRepo.getDb(), dataRepo.getFeedDao(), dataRepo.getAppExecutors());
@@ -68,6 +69,8 @@ public class StoryViewModel  extends ViewModel {
             if (result == null ) {
                 return AbsentLiveData.create();
             } else {
+                if(stories.getValue().get(selectedCurrentStory.getValue()) == null)
+                    return AbsentLiveData.create();
                 //Load new story
                 Integer index = stories.getValue().get(selectedCurrentStory.getValue()).getStoryId();
                 if(index >= 0)
@@ -141,10 +144,12 @@ public class StoryViewModel  extends ViewModel {
 
         //Set new story id
         Integer newValue = selectedCurrentStory.getValue() + 1;
-        if(newValue < stories.getValue().size())
+        if(newValue < stories.getValue().size()){
             selectedCurrentStory.setValue(newValue);
-        else
-            selectedCurrentStory.setValue(0);
+            //storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
+        }
+       // else
+       //     storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
 
         //Set status of the previous story to read
         setStoryStatus(previousStory, read);
@@ -167,8 +172,8 @@ public class StoryViewModel  extends ViewModel {
         Integer newValue = selectedCurrentStory.getValue() - 1;
         if( 0 < newValue)
             selectedCurrentStory.setValue(newValue);
-        else
-            selectedCurrentStory.setValue(0);
+        //else
+        //    storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
 
         //Set status of the previous story to read
         setStoryStatus(previousStory, read);

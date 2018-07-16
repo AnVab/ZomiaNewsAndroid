@@ -134,7 +134,10 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
     @Override
     public long getItemId(int position) {
+        if(getCurrentList().get(position) != null)
         return  getCurrentList().get(position).getStoryId();
+        else
+            return 0;
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
