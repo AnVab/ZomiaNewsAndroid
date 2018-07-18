@@ -95,7 +95,7 @@ public class StoryViewerFragment extends Fragment
     TextView appBarStoryDate;
     CollapsingToolbarLayout collapsingToolbar;
     AppBarLayout appBarLayout;
-
+    NestedScrollViewTouched nestedScrollView;
     private Story currentStory;
     private String storyDateText;
 
@@ -552,7 +552,7 @@ public class StoryViewerFragment extends Fragment
         };
 
         //Get scroll view to detect when we reach end of the webview
-        NestedScrollViewTouched nestedScrollView =  (NestedScrollViewTouched) view.findViewById(R.id.nestedScrollView );
+        nestedScrollView =  (NestedScrollViewTouched) view.findViewById(R.id.nestedScrollView );
         nestedScrollView.setOnTouchListener(onSwipeTouchListener);
 
         storyPageViewer.setWebViewClient(new WebViewClient() {
@@ -564,13 +564,13 @@ public class StoryViewerFragment extends Fragment
                     swipeRefreshLayout.setRefreshing(false);
                 }
 
-                if(!instanceSaved) {
+                /*if(!instanceSaved) {
                     //Scroll to the top
                     nestedScrollView.scrollTo(0, 0);
                     //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
                     nestedScrollView.smoothScrollBy(0, 0);
-                }
-                else {
+                }*/
+                if(instanceSaved) {
                     instanceSaved = false;
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -650,6 +650,11 @@ public class StoryViewerFragment extends Fragment
     @JavascriptInterface
     public void goToNextNews()
     {
+        //Scroll to the top
+        nestedScrollView.scrollTo(0, 0);
+        //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
+        nestedScrollView.smoothScrollBy(0, 0);
+        
         storyViewModel.goToNextCurrentStoryPosition();
         appBarLayout.setExpanded(true);
     }
