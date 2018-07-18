@@ -13,11 +13,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +30,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -111,6 +115,8 @@ public class StoryViewerFragment extends Fragment
     String story_viewer_background_color;
     String story_viewer_text_color;
 
+    float webViewScrollYPercent;
+    boolean instanceSaved = false;
     public StoryViewerFragment() {
         // Required empty public constructor
     }
@@ -481,9 +487,20 @@ public class StoryViewerFragment extends Fragment
         super.onPause();
     }
 
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putFloat("webViewScrollYPercent", webViewScrollYPercent);
+    }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(savedInstanceState != null)
+        {
+            webViewScrollYPercent = savedInstanceState.getFloat("webViewScrollYPercent");
+            instanceSaved = true;
+        }
 
         appBarLayout = (AppBarLayout) getActivity().findViewById(R.id.appbarStoryViewer );
 
@@ -548,17 +565,50 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(storyPageViewer, url);
+                super.onPageFinished(view, url);
 
                 if(swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
 
-                //Scroll to the top
-                nestedScrollView.scrollTo(0, 0);
+                if(!instanceSaved) {
+                    //Scroll to the top
+                    nestedScrollView.scrollTo(0, 0);
+                    //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
+                    nestedScrollView.smoothScrollBy(0, 0);
+                }
+                else {
+                    instanceSaved = false;
 
-                //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
-                nestedScrollView.smoothScrollBy(0,0);
+
+                    //Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + webviewsize + " " + positionInWV + " " + position);
+
+                    //float contentHeight = view.getContentHeight() * view.getScaleY();
+                    //float total = contentHeight * getActivity().getResources().getDisplayMetrics().density - view.getHeight();
+                   // int position = (int) (webViewScrollYPercent * (total - getActivity().getResources().getDisplayMetrics().density));
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
+
+
+                            /*float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
+                            float total = contentHeight * getActivity().getResources().getDisplayMetrics().density - storyPageViewer.getHeight();
+                            int position = (int) (webViewScrollYPercent * (total - getActivity().getResources().getDisplayMetrics().density));
+                            Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + contentHeight + " " + "" + " " + "");
+*/
+                            float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
+                            float positionInWV = contentHeight * webViewScrollYPercent;
+                            int position = Math.round(view.getTop() + positionInWV);
+
+                            nestedScrollView.scrollTo(0, position);
+                            //Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + contentHeight + " " + total + " " + position);
+                            //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
+                            nestedScrollView.smoothScrollBy(0,position);
+                        }
+                    },300);
+                }
 
                 WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
             }
@@ -580,6 +630,14 @@ public class StoryViewerFragment extends Fragment
         storyPageViewer.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
         nestedScrollView.setOnScrollChangeListener((NestedScrollViewTouched.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+
+            float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
+            float total = contentHeight * getActivity().getResources().getDisplayMetrics().density - view.getHeight();
+            webViewScrollYPercent = Math.min(scrollY / (total - getActivity().getResources().getDisplayMetrics().density), 1);
+            Log.d("ZOMIA", "Percentage: " + webViewScrollYPercent);
+            if(scrollY >= total - 1)
+                Log.d("ZOMIA", "Percentage bottom reached");
+
             if(v.getChildAt(v.getChildCount() - 1) != null) {
 
                 if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
@@ -692,7 +750,8 @@ public class StoryViewerFragment extends Fragment
             //Set image color filter
             expandedImageAppBar.setColorFilter(Color.argb(180,45,74,161));
 
-            //storyPageViewer.startAnimation(slideLeftAnimation);
+           // Animation slideLeftAnimation = AnimationUtils.loadAnimation(getActivity (), android.R.anim.slide_out_right);
+          //  storyPageViewer.startAnimation(slideLeftAnimation);
             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale.getDefault());
             //Convert timestamp to milliseconds format
             Timestamp tmp = new Timestamp(currentStory.getDate() / 1000);
