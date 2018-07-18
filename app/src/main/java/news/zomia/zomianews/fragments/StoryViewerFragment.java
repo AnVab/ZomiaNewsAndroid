@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
@@ -30,8 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -98,10 +95,6 @@ public class StoryViewerFragment extends Fragment
     TextView appBarStoryDate;
     CollapsingToolbarLayout collapsingToolbar;
     AppBarLayout appBarLayout;
-    //Web view scrolling states
-    public static final int WEBVIEW_SCROLLING = 0;
-    public static final int WEBVIEW_AT_BOTTOM = 1;
-    public int WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
 
     private Story currentStory;
     private String storyDateText;
@@ -579,38 +572,18 @@ public class StoryViewerFragment extends Fragment
                 }
                 else {
                     instanceSaved = false;
-
-
-                    //Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + webviewsize + " " + positionInWV + " " + position);
-
-                    //float contentHeight = view.getContentHeight() * view.getScaleY();
-                    //float total = contentHeight * getActivity().getResources().getDisplayMetrics().density - view.getHeight();
-                   // int position = (int) (webViewScrollYPercent * (total - getActivity().getResources().getDisplayMetrics().density));
-
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            //float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
-
-
-                            /*float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
-                            float total = contentHeight * getActivity().getResources().getDisplayMetrics().density - storyPageViewer.getHeight();
-                            int position = (int) (webViewScrollYPercent * (total - getActivity().getResources().getDisplayMetrics().density));
-                            Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + contentHeight + " " + "" + " " + "");
-*/
                             float contentHeight = storyPageViewer.getContentHeight() * storyPageViewer.getScaleY();
-                            float positionInWV = contentHeight * webViewScrollYPercent;
-                            int position = Math.round(view.getTop() + positionInWV);
+                             int position = Math.round(view.getTop() + contentHeight * webViewScrollYPercent);
 
                             nestedScrollView.scrollTo(0, position);
-                            //Log.d("ZOMIA", "Percentage position: " + webViewScrollYPercent + " " + contentHeight + " " + total + " " + position);
                             //Disable scrolling in the middle of action. Or new story will be scrolling after loading.
                             nestedScrollView.smoothScrollBy(0,position);
                         }
                     },300);
                 }
-
-                WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
             }
 
             @Override
@@ -637,28 +610,6 @@ public class StoryViewerFragment extends Fragment
             Log.d("ZOMIA", "Percentage: " + webViewScrollYPercent);
             if(scrollY >= total - 1)
                 Log.d("ZOMIA", "Percentage bottom reached");
-
-            if(v.getChildAt(v.getChildCount() - 1) != null) {
-
-                if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
-                        scrollY > oldScrollY) {
-                    switch(WEBVIEW_SCROLLING_STATE)
-                    {
-                        case WEBVIEW_SCROLLING:
-                            WEBVIEW_SCROLLING_STATE = WEBVIEW_AT_BOTTOM;
-                            break;
-                        case WEBVIEW_AT_BOTTOM:
-                            //Do nothing
-                            break;
-                        default:
-                            WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
-                            break;
-                    }
-                }
-                else {
-                    WEBVIEW_SCROLLING_STATE = WEBVIEW_SCROLLING;
-                }
-            }
         });
 
         storyPageViewer.addJavascriptInterface(this, "Android");
