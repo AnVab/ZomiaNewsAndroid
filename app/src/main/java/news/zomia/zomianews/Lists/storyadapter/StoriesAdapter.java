@@ -37,49 +37,11 @@ import static news.zomia.zomianews.data.service.StoryStatus.to_read;
  */
 
 public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHolder> {
-
-    private LayoutInflater inflater;
     private Context  context;
-    private NetworkState networkState;
 
-    private static final int TYPE_HEADER = 0;
-    private static final int TYPE_ITEM = 1;
-
-    private StoryViewHolder.ClickListener clickListener;
-    private ListItemClickListener itemClickListener;
-
-    public StoriesAdapter(Context context){//, StoryViewHolder.ClickListener clickListener, ListItemClickListener itemClickListener) {
+    public StoriesAdapter(Context context){
         super(Story.DIFF_CALLBACK);
-
-        this.clickListener = clickListener;
-        this.itemClickListener = itemClickListener;
-
         this.context = context;
-    }
-
-    public void setNetworkState(NetworkState newNetworkState) {
-        NetworkState previousState = this.networkState;
-        boolean previousExtraRow = hasExtraRow();
-        this.networkState = newNetworkState;
-        boolean newExtraRow = hasExtraRow();
-
-        if (previousExtraRow != newExtraRow) {
-            if (previousExtraRow) {
-                notifyItemRemoved(getItemCount());
-            } else {
-                notifyItemInserted(getItemCount());
-            }
-        } else if (newExtraRow && previousState != newNetworkState) {
-            notifyItemChanged(getItemCount() - 1);
-        }
-    }
-
-    private boolean hasExtraRow() {
-        if (networkState != null && networkState != NetworkState.LOADED) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public Story getStory(int position)
@@ -89,42 +51,14 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-
         LayoutInflater layoutInflater = LayoutInflater.from(viewGroup.getContext());
-        View view;
-
-        if (viewType == TYPE_ITEM) {
-            view = layoutInflater.inflate(R.layout.layout_stories_list_item, viewGroup, false);
-            return new StoryViewHolder(view, clickListener);
-        } else if (viewType == TYPE_HEADER) {
-            view = layoutInflater.inflate(R.layout.layout_network_state_item, viewGroup, false);
-            return new NetworkStateItemViewHolder(view, itemClickListener);
-        } else {
-            throw new IllegalArgumentException("unknown view type " + viewType);
-        }
+        View view = layoutInflater.inflate(R.layout.layout_stories_list_item, viewGroup, false);
+        return new StoryViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        switch (getItemViewType(position)) {
-            case TYPE_ITEM: {
-                ((StoryViewHolder) holder).bindTo(getItem(position), context);
-            }
-                break;
-            case TYPE_HEADER:
-                ((NetworkStateItemViewHolder) holder).bindView(networkState);
-                break;
-        }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (hasExtraRow() && position == getItemCount() - 1) {
-            return TYPE_HEADER;
-        } else {
-            return TYPE_ITEM;
-        }
+        ((StoryViewHolder) holder).bindTo(getItem(position), context);
     }
 
     @Override
@@ -135,13 +69,12 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
     @Override
     public long getItemId(int position) {
         if(getCurrentList().get(position) != null)
-        return  getCurrentList().get(position).getStoryId();
+            return  getCurrentList().get(position).getStoryId();
         else
             return 0;
     }
 
-    public static class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-            View.OnLongClickListener {
+    public static class StoryViewHolder extends RecyclerView.ViewHolder{
 
         ImageView storyImageView;
         TextView storyTitleTextView;
@@ -151,9 +84,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
         ConstraintLayout constraintLayout;
         View readStatusGray;
 
-        private ClickListener listener;
-
-        StoryViewHolder(View itemView, ClickListener listener) {
+        StoryViewHolder(View itemView) {
             super(itemView);
 
             storyImageView = (ImageView)itemView.findViewById(R.id.storyImageView);
@@ -163,33 +94,6 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             storyFirstSentenceTextView = (TextView)itemView.findViewById(R.id.storyFirstSentenceTextView);
             constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.constraintLayout);
             readStatusGray = (View) itemView.findViewById(R.id.readStatusGray);
-            this.listener = listener;
-
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            //Item clicked at position
-            if (listener != null) {
-                listener.onItemClicked(getLayoutPosition());
-            }
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            //Item long-clicked at position
-            if (listener != null) {
-                return listener.onItemLongClicked(getLayoutPosition());
-            }
-
-            return false;
-        }
-
-        public interface ClickListener {
-            void onItemClicked(int position);
-            boolean onItemLongClicked(int position);
         }
 
         public void bindTo(Story story, Context context) {
@@ -291,6 +195,7 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             storyTitleTextView.setTextColor(context.getResources().getColor(R.color.stories_list_item_normal_text));
             storyFirstSentenceTextView.setTextColor(context.getResources().getColor(R.color.stories_list_item_normal_text));
         }
+
         //Set the style for a read story
         private void SetItemStyleRead(Context context)
         {
@@ -314,43 +219,6 @@ public class StoriesAdapter extends PagedListAdapter<Story, RecyclerView.ViewHol
             }
             else
                 return "";
-        }
-    }
-
-    static class NetworkStateItemViewHolder extends RecyclerView.ViewHolder {
-
-        private final ProgressBar progressBar;
-        private final TextView errorMsg;
-        private Button button;
-
-        public NetworkStateItemViewHolder(View itemView, ListItemClickListener listItemClickListener) {
-            super(itemView);
-            progressBar = itemView.findViewById(R.id.progress_bar);
-            errorMsg = itemView.findViewById(R.id.error_msg);
-            /*button = itemView.findViewById(R.id.retry_button);
-
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listItemClickListener.onRetryClick(view, getAdapterPosition());
-                }
-            });*/
-        }
-
-
-        public void bindView(NetworkState networkState) {
-            if (networkState != null && networkState.getStatus() == Status.LOADING) {
-                progressBar.setVisibility(View.VISIBLE);
-            } else {
-                progressBar.setVisibility(View.GONE);
-            }
-
-            if (networkState != null && networkState.getStatus() == Status.ERROR) {
-                errorMsg.setVisibility(View.VISIBLE);
-                errorMsg.setText(networkState.getMsg());
-            } else {
-                errorMsg.setVisibility(View.GONE);
-            }
         }
     }
 }
