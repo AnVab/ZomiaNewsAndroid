@@ -58,6 +58,7 @@ public class FeedStoriesFragment extends Fragment implements
     OnStorySelectedListener onStorySelectedListenerCallback;
     Toolbar toolbar;
     LinearLayoutManager llm;
+    private boolean goToTheTop = false;
     public FeedStoriesFragment() {
         // Required empty public constructor
     }
@@ -178,18 +179,19 @@ public class FeedStoriesFragment extends Fragment implements
         //storiesAdapter = new StoriesAdapter(getActivity(), this,this);
         storiesAdapter = new StoriesAdapter(getActivity());
         storiesAdapter.setHasStableIds(true);
-        //Register observer to check if data added to the top of the list then scroll to the new data
-        storiesAdapter.registerAdapterDataObserver(adapterDataObserver);
-
-        storiesListView.setAdapter(storiesAdapter);
-
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
-
-        storyViewModel.getStories().observe(this, resource -> {
-            // update UI
+        storyViewModel.getStories().observe(this, resource ->
+        {
             storiesAdapter.submitList(resource);
-        });
 
+            //Go to the top if we received new data by refresh button or the pull to refresh
+            if(goToTheTop)
+            {
+                goToTheTop = false;
+                llm.scrollToPosition(0);
+            }
+        });
+        storiesListView.setAdapter(storiesAdapter);
         storyViewModel.networkState.observe(this, networkState -> {
             //Add a view to the end of list to show loading status
             //storiesAdapter.setNetworkState(networkState);
@@ -220,17 +222,6 @@ public class FeedStoriesFragment extends Fragment implements
         });
 
     }
-
-    RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
-        @Override
-        public void onItemRangeInserted(int positionStart, int itemCount)
-        {
-            if(positionStart == 0)
-            {
-                llm.scrollToPosition(positionStart);
-            }
-        }
-    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -279,6 +270,7 @@ public class FeedStoriesFragment extends Fragment implements
 
     @Override
     public void onRefresh() {
+        goToTheTop = true;
         swipeRefreshLayout.setRefreshing(true);
         storyViewModel.refresh();
     }
