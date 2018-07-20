@@ -1,7 +1,5 @@
 package news.zomia.zomianews.fragments;
 
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,7 +22,6 @@ import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
 
 public class ViewPagerFragment  extends Fragment implements
-        LifecycleRegistryOwner,
         Injectable {
     public static String ON_ROTATION_CURRENT_PAGE;
 
@@ -36,7 +33,6 @@ public class ViewPagerFragment  extends Fragment implements
     public PagerAdapter pagerAdapter;
     private int previousPage;
 
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
     @Inject
     StoryViewModelFactory storyViewModelFactory;
     public StoryViewModel storyViewModel;
@@ -120,12 +116,6 @@ public class ViewPagerFragment  extends Fragment implements
 
         storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
     }
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
-    }
-
 
     public class NewsSliderPageAdapter extends FragmentStatePagerAdapter implements DirectionalViewPager.DirectionProvider {
 

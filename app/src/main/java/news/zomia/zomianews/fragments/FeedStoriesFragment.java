@@ -1,8 +1,6 @@
 package news.zomia.zomianews.fragments;
 
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -40,13 +38,10 @@ import news.zomia.zomianews.di.Injectable;
 public class FeedStoriesFragment extends Fragment implements
         ListItemClickListener,
         SwipeRefreshLayout.OnRefreshListener,
-        LifecycleRegistryOwner,
         Injectable {
 
     private static final String TAG = "ZomiaFStoriesFragment";
     private View rootView;
-
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     @Inject
     FeedViewModelFactory feedViewModelFactory;
@@ -236,10 +231,6 @@ public class FeedStoriesFragment extends Fragment implements
             }
         }
     };
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

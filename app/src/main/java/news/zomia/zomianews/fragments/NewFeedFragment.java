@@ -8,8 +8,6 @@ import android.content.res.ColorStateList;
 import android.support.design.chip.Chip;
 import android.support.design.chip.ChipGroup;
 import android.support.v4.app.ActivityCompat;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -60,14 +58,11 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  */
 public class NewFeedFragment extends Fragment implements
-        LifecycleRegistryOwner,
         Injectable {
 
     private View rootView;
     private TextView feedSourcePathTextView;
     private ProgressBar opmlmportProgressBar;
-
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     OnFeedAddedListener onFeedAddedListenerCallback;
     @Inject
@@ -458,11 +453,6 @@ public class NewFeedFragment extends Fragment implements
         unregisterOnImportOpmlObserver();
 
         super.onStop();
-    }
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
     }
 
     @Override

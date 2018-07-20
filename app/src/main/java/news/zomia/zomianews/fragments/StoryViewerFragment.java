@@ -1,8 +1,6 @@
 package news.zomia.zomianews.fragments;
 
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -68,7 +66,6 @@ import news.zomia.zomianews.di.Injectable;
  */
 public class StoryViewerFragment extends Fragment
         implements
-        LifecycleRegistryOwner,
         Injectable, PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = "StoryViewerFragment";
@@ -77,7 +74,6 @@ public class StoryViewerFragment extends Fragment
     OnSwipeTouchListener onSwipeTouchListener;
 
     private View rootView;
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     @Inject
     StoryViewModelFactory storyViewModelFactory;
@@ -675,10 +671,6 @@ public class StoryViewerFragment extends Fragment
         else
             swipeRefreshLayout.setRefreshing(false);
 
-    }
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
     }
 
     public void loadContent(boolean forceUpdate)

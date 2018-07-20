@@ -1,9 +1,6 @@
 package news.zomia.zomianews.fragments;
 
-
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -45,17 +42,12 @@ import news.zomia.zomianews.data.viewmodel.FeedViewModelFactory;
 
 import javax.inject.Inject;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class FeedsListFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener,
-        LifecycleRegistryOwner,
         Injectable {
 
     private View rootView;
 
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
     SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
@@ -589,11 +581,6 @@ public class FeedsListFragment extends Fragment implements
 
             expListAdapter.replaceFeedsStoriesCountMap(feedsStoriesCountMap);
         }
-    }
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
     }
 
     @Override

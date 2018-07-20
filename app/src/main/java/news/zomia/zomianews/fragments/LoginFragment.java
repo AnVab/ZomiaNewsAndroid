@@ -1,8 +1,6 @@
 package news.zomia.zomianews.fragments;
 
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,12 +31,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginFragment extends Fragment implements
-        LifecycleRegistryOwner,
         Injectable {
 
     private static final String TAG = "ZomiaLoginFragment";
     OnSuccessAuthorizationListener onSuccessAuthorizationCallback;
-    private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     private View rootView;
     private ProgressBar loadingProgressBar;
@@ -94,11 +90,6 @@ public class LoginFragment extends Fragment implements
                 onSignUpButtonClicked(view);
             }
         });
-    }
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return lifecycleRegistry;
     }
 
     @Override
