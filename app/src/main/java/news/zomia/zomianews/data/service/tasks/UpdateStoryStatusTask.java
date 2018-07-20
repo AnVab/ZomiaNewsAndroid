@@ -44,22 +44,20 @@ public class UpdateStoryStatusTask implements Runnable {
         try {
             String statusString = StoryStatus.getName(status);
 
-            //First: try to insert into remote server
+            //First: Insert new tag to DB locally
+            db.beginTransaction();
+            try {
+                int updatedRows = feedDao.updateStory(storyId, status);
+                db.setTransactionSuccessful();
+
+            } finally {
+                db.endTransaction();
+            }
+
+            //Second: try to insert into remote server
             Response<Story> response = zomiaService.updateStoryStatus(feedId, storyId, statusString).execute();
-
             ApiResponse<Story> apiResponse = new ApiResponse<>(response);
-
             if (apiResponse.isSuccessful()) {
-                //Insert new tag to DB
-                db.beginTransaction();
-                try {
-                    int updatedRows = feedDao.updateStory(storyId, status);
-                    db.setTransactionSuccessful();
-
-                } finally {
-                    db.endTransaction();
-                }
-
                 resultState.postValue(Resource.success(apiResponse.body != null));
             } else {
                 //Received error

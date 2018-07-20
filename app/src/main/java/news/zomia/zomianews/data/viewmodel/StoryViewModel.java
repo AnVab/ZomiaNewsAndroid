@@ -91,15 +91,24 @@ public class StoryViewModel  extends ViewModel {
                 stories.getValue().size() > 0)
         {
             Story story = stories.getValue().get(selectedCurrentStory.getValue());
-            setStoryStatus(story, read);
+            setStoryStatus(story, read, true);
         }
     }
 
-    private void setStoryStatus(Story story, int status)
+    private void setStoryStatus(Story story, int status, boolean useCurrentStoryHandler)
     {
         //Set status of the story
-        if (story != null)
-            updatePreviousStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), status);
+        if (story != null){
+            if(useCurrentStoryHandler){
+                updateCurrentStoryHandler.reset();
+                updateCurrentStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), status);
+            }
+            else {
+                updatePreviousStoryHandler.reset();
+                updatePreviousStoryHandler.updateStory(story.getFeedId(), story.getStoryId(), status);
+            }
+            Log.d("ZOMIA", "Story updated setStoryStatus " + story.getStoryId() + " " + status);
+        }
     }
 
     public LiveData<PagedList<Story>> getStories() {
@@ -119,18 +128,16 @@ public class StoryViewModel  extends ViewModel {
         //Save id of previous Id
         if(currentStory.getValue() != null && currentStory.getValue().data != null) {
             previousStory = currentStory.getValue().data;
-            updateCurrentStoryHandler.reset();
-            updatePreviousStoryHandler.reset();
         }
         //Select a new current story
         selectedCurrentStory.setValue(storyListPosition);
 
         //Set status of the previous story to read
-        setStoryStatus(previousStory, read);
+        setStoryStatus(previousStory, read, false);
 
         //Set status of a new story to reading
         Story story = stories.getValue().get(selectedCurrentStory.getValue());
-        setStoryStatus(story, reading);
+        setStoryStatus(story, reading, true);
     }
 
     public void goToNextCurrentStoryPosition() {
@@ -138,25 +145,20 @@ public class StoryViewModel  extends ViewModel {
         //Save id of previous Id
         if(currentStory.getValue() != null && currentStory.getValue().data != null) {
             previousStory = currentStory.getValue().data;
-            updateCurrentStoryHandler.reset();
-            updatePreviousStoryHandler.reset();
         }
 
         //Set new story id
         Integer newValue = selectedCurrentStory.getValue() + 1;
         if(newValue < stories.getValue().size()){
             selectedCurrentStory.setValue(newValue);
-            //storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
         }
-       // else
-       //     storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
 
         //Set status of the previous story to read
-        setStoryStatus(previousStory, read);
+        setStoryStatus(previousStory, read, false);
 
         //Set status of a new story to reading
         Story story = stories.getValue().get(selectedCurrentStory.getValue());
-        setStoryStatus(story, reading);
+        setStoryStatus(story, reading, true);
     }
 
     public void goToPrevCurrentStoryPosition() {
@@ -172,15 +174,13 @@ public class StoryViewModel  extends ViewModel {
         Integer newValue = selectedCurrentStory.getValue() - 1;
         if( 0 < newValue)
             selectedCurrentStory.setValue(newValue);
-        //else
-        //    storyBoundaryCallback.onItemAtEndLoaded(currentStory.getValue().data);
 
         //Set status of the previous story to read
-        setStoryStatus(previousStory, read);
+        setStoryStatus(previousStory, read, false);
 
         //Set status of a new story to reading
         Story story = stories.getValue().get(selectedCurrentStory.getValue());
-        setStoryStatus(story, reading);
+        setStoryStatus(story, reading, true);
     }
 
     public LiveData<Resource<Story>> getCurrentStory() {

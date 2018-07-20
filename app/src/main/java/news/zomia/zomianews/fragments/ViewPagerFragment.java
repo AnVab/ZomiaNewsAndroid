@@ -2,6 +2,7 @@ package news.zomia.zomianews.fragments;
 
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,8 +15,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
+
 import news.zomia.zomianews.R;
 import news.zomia.zomianews.customcontrols.DirectionalViewPager;
+import news.zomia.zomianews.data.viewmodel.StoryViewModel;
+import news.zomia.zomianews.data.viewmodel.StoryViewModelFactory;
 import news.zomia.zomianews.di.Injectable;
 
 public class ViewPagerFragment  extends Fragment implements
@@ -27,11 +32,17 @@ public class ViewPagerFragment  extends Fragment implements
     public static final int FEEDS_LIST_PAGE_NUM = 0;
     public static final int FEED_STORIES_PAGE_NUM = 1;
     public static final int STORY_VIEWER_PAGE_NUM = 2;
-    private DirectionalViewPager viewPager;
-    private PagerAdapter pagerAdapter;
+    public DirectionalViewPager viewPager;
+    public PagerAdapter pagerAdapter;
+    private int previousPage;
 
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
+    @Inject
+    StoryViewModelFactory storyViewModelFactory;
+    public StoryViewModel storyViewModel;
+
     public ViewPagerFragment() {
+        // Required empty public constructor
     }
 
     @Override
@@ -57,6 +68,16 @@ public class ViewPagerFragment  extends Fragment implements
             @Override
             public void onPageSelected(int position) {
                 ((NewsSliderPageAdapter)pagerAdapter).updateCount(position + 1);
+                Log.d("ZOMIA", "viewpager onPageSelected " + position);
+                //Check if we slide back to the stories list from the story viewer. Set story status as read.
+                if(position == FEED_STORIES_PAGE_NUM && previousPage == STORY_VIEWER_PAGE_NUM)
+                {
+                    if(storyViewModel != null)
+                        storyViewModel.setCurrentStoryAsRead();;
+                }else
+                {
+                    previousPage = position;
+                }
             }
 
             @Override
@@ -97,14 +118,16 @@ public class ViewPagerFragment  extends Fragment implements
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        storyViewModel = ViewModelProviders.of(getActivity(), storyViewModelFactory).get(StoryViewModel.class);
     }
+
     @Override
     public LifecycleRegistry getLifecycle() {
         return lifecycleRegistry;
     }
 
 
-    private class NewsSliderPageAdapter extends FragmentStatePagerAdapter implements DirectionalViewPager.DirectionProvider {
+    public class NewsSliderPageAdapter extends FragmentStatePagerAdapter implements DirectionalViewPager.DirectionProvider {
 
         private int count = 1;
         public NewsSliderPageAdapter(FragmentManager fm) {
