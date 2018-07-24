@@ -5,7 +5,6 @@ import android.arch.persistence.room.Room;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
@@ -13,10 +12,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import news.zomia.zomianews.R;
 import news.zomia.zomianews.ZomiaApp;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
+import news.zomia.zomianews.data.service.HeaderInterceptor;
 import news.zomia.zomianews.data.service.NetworkConnectionInterceptor;
 import news.zomia.zomianews.data.service.NullOnEmptyConverterFactory;
 import news.zomia.zomianews.data.service.UnauthorizedInterceptor;
@@ -26,8 +25,6 @@ import news.zomia.zomianews.data.service.HostSelectionInterceptor;
 import news.zomia.zomianews.data.util.LiveDataCallAdapterFactory;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -47,38 +44,19 @@ public class AppModule {
         return PreferenceManager.getDefaultSharedPreferences(application);
     }
 
+
     @Provides
     @Singleton
     UserSessionInfo provideUserSessionInfo()
     {
-        return new UserSessionInfo();
+        return UserSessionInfo.getInstance();
     }
 
     @Singleton
     @Provides
-    Interceptor provideHeaderInterceptor(Application application, SharedPreferences prefs, UserSessionInfo userSessionInfo)
+    Interceptor provideHeaderInterceptor()
     {
-        String token = prefs.getString(application.getString(R.string.preferences_token), "");
-
-        Interceptor headerInterceptor = new Interceptor() {
-            @Override
-            public Response intercept(Interceptor.Chain chain) throws IOException {
-                //getAccessToken is your own accessToken(retrieve it by saving in shared preference or any other option )
-                if(userSessionInfo.isEmpty()){
-                    //Authorization header is already present or token is empty
-                    return chain.proceed(chain.request());
-                }
-
-                Request authorisedRequest = chain.request().newBuilder()
-                        .addHeader("Accept", "application/json")
-                        .addHeader("Authorization", userSessionInfo.getTokenAuthValue()).build();
-
-                //Authorization header is added to the url
-                return chain.proceed(authorisedRequest);
-            }
-        };
-
-        return headerInterceptor;
+        return HeaderInterceptor.getInstance();
     }
 
     @Provides
@@ -94,7 +72,7 @@ public class AppModule {
     @Singleton
     HostSelectionInterceptor provideHostSelectionInterceptor()
     {
-        return new HostSelectionInterceptor();
+        return HostSelectionInterceptor.getInstance();
     }
 
     @Provides
@@ -143,7 +121,7 @@ public class AppModule {
             NetworkConnectionInterceptor networkConnectionInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
-                //.addInterceptor(loggingInterceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(unauthorizedInterceptor)
                 .addInterceptor(networkConnectionInterceptor)
                 .addInterceptor(headerInterceptor)
@@ -166,7 +144,7 @@ public class AppModule {
             NetworkConnectionInterceptor networkConnectionInterceptor) {
 
         OkHttpClient.Builder defaultHttpClient = new OkHttpClient.Builder()
-                //.addInterceptor(loggingInterceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(unauthorizedInterceptor)
                 .addInterceptor(networkConnectionInterceptor)
                 .addInterceptor(headerInterceptor)

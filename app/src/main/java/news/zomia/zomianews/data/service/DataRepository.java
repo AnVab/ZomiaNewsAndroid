@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +15,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import news.zomia.zomianews.data.db.FeedDao;
 import news.zomia.zomianews.data.db.ZomiaDb;
 import news.zomia.zomianews.data.model.Feed;
@@ -31,11 +36,16 @@ import news.zomia.zomianews.data.service.tasks.DeleteTagTask;
 import news.zomia.zomianews.data.service.tasks.InsertNewFeedTask;
 import news.zomia.zomianews.data.service.tasks.InsertNewTagTask;
 import news.zomia.zomianews.data.service.tasks.UpdateFeedTask;
-import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusTask;
+import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusDBTask;
+import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusNetworkWorker;
 import news.zomia.zomianews.data.service.tasks.UpdateTagTask;
 import news.zomia.zomianews.data.service.tasks.UploadFileTask;
 import news.zomia.zomianews.data.util.AppExecutors;
 import news.zomia.zomianews.data.util.RateLimiter;
+
+import static news.zomia.zomianews.data.service.tasks.UpdateStoryStatusNetworkWorker.key_feedId;
+import static news.zomia.zomianews.data.service.tasks.UpdateStoryStatusNetworkWorker.key_status;
+import static news.zomia.zomianews.data.service.tasks.UpdateStoryStatusNetworkWorker.key_storyId;
 
 /**
  * Created by Andrey on 10.01.2018.
@@ -416,12 +426,39 @@ public class DataRepository {
         return task.getResultState();
     }
 
-    public LiveData<Resource<Boolean>> updateStory(int feedId, int storyId, int status) {
-        UpdateStoryStatusTask updateStoryTask = new UpdateStoryStatusTask(
+    public void updateStory(int feedId, int storyId, int status) {
+        //Update local database
+        UpdateStoryStatusDBTask updateStoryTask = new UpdateStoryStatusDBTask(
                 feedId, storyId, status, webService, feedDao, db);
 
         appExecutors.networkIO().execute(updateStoryTask);
-        return updateStoryTask.getLiveData();
+
+        //Send the job to the remote server
+        Data parameters = new Data.Builder()
+                .putInt(key_feedId, feedId)
+                .putInt(key_storyId, storyId)
+                .putInt(key_status, status)
+                .build();
+
+
+
+        if (WorkManager.getInstance() != null) {
+            Constraints workTaskConstraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+
+            OneTimeWorkRequest updateStatusWork = new OneTimeWorkRequest.Builder(UpdateStoryStatusNetworkWorker.class)
+                    .setInputData(parameters)
+                    .setConstraints(workTaskConstraints)
+                    .build();
+
+            WorkManager.getInstance()
+                    //Set work name to "FeedId StoryId" to identify task and append it with a new status like Reading then Read
+                    .beginUniqueWork(key_feedId.toString() + " " + key_storyId.toString(),
+                            ExistingWorkPolicy.APPEND,
+                            updateStatusWork)
+            .enqueue();
+        }
     }
 
     public LiveData<Resource<Boolean>> importOpml(ContentResolver contentResolver, Uri fileUri) {

@@ -8,6 +8,7 @@ import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 import news.zomia.zomianews.ZomiaApp;
+import news.zomia.zomianews.data.service.tasks.UpdateStoryStatusNetworkWorker;
 
 /**
  * Created by Andrey on 13.01.2018.
@@ -27,4 +28,5 @@ public interface AppComponent {
         AppComponent build();
     }
     void inject(ZomiaApp zomiaApp);
+    void inject(UpdateStoryStatusNetworkWorker updateStoryStatusNetworkWorker);
 }

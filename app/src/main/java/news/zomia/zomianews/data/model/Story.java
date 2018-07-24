@@ -46,6 +46,7 @@ public class Story {
                     newItem.getTitle().equalsIgnoreCase(oldItem.getTitle()) &&
                     newItem.getDate().equals(oldItem.getDate()) &&
                     newItem.getCreated().equals(oldItem.getCreated()) &&
+                    newItem.getStatus() .equals(oldItem.getStatus()) &&
                     newItem.getContent().equalsIgnoreCase(oldItem.getContent());
         }
     };

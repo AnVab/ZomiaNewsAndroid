@@ -2,6 +2,7 @@ package news.zomia.zomianews.data.service;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import okhttp3.HttpUrl;
@@ -19,23 +20,23 @@ import okhttp3.Response;
  * */
 
 @Singleton
-public final class HostSelectionInterceptor implements Interceptor {
-    //private static HostSelectionInterceptor hsInterceptor = null;
-    private String host;
-    private String scheme;
-    private int port;
+public class HostSelectionInterceptor implements Interceptor {
+    private static HostSelectionInterceptor instance = null;
+    public String host;
+    public String scheme;
+    public int port;
 
+    @Inject
     public HostSelectionInterceptor(){
         //Intentionally left blank
     }
 
-    /*public static HostSelectionInterceptor get() {
-        if (hsInterceptor == null) {
-
-            hsInterceptor = new HostSelectionInterceptor();
+    public static HostSelectionInterceptor getInstance() {
+        if (instance == null) {
+            instance = new HostSelectionInterceptor();
         }
-        return hsInterceptor;
-    }*/
+        return instance;
+    }
 
     public void setInterceptor(String url) {
         HttpUrl httpUrl = HttpUrl.parse(url);
