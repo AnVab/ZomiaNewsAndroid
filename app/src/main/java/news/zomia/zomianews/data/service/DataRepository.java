@@ -454,7 +454,7 @@ public class DataRepository {
 
             WorkManager.getInstance()
                     //Set work name to "FeedId StoryId" to identify task and append it with a new status like Reading then Read
-                    .beginUniqueWork(key_feedId.toString() + " " + key_storyId.toString(),
+                    .beginUniqueWork("storyUpdate"+ " " + key_feedId.toString() + " " + key_storyId.toString(),
                             ExistingWorkPolicy.APPEND,
                             updateStatusWork)
             .enqueue();
