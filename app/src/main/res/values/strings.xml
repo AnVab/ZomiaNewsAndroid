@@ -22,6 +22,7 @@
     <string name="menu_refresh">Refresh</string>
     <string name="menu_text_format">Text format</string>
     <string name="menu_import_opml">Import OPML</string>
+    <string name="menu_share_story">Share</string>
     <string name="page_loading_error">Page loading error</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -70,4 +71,5 @@
     <string name="loading_story_source_link">Loading story source URL</string>
     <string name="next_story">Next story</string>
     <string name="previous_story">Previous story</string>
+    <string name="share_using">Share using</string>
 </resources>

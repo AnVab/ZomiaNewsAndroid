@@ -191,6 +191,17 @@ public class StoryViewerFragment extends Fragment
                     PopupWindow popupWindowTextFormat = popupDisplay();
                     popupWindowTextFormat.showAsDropDown(getActivity().findViewById(R.id.textFormat), 40, 18);
                     return true;
+
+                case R.id.share:
+                    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                    sharingIntent.setType("text/plain");
+                    String shareBody = Uri.parse(currentStory.getLink()).toString();
+                    String shareSub = currentStory.getTitle();
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSub);
+                    startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_using)));
+                    return true;
+
             }
             return true;
         }
