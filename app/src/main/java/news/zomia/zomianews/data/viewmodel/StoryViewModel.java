@@ -6,6 +6,7 @@ import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import javax.inject.Inject;
@@ -31,6 +32,9 @@ public class StoryViewModel  extends ViewModel {
     private MutableLiveData<Integer> selectedCurrentStory = new MutableLiveData<>();
     private LiveData<Resource<Story>> currentStory = null;
     private Story previousStory = null;
+
+    final String SELECTED_FEED_ID = "selectedFeedId";
+    final String SELECTED_CURRENT_STORY_ID = "selectedCurrentStory";
 
     public LiveData<NetworkState> networkState;
 
@@ -69,6 +73,19 @@ public class StoryViewModel  extends ViewModel {
                     return AbsentLiveData.create();
             }
         });
+    }
+
+    public void saveState(Bundle outState) {
+        outState.putInt(SELECTED_FEED_ID, selectedFeedId.getValue());
+        outState.putInt(SELECTED_CURRENT_STORY_ID, selectedCurrentStory.getValue());
+    }
+
+    public void  restoreState(Bundle inState) {
+        if(inState != null)
+        {
+            selectedFeedId.setValue(inState.getInt(SELECTED_FEED_ID));
+            selectedCurrentStory.setValue(inState.getInt(SELECTED_CURRENT_STORY_ID));
+        }
     }
 
     public void setCurrentStoryAsRead()

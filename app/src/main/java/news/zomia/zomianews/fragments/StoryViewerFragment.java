@@ -490,6 +490,7 @@ public class StoryViewerFragment extends Fragment
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putFloat("webViewScrollYPercent", webViewScrollYPercent);
+        storyViewModel.saveState(savedInstanceState);
     }
 
     @Override
@@ -639,6 +640,7 @@ public class StoryViewerFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         storyViewModel = ViewModelProviders.of(getActivity()).get(StoryViewModel.class);
+        storyViewModel.restoreState(savedInstanceState);
     }
 
     @Override
