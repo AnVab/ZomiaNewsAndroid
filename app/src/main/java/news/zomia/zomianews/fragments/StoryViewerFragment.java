@@ -729,13 +729,13 @@ public class StoryViewerFragment extends Fragment
                     getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentStory.getLink())));
                 }
             });
-            expandedImageAppBar.setOnClickListener(new View.OnClickListener() {
+            /*expandedImageAppBar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getActivity(), getString(R.string.loading_story_source_link) + ": " + currentStory.getLink(), Toast.LENGTH_SHORT).show();
                     getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentStory.getLink())));
                 }
-            });
+            });*/
             String serverUrl = "";
             String serverAddress = sharedPref.getString(getString(R.string.preferences_serverAddress), getString(R.string.preferences_serverAddress_default));
             String serverPort = sharedPref.getString(getString(R.string.preferences_serverPort), getString(R.string.preferences_serverPort_default));
